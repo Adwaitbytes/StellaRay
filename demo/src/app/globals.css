@@ -2,18 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   NEON BRUTALISM DESIGN SYSTEM
+   Bold • Raw • Electric • Functional
+   ============================================ */
+
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #1a1a24;
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --success: #22c55e;
-  --error: #ef4444;
+  /* Neon Colors */
+  --neon-green: #39FF14;
+  --neon-pink: #FF10F0;
+  --neon-blue: #00D4FF;
+  --neon-yellow: #FFFF00;
+  --neon-orange: #FF6B00;
+  --neon-purple: #BF00FF;
+
+  /* Base Colors */
+  --black: #000000;
+  --white: #FFFFFF;
+  --off-white: #F5F5F5;
+  --dark-gray: #1A1A1A;
+
+  /* Functional */
+  --success: #39FF14;
+  --error: #FF3131;
+  --warning: #FFFF00;
+
+  /* Shadows */
+  --shadow-sm: 4px 4px 0px var(--black);
+  --shadow-md: 6px 6px 0px var(--black);
+  --shadow-lg: 8px 8px 0px var(--black);
+  --shadow-xl: 12px 12px 0px var(--black);
+
+  /* Borders */
+  --border-thin: 2px solid var(--black);
+  --border-thick: 4px solid var(--black);
+  --border-chunky: 6px solid var(--black);
 }
 
 * {
@@ -25,246 +48,506 @@ html {
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--off-white);
+  color: var(--black);
+  font-family: 'Inter', 'Arial Black', sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Animated gradient background */
-.bg-gradient-animated {
-  background: linear-gradient(-45deg, #0a0a0f, #1a1a2e, #16213e, #0f0f23);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
+/* Dark Mode Body */
+body.dark {
+  background: var(--dark-gray);
+  color: var(--white);
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* ============================================
+   TYPOGRAPHY - Bold & Chunky
+   ============================================ */
+
+.heading-xl {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
 }
 
-/* Glassmorphism card */
-.glass-card {
-  background: rgba(26, 26, 36, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
+.heading-lg {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.heading-md {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.1;
 }
 
-/* Primary button */
-.btn-primary {
-  background: var(--accent-gradient);
-  color: white;
-  font-weight: 600;
-  padding: 14px 28px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+.text-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
-}
+/* ============================================
+   NEON BRUTALIST BUTTONS
+   ============================================ */
 
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Secondary button */
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  font-weight: 600;
-  padding: 14px 28px;
-  border-radius: 14px;
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Google button */
-.btn-google {
-  background: white;
-  color: #1f2937;
-  font-weight: 600;
-  padding: 16px 32px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
+.btn-brutal {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  width: 100%;
+  padding: 16px 32px;
   font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: var(--border-thick);
+  background: var(--neon-green);
+  color: var(--black);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  position: relative;
 }
 
-.btn-google:hover {
-  background: #f3f4f6;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+.btn-brutal:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px var(--black);
 }
 
-.btn-google:disabled {
-  opacity: 0.7;
+.btn-brutal:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--black);
+}
+
+.btn-brutal:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-/* Input field */
-.input-field {
+.btn-brutal-pink {
+  background: var(--neon-pink);
+  color: var(--white);
+}
+
+.btn-brutal-blue {
+  background: var(--neon-blue);
+}
+
+.btn-brutal-yellow {
+  background: var(--neon-yellow);
+}
+
+.btn-brutal-white {
+  background: var(--white);
+}
+
+.btn-brutal-dark {
+  background: var(--black);
+  color: var(--neon-green);
+}
+
+.btn-brutal-outline {
+  background: transparent;
+  color: var(--black);
+}
+
+/* Google Button - Special Style */
+.btn-google-brutal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  padding: 20px 32px;
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  border: var(--border-chunky);
+  background: var(--white);
+  color: var(--black);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.btn-google-brutal:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0px var(--black);
+  background: var(--neon-yellow);
+}
+
+.btn-google-brutal:active {
+  transform: translate(2px, 2px);
+  box-shadow: 4px 4px 0px var(--black);
+}
+
+/* ============================================
+   BRUTALIST CARDS & CONTAINERS
+   ============================================ */
+
+.card-brutal {
+  background: var(--white);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  position: relative;
+}
+
+.card-brutal-dark {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--neon-green);
+}
+
+.card-brutal-neon {
+  background: var(--neon-green);
+  color: var(--black);
+}
+
+.card-brutal-pink {
+  background: var(--neon-pink);
+  color: var(--white);
+}
+
+.card-brutal-blue {
+  background: var(--neon-blue);
+  color: var(--black);
+}
+
+/* ============================================
+   INPUTS - Raw & Bold
+   ============================================ */
+
+.input-brutal {
   width: 100%;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  color: white;
   font-size: 16px;
-  transition: all 0.2s ease;
-}
-
-.input-field::placeholder {
-  color: var(--text-secondary);
-}
-
-.input-field:focus {
+  font-weight: 600;
+  background: var(--white);
+  border: var(--border-thick);
+  box-shadow: var(--shadow-sm);
   outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  transition: all 0.1s ease;
 }
 
-/* Loading spinner */
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+.input-brutal:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--black);
+  border-color: var(--neon-green);
+}
+
+.input-brutal::placeholder {
+  color: #888;
+  font-weight: 500;
+}
+
+.input-brutal-dark {
+  background: var(--dark-gray);
+  color: var(--white);
+  border-color: var(--neon-green);
+}
+
+/* ============================================
+   NEON GLOW EFFECTS
+   ============================================ */
+
+.neon-glow-green {
+  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green), 0 0 40px var(--neon-green);
+}
+
+.neon-glow-pink {
+  text-shadow: 0 0 10px var(--neon-pink), 0 0 20px var(--neon-pink), 0 0 40px var(--neon-pink);
+}
+
+.neon-glow-blue {
+  text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+}
+
+.neon-border-glow {
+  box-shadow: var(--shadow-md), 0 0 20px var(--neon-green);
+}
+
+/* ============================================
+   TAGS & BADGES
+   ============================================ */
+
+.tag-brutal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 3px solid var(--black);
+  background: var(--neon-yellow);
+  box-shadow: 3px 3px 0px var(--black);
+}
+
+.tag-brutal-green {
+  background: var(--neon-green);
+}
+
+.tag-brutal-pink {
+  background: var(--neon-pink);
+  color: var(--white);
+}
+
+.tag-brutal-dark {
+  background: var(--black);
+  color: var(--neon-green);
+}
+
+/* ============================================
+   LOADING SPINNER - Brutal Style
+   ============================================ */
+
+.spinner-brutal {
+  width: 32px;
+  height: 32px;
+  border: 4px solid var(--black);
+  border-top-color: var(--neon-green);
+  animation: spin 0.6s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Fade in animation */
-.fade-in {
-  animation: fadeIn 0.5s ease forwards;
+/* ============================================
+   TRANSACTION ITEMS
+   ============================================ */
+
+.tx-item-brutal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background: var(--white);
+  border: var(--border-thick);
+  border-bottom: none;
+  transition: all 0.1s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.tx-item-brutal:last-child {
+  border-bottom: var(--border-thick);
 }
 
-/* Glow effect */
-.glow {
-  position: relative;
+.tx-item-brutal:hover {
+  background: var(--neon-yellow);
+  transform: translateX(4px);
 }
 
-.glow::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: var(--accent-gradient);
-  border-radius: inherit;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  filter: blur(15px);
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 768px) {
+  .btn-brutal {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+
+  .btn-google-brutal {
+    padding: 16px 24px;
+    font-size: 16px;
+  }
+
+  .card-brutal {
+    padding: 16px;
+  }
+
+  :root {
+    --shadow-md: 4px 4px 0px var(--black);
+    --shadow-lg: 6px 6px 0px var(--black);
+  }
 }
 
-.glow:hover::before {
-  opacity: 0.5;
-}
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 
-/* Transaction list item */
-.tx-item {
-  padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  transition: background 0.2s ease;
-}
-
-.tx-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-/* Balance display */
-.balance-display {
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Toast notifications */
-.toast {
-  padding: 16px 24px;
-  border-radius: 12px;
-  font-weight: 500;
-  animation: slideIn 0.3s ease;
-}
-
-.toast-success {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #22c55e;
-}
-
-.toast-error {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease infinite;
+}
+
+/* Stagger animations for lists */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+
+/* ============================================
+   SCROLLBAR - Brutal Style
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--off-white);
+  border-left: 2px solid var(--black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--black);
+  border: 2px solid var(--off-white);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green);
+}
+
+/* ============================================
+   TOOLTIP
+   ============================================ */
+
+.tooltip-brutal {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--black);
+  color: var(--neon-green);
+  border: 2px solid var(--neon-green);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+
+.tooltip-brutal::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--black);
+}
+
+*:hover > .tooltip-brutal {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* ============================================
+   MODAL OVERLAY
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-brutal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border: var(--border-chunky);
+  box-shadow: var(--shadow-xl);
+  animation: slideUp 0.3s ease;
+}
+
+/* ============================================
+   SUCCESS/ERROR STATES
+   ============================================ */
+
+.alert-success {
+  padding: 16px 20px;
+  background: var(--neon-green);
+  border: var(--border-thick);
+  font-weight: 700;
+}
+
+.alert-error {
+  padding: 16px 20px;
+  background: var(--error);
+  color: var(--white);
+  border: var(--border-thick);
+  font-weight: 700;
+}
+
+/* ============================================
+   LINK STYLES
+   ============================================ */
+
+.link-brutal {
+  color: var(--black);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
+  transition: all 0.1s ease;
+}
+
+.link-brutal:hover {
+  background: var(--neon-yellow);
+  text-decoration-color: var(--neon-pink);
+}
+
+/* External link with icon */
+.link-external {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
