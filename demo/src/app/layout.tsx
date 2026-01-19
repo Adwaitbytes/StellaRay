@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./providers";
+import { AuthProvider } from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Stellar zkLogin Gateway",
-  description: "Sign in with Google or Apple to create a Stellar wallet - no seed phrases required",
+  title: "Stellar Gateway | Web3 Wallet with Google Sign-In",
+  description: "Create a Stellar blockchain wallet instantly with your Google account. No seed phrases, no complexity - just secure Web3 access.",
+  keywords: ["Stellar", "Wallet", "Web3", "Blockchain", "Google Sign-In", "Crypto"],
 };
 
 export default function RootLayout({
@@ -16,9 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-stellar-darker text-white min-h-screen`}>
-        <Providers>{children}</Providers>
+    <html lang="en" className={inter.variable}>
+      <body className="bg-gradient-animated min-h-screen antialiased">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
