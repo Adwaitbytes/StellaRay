@@ -1,0 +1,23 @@
+{
+  "name": "@stellar-gateway/circuits",
+  "version": "0.1.0",
+  "description": "Circom ZK circuits for Stellar zkLogin",
+  "main": "index.js",
+  "scripts": {
+    "compile": "circom zklogin.circom --r1cs --wasm --sym -o build",
+    "setup": "snarkjs groth16 setup build/zklogin.r1cs pot12_final.ptau build/zklogin_0000.zkey",
+    "contribute": "snarkjs zkey contribute build/zklogin_0000.zkey build/zklogin_final.zkey --name=\"First contribution\"",
+    "export-vkey": "snarkjs zkey export verificationkey build/zklogin_final.zkey build/verification_key.json",
+    "prove": "snarkjs groth16 prove build/zklogin_final.zkey build/witness.wtns build/proof.json build/public.json",
+    "verify": "snarkjs groth16 verify build/verification_key.json build/public.json build/proof.json",
+    "test": "node test/zklogin.test.js"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "snarkjs": "^0.7.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7"
+  }
+}
