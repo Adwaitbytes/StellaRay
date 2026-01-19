@@ -10,7 +10,11 @@ const nextConfig = {
     NEXT_PUBLIC_STELLAR_RPC_URL: process.env.NEXT_PUBLIC_STELLAR_RPC_URL,
     NEXT_PUBLIC_STELLAR_HORIZON_URL: process.env.NEXT_PUBLIC_STELLAR_HORIZON_URL,
     NEXT_PUBLIC_FRIENDBOT_URL: process.env.NEXT_PUBLIC_FRIENDBOT_URL || 'https://friendbot.stellar.org',
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000',
   },
+  
+  // Output standalone for Vercel
+  output: 'standalone',
   
   // Image optimization
   images: {
@@ -22,9 +26,9 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Enable experimental features if needed
+  // Disable static page generation for auth pages
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false, // Disable to avoid critters issue
   },
 };
 
