@@ -1,0 +1,56 @@
+{
+  "name": "@stellar-gateway/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Stellar zkLogin Gateway with x402 payment support",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "stellar",
+    "zklogin",
+    "x402",
+    "oauth",
+    "wallet",
+    "zk-proofs",
+    "groth16"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stellar-gateway/sdk"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^12.0.0",
+    "snarkjs": "^0.7.0",
+    "jose": "^5.0.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "poseidon-lite": "^0.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "eslint": "^8.55.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  }
+}
