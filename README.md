@@ -1,8 +1,18 @@
 # Stellar zkLogin Gateway
 
+![Stellar Gateway](https://img.shields.io/badge/Stellar-zkLogin-7B3FF2?logo=stellar)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 OAuth-based wallet creation for Stellar using zero-knowledge proofs. Sign in with Google or Apple - no seed phrases required.
 
-## Quick Start (Windows)
+## 🚀 Quick Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Adwaitbytes/Stellar-new-project&project-name=stellar-gateway&repository-name=stellar-gateway&root-directory=demo)
+
+**See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions.**
+
+## Quick Start (Local Development)
 
 ### Prerequisites
 
