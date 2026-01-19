@@ -1,35 +1,4 @@
 {
   "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "NEXT_PUBLIC_APP_URL": "https://stellar-gateway.vercel.app",
-    "NEXT_PUBLIC_STELLAR_RPC_URL": "https://soroban-testnet.stellar.org",
-    "NEXT_PUBLIC_STELLAR_HORIZON_URL": "https://horizon-testnet.stellar.org"
-  },
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    }
-  ]
+  "installCommand": "pnpm install"
 }
