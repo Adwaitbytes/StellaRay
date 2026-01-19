@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+target/
+.cargo/
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.wasm
+*.zkey
+*.r1cs
+*.wtns
+*.ptau
+*.sym
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Lock files (keep pnpm-lock.yaml for reproducibility)
+package-lock.json
+yarn.lock
