@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./providers";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space",
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
-  title: "Stellar Gateway | Web3 Wallet with Google Sign-In",
-  description: "Create a Stellar blockchain wallet instantly with your Google account. No seed phrases, no complexity - just secure Web3 access.",
+  title: "STELLAR GATEWAY | Web3 Wallet",
+  description: "Create a Stellar blockchain wallet instantly with your Google account. No seed phrases, no complexity.",
   keywords: ["Stellar", "Wallet", "Web3", "Blockchain", "Google Sign-In", "Crypto"],
 };
 
@@ -17,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="bg-gradient-animated min-h-screen antialiased">
+    <html lang="en" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+      <body style={{ fontFamily: "var(--font-space), 'Arial Black', sans-serif" }}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
