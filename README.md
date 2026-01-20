@@ -18,7 +18,7 @@ OAuth-based wallet creation for Stellar using zero-knowledge proofs. Sign in wit
 
 1. **Node.js 20+** - [Download](https://nodejs.org/)
 2. **Rust** - [Download](https://rustup.rs/)
-3. **pnpm** (recommended) - `npm install -g pnpm`
+3. **pnpm** (recommended*) - `npm install -g pnpm`  
 
 ### 1. Install Dependencies
 
