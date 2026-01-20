@@ -424,7 +424,7 @@ export default function Home() {
             </div>
 
             <div className="text-xs text-white/30">
-              TESTNET • 2024
+              TESTNET • 2026
             </div>
           </div>
         </div>

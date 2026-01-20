@@ -30,7 +30,6 @@ const handler = NextAuth({
     signIn: "/",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // Required for Vercel deployments
 });
 
 export { handler as GET, handler as POST };
