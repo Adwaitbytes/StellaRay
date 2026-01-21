@@ -235,11 +235,11 @@ export default function SDKPage() {
                 <span className="font-bold text-sm">VIEW ON GITHUB</span>
               </a>
               <Link
-                href="/dashboard"
+                href="/sdk-demo"
                 className="flex items-center gap-2 px-4 py-2 bg-[#39FF14] text-black font-bold hover:bg-[#32E612] transition-colors"
               >
                 <Play className="w-4 h-4" />
-                <span className="text-sm">TRY DEMO</span>
+                <span className="text-sm">LIVE DEMO</span>
               </Link>
             </div>
           </div>

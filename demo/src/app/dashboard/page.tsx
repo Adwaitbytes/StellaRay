@@ -102,21 +102,57 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchPrice = async () => {
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd&include_24hr_change=true');
-        const data = await res.json();
-        if (data.stellar) {
-          setXlmPrice(data.stellar.usd);
-          setPriceChange(data.stellar.usd_24h_change || 0);
+      // Try multiple price APIs with fallbacks
+      const apis = [
+        {
+          url: '/api/price',
+          parse: (data: any) => ({ price: data.price, change: data.change24h })
+        },
+        {
+          url: 'https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd&include_24hr_change=true',
+          parse: (data: any) => ({ price: data.stellar?.usd, change: data.stellar?.usd_24h_change || 0 })
+        },
+        {
+          url: 'https://api.coinpaprika.com/v1/tickers/xlm-stellar?quotes=USD',
+          parse: (data: any) => ({ price: data.quotes?.USD?.price, change: data.quotes?.USD?.percent_change_24h || 0 })
         }
-      } catch (err) {
-        console.error('Price fetch error:', err);
+      ];
+
+      for (const api of apis) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+          const res = await fetch(api.url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          const parsed = api.parse(data);
+
+          if (parsed.price && typeof parsed.price === 'number') {
+            setXlmPrice(parsed.price);
+            setPriceChange(parsed.change || 0);
+            return; // Success, exit the loop
+          }
+        } catch (err) {
+          console.warn(`Price API failed (${api.url}):`, err);
+          continue; // Try next API
+        }
+      }
+
+      // If all APIs fail, use a reasonable default for testnet demo
+      console.log('All price APIs unavailable, using fallback');
+      if (!xlmPrice) {
+        setXlmPrice(0.12); // Approximate XLM price as fallback
+        setPriceChange(0);
       }
     };
     fetchPrice();
     const interval = setInterval(fetchPrice, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [xlmPrice]);
 
   useEffect(() => {
     const fetchContractData = async () => {
@@ -276,40 +312,112 @@ export default function Dashboard() {
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#00FF88]/5 via-transparent to-[#FF3366]/5" />
+        {/* Animated grid background */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(57, 255, 20, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(57, 255, 20, 0.3) 1px, transparent 1px)
+              `,
+              backgroundSize: "50px 50px",
+            }}
+          />
+        </div>
 
-        {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-[#00FF88]/50" />
-        <div className="absolute top-0 right-0 w-20 h-20 border-r-2 border-t-2 border-[#FF3366]/50" />
-        <div className="absolute bottom-0 left-0 w-20 h-20 border-l-2 border-b-2 border-[#00D4FF]/50" />
-        <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-[#FFD600]/50" />
+        {/* Corner frames - Brutalist style */}
+        <div className="absolute top-0 left-0 w-32 h-32">
+          <div className="absolute top-4 left-4 w-20 h-1 bg-[#FF3366]" />
+          <div className="absolute top-4 left-4 w-1 h-20 bg-[#FF3366]" />
+        </div>
+        <div className="absolute top-0 right-0 w-32 h-32">
+          <div className="absolute top-4 right-4 w-20 h-1 bg-[#00D4FF]" />
+          <div className="absolute top-4 right-4 w-1 h-20 bg-[#00D4FF]" />
+        </div>
+        <div className="absolute bottom-0 left-0 w-32 h-32">
+          <div className="absolute bottom-4 left-4 w-20 h-1 bg-[#FFD600]" />
+          <div className="absolute bottom-4 left-4 w-1 h-20 bg-[#FFD600]" />
+        </div>
+        <div className="absolute bottom-0 right-0 w-32 h-32">
+          <div className="absolute bottom-4 right-4 w-20 h-1 bg-[#39FF14]" />
+          <div className="absolute bottom-4 right-4 w-1 h-20 bg-[#39FF14]" />
+        </div>
 
         <div className="relative z-10 flex flex-col items-center">
-          {/* Logo with pulse animation */}
-          <div className="relative mb-6">
-            <div className="w-20 h-20 border-2 border-white/20 flex items-center justify-center bg-[#0A0A0A] animate-pulse">
-              <Wallet className="w-10 h-10 text-[#00FF88]" />
+          {/* Logo container - Brutalist box */}
+          <div className="relative mb-8">
+            {/* Outer glowing frame */}
+            <div
+              className="absolute -inset-4 border-4 border-[#39FF14]"
+              style={{ boxShadow: "0 0 30px rgba(57, 255, 20, 0.3)" }}
+            />
+
+            {/* Main icon box */}
+            <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative">
+              <Wallet className="w-12 h-12 text-[#39FF14] animate-pulse" style={{ filter: "drop-shadow(0 0 10px rgba(57, 255, 20, 0.5))" }} />
+
+              {/* Corner accents inside */}
+              <div className="absolute top-1 left-1 w-3 h-0.5 bg-[#FF3366]" />
+              <div className="absolute top-1 left-1 w-0.5 h-3 bg-[#FF3366]" />
+              <div className="absolute top-1 right-1 w-3 h-0.5 bg-[#00D4FF]" />
+              <div className="absolute top-1 right-1 w-0.5 h-3 bg-[#00D4FF]" />
+              <div className="absolute bottom-1 left-1 w-3 h-0.5 bg-[#FFD600]" />
+              <div className="absolute bottom-1 left-1 w-0.5 h-3 bg-[#FFD600]" />
+              <div className="absolute bottom-1 right-1 w-3 h-0.5 bg-[#39FF14]" />
+              <div className="absolute bottom-1 right-1 w-0.5 h-3 bg-[#39FF14]" />
             </div>
-            <div className="absolute -top-0.5 -left-0.5 w-2 h-2 bg-[#00FF88]" />
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#FF3366]" />
-            <div className="absolute -bottom-0.5 -left-0.5 w-2 h-2 bg-[#00D4FF]" />
-            <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#FFD600]" />
+
+            {/* Floating corner squares */}
+            <div className="absolute -top-3 -left-3 w-3 h-3 bg-[#FF3366] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="absolute -top-3 -right-3 w-3 h-3 bg-[#00D4FF] animate-bounce" style={{ animationDelay: '150ms' }} />
+            <div className="absolute -bottom-3 -left-3 w-3 h-3 bg-[#FFD600] animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="absolute -bottom-3 -right-3 w-3 h-3 bg-[#39FF14] animate-bounce" style={{ animationDelay: '450ms' }} />
           </div>
 
           {/* Brand */}
-          <h1 className="text-2xl font-black tracking-tighter text-white mb-1">
-            STELLAR<span className="text-[#FF3366]">GATEWAY</span>
+          <h1 className="text-3xl font-black tracking-tighter mb-6">
+            <span className="text-white">STELLAR</span>
+            <span className="text-[#FF3366]">GATEWAY</span>
           </h1>
 
-          {/* Animated dots */}
-          <div className="flex items-center gap-1 mt-6">
-            <div className="w-2 h-2 bg-[#00FF88] animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-[#00D4FF] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-[#FF3366] animate-bounce" style={{ animationDelay: '300ms' }} />
+          {/* Loading bar */}
+          <div className="w-64 mb-4">
+            <div className="h-2 bg-white/10 border-2 border-white/30 relative overflow-hidden">
+              <div
+                className="h-full bg-[#39FF14] absolute animate-pulse"
+                style={{ width: '60%' }}
+              />
+            </div>
           </div>
 
-          <p className="mt-4 font-medium text-white/40 text-xs tracking-widest uppercase">Loading wallet</p>
+          {/* Animated dots */}
+          <div className="flex items-center gap-2 mt-2">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="w-2 h-2 animate-pulse"
+                style={{
+                  backgroundColor: ['#39FF14', '#FF3366', '#00D4FF', '#FFD600', '#39FF14'][i],
+                  animationDelay: `${i * 100}ms`
+                }}
+              />
+            ))}
+          </div>
+
+          <p className="mt-4 font-black text-white/40 text-xs tracking-[0.3em] uppercase">LOADING WALLET</p>
+
+          {/* Status badges */}
+          <div className="flex gap-3 mt-6">
+            <div className="flex items-center gap-2 px-3 py-1 border border-[#39FF14]/30 bg-[#39FF14]/5">
+              <div className="w-1.5 h-1.5 bg-[#39FF14] animate-pulse" />
+              <span className="text-[10px] font-black text-[#39FF14]/70">TESTNET</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1 border border-[#00D4FF]/30 bg-[#00D4FF]/5">
+              <Shield className="w-3 h-3 text-[#00D4FF]/70" />
+              <span className="text-[10px] font-black text-[#00D4FF]/70">ZKLOGIN</span>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -850,7 +958,7 @@ export default function Dashboard() {
             <div className="p-6 flex flex-col items-center">
               <div className={`p-4 border-4 ${isDark ? 'border-white' : 'border-black'} mb-6 bg-white`}>
                 <QRCodeSVG
-                  value={publicKey}
+                  value={`stellar:${publicKey}?network=testnet`}
                   size={200}
                   level="H"
                   includeMargin={true}
@@ -859,8 +967,8 @@ export default function Dashboard() {
                 />
               </div>
               <p className={`font-bold text-sm mb-2 ${isDark ? 'text-white/50' : 'text-black/50'}`}>YOUR ADDRESS</p>
-              <div className={`w-full p-4 border-4 ${isDark ? 'border-white/20' : 'border-black/20'} mb-4`}>
-                <code className="font-mono text-xs break-all block text-center">{publicKey}</code>
+              <div className={`w-full p-4 border-4 ${isDark ? 'border-white/30 bg-black/30' : 'border-black/30 bg-white/50'} mb-4`}>
+                <code className={`font-mono text-xs break-all block text-center ${isDark ? 'text-[#00FF88]' : 'text-[#00AA55]'}`}>{publicKey}</code>
               </div>
               <button
                 onClick={() => { copyAddress(); setShowReceiveModal(false); }}

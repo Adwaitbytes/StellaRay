@@ -235,24 +235,38 @@ export default function Home() {
             WHY <span className="text-[#FF3366]">STELLAR</span>GATEWAY?
           </h2>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0">
-            {features.map((feature, i) => (
-              <div
-                key={i}
-                className={`p-8 border-4 ${isDark ? 'border-white' : 'border-black'} ${i > 0 ? 'sm:-ml-1' : ''} ${i >= 2 ? 'lg:-mt-1' : ''} transition-all duration-200 cursor-pointer ${hoveredFeature === i ? (isDark ? 'bg-white text-black' : 'bg-black text-white') : ''}`}
-                onMouseEnter={() => setHoveredFeature(i)}
-                onMouseLeave={() => setHoveredFeature(null)}
-              >
-                <feature.icon
-                  className="w-10 h-10 mb-6"
-                  style={{ color: hoveredFeature === i ? (isDark ? '#000' : '#fff') : feature.accent }}
-                />
-                <h3 className="text-xl font-black mb-3">{feature.title}</h3>
-                <p className={`font-medium ${hoveredFeature === i ? (isDark ? 'text-black/70' : 'text-white/70') : (isDark ? 'text-white/60' : 'text-black/60')}`}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+              {features.map((feature, i) => (
+                <div
+                  key={i}
+                  className={`p-8 transition-all duration-200 cursor-pointer ${
+                    // Right border for all except last in row
+                    i < features.length - 1 ? `border-r-4 ${isDark ? 'border-white' : 'border-black'} lg:border-r-4` : ''
+                  } ${
+                    // Bottom border for first row on sm screens (first 2 items)
+                    i < 2 ? `sm:border-b-4 lg:border-b-0 ${isDark ? 'sm:border-white' : 'sm:border-black'}` : ''
+                  } ${
+                    // Remove right border for 2nd item on sm screens (it's end of row)
+                    i === 1 ? 'sm:border-r-0 lg:border-r-4' : ''
+                  } ${
+                    // Add right border back for 3rd item on sm screens
+                    i === 2 ? `sm:border-r-4 lg:border-r-4 ${isDark ? 'sm:border-white' : 'sm:border-black'}` : ''
+                  } ${hoveredFeature === i ? (isDark ? 'bg-white text-black' : 'bg-black text-white') : ''}`}
+                  onMouseEnter={() => setHoveredFeature(i)}
+                  onMouseLeave={() => setHoveredFeature(null)}
+                >
+                  <feature.icon
+                    className="w-10 h-10 mb-6"
+                    style={{ color: hoveredFeature === i ? (isDark ? '#000' : '#fff') : feature.accent }}
+                  />
+                  <h3 className="text-xl font-black mb-3">{feature.title}</h3>
+                  <p className={`font-medium ${hoveredFeature === i ? (isDark ? 'text-black/70' : 'text-white/70') : (isDark ? 'text-white/60' : 'text-black/60')}`}>
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -280,54 +294,64 @@ export default function Home() {
             The most efficient zero-knowledge proof verification on any blockchain.
           </p>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0">
-            {[
-              {
-                icon: Cpu,
-                title: "BN254 Native",
-                description: "Hardware-accelerated elliptic curve operations for Groth16 proofs.",
-                accent: "#39FF14",
-                stat: "94%",
-                statLabel: "Gas Savings"
-              },
-              {
-                icon: Hash,
-                title: "Poseidon Hash",
-                description: "ZK-optimized hash function built into the protocol.",
-                accent: "#00D4FF",
-                stat: "10x",
-                statLabel: "Faster"
-              },
-              {
-                icon: Shield,
-                title: "Groth16 Proofs",
-                description: "Succinct non-interactive zero-knowledge proofs.",
-                accent: "#FF10F0",
-                stat: "12ms",
-                statLabel: "Verify Time"
-              },
-              {
-                icon: Lock,
-                title: "Privacy First",
-                description: "Prove identity without revealing personal data.",
-                accent: "#FFD600",
-                stat: "100%",
-                statLabel: "Private"
-              },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className={`p-6 border-4 ${isDark ? 'border-white' : 'border-black'} ${i > 0 ? 'sm:-ml-1' : ''} ${i >= 2 ? 'lg:-mt-1' : ''}`}
-              >
-                <feature.icon className="w-8 h-8 mb-4" style={{ color: feature.accent }} />
-                <h3 className="text-lg font-black mb-2">{feature.title}</h3>
-                <p className={`text-sm mb-4 ${isDark ? 'text-white/60' : 'text-black/60'}`}>{feature.description}</p>
-                <div className={`pt-4 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
-                  <span className="text-2xl font-black" style={{ color: feature.accent }}>{feature.stat}</span>
-                  <span className={`text-xs ml-2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>{feature.statLabel}</span>
+          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  icon: Cpu,
+                  title: "BN254 Native",
+                  description: "Hardware-accelerated elliptic curve operations for Groth16 proofs.",
+                  accent: "#39FF14",
+                  stat: "94%",
+                  statLabel: "Gas Savings"
+                },
+                {
+                  icon: Hash,
+                  title: "Poseidon Hash",
+                  description: "ZK-optimized hash function built into the protocol.",
+                  accent: "#00D4FF",
+                  stat: "10x",
+                  statLabel: "Faster"
+                },
+                {
+                  icon: Shield,
+                  title: "Groth16 Proofs",
+                  description: "Succinct non-interactive zero-knowledge proofs.",
+                  accent: "#FF10F0",
+                  stat: "12ms",
+                  statLabel: "Verify Time"
+                },
+                {
+                  icon: Lock,
+                  title: "Privacy First",
+                  description: "Prove identity without revealing personal data.",
+                  accent: "#FFD600",
+                  stat: "100%",
+                  statLabel: "Private"
+                },
+              ].map((feature, i) => (
+                <div
+                  key={i}
+                  className={`p-6 ${
+                    i < 3 ? `border-r-4 ${isDark ? 'border-white' : 'border-black'}` : ''
+                  } ${
+                    i < 2 ? `sm:border-b-4 lg:border-b-0 ${isDark ? 'sm:border-white' : 'sm:border-black'}` : ''
+                  } ${
+                    i === 1 ? 'sm:border-r-0 lg:border-r-4' : ''
+                  } ${
+                    i === 2 ? `sm:border-r-4 ${isDark ? 'sm:border-white' : 'sm:border-black'}` : ''
+                  }`}
+                >
+                  <feature.icon className="w-8 h-8 mb-4" style={{ color: feature.accent }} />
+                  <h3 className="text-lg font-black mb-2">{feature.title}</h3>
+                  <p className={`text-sm mb-4 ${isDark ? 'text-white/60' : 'text-black/60'}`}>{feature.description}</p>
+                  <div className={`pt-4 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+                    <span className="text-2xl font-black" style={{ color: feature.accent }}>{feature.stat}</span>
+                    <span className={`text-xs ml-2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>{feature.statLabel}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -339,20 +363,22 @@ export default function Home() {
             HOW IT <span className="text-[#00D4FF]">WORKS</span>
           </h2>
 
-          <div className="grid sm:grid-cols-3 gap-0">
-            {[
-              { step: "01", title: "SIGN IN", desc: "Use your existing Google account. No new passwords to remember." },
-              { step: "02", title: "GET WALLET", desc: "We generate a secure blockchain wallet tied to your identity." },
-              { step: "03", title: "START USING", desc: "Send, receive, and manage crypto instantly. It's that simple." },
-            ].map((item, i) => (
-              <div key={i} className={`p-8 border-4 ${isDark ? 'border-white' : 'border-black'} ${i > 0 ? 'sm:-ml-1' : ''}`}>
-                <span className={`text-6xl font-black ${i === 0 ? 'text-[#FF3366]' : i === 1 ? 'text-[#00FF88]' : 'text-[#00D4FF]'}`}>
-                  {item.step}
-                </span>
-                <h3 className="text-2xl font-black mt-4 mb-3">{item.title}</h3>
-                <p className={`font-medium ${isDark ? 'text-white/60' : 'text-black/60'}`}>{item.desc}</p>
-              </div>
-            ))}
+          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
+            <div className="grid sm:grid-cols-3">
+              {[
+                { step: "01", title: "SIGN IN", desc: "Use your existing Google account. No new passwords to remember." },
+                { step: "02", title: "GET WALLET", desc: "We generate a secure blockchain wallet tied to your identity." },
+                { step: "03", title: "START USING", desc: "Send, receive, and manage crypto instantly. It's that simple." },
+              ].map((item, i) => (
+                <div key={i} className={`p-8 ${i < 2 ? `border-r-4 ${isDark ? 'border-white' : 'border-black'}` : ''} ${i < 2 ? `border-b-4 sm:border-b-0 ${isDark ? 'border-white' : 'border-black'}` : ''}`}>
+                  <span className={`text-6xl font-black ${i === 0 ? 'text-[#FF3366]' : i === 1 ? 'text-[#00FF88]' : 'text-[#00D4FF]'}`}>
+                    {item.step}
+                  </span>
+                  <h3 className="text-2xl font-black mt-4 mb-3">{item.title}</h3>
+                  <p className={`font-medium ${isDark ? 'text-white/60' : 'text-black/60'}`}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -412,11 +438,15 @@ export default function Home() {
             </span>
           </div>
           <div className="flex gap-8">
-            {["DOCS", "GITHUB", "SUPPORT"].map((link) => (
-              <a key={link} href="#" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
-                {link}
-              </a>
-            ))}
+            <Link href="/sdk" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+              DOCS
+            </Link>
+            <Link href="/sdk-demo" className={`font-bold text-sm hover:text-[#39FF14] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+              SDK DEMO
+            </Link>
+            <a href="https://github.com/stellar-zklogin/sdk" target="_blank" rel="noopener noreferrer" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+              GITHUB
+            </a>
           </div>
         </div>
       </footer>

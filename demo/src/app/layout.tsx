@@ -53,14 +53,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://stellar-gateway.vercel.app"),
+  metadataBase: new URL("https://stellargateway.vercel.app"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://stellar-gateway.vercel.app",
+    url: "https://stellargateway.vercel.app",
     siteName: "STELLAR GATEWAY",
     title: "STELLAR GATEWAY - Web3 Without The Bullshit",
     description: "Create a Stellar blockchain wallet instantly with your Google account. Zero seed phrases. Zero complexity. Get 10,000 free testnet XLM.",
