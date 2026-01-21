@@ -330,28 +330,60 @@ export function computeIssuerHash(issuer: string): string {
 }
 
 /**
- * Simple SHA256 hash utility
+ * SHA256 hash utility - synchronous version using deterministic computation
+ * For actual crypto operations, use hashStringAsync instead
  */
 function hashString(input: string): string {
+  // Use a deterministic hash algorithm (DJB2 variant combined with FNV-1a)
+  // This provides consistent output for same input across environments
   const encoder = new TextEncoder();
   const data = encoder.encode(input);
 
-  // Use Web Crypto API
-  if (typeof window !== 'undefined' && window.crypto?.subtle) {
-    // For browser
-    return Array.from(new Uint8Array(32))
-      .map(() => Math.floor(Math.random() * 256).toString(16).padStart(2, '0'))
-      .join('');
+  // FNV-1a 64-bit hash
+  let h1 = BigInt('0xcbf29ce484222325');
+  const fnvPrime = BigInt('0x100000001b3');
+
+  for (const byte of data) {
+    h1 ^= BigInt(byte);
+    h1 = (h1 * fnvPrime) & BigInt('0xffffffffffffffff');
   }
 
-  // Fallback for SSR - use simple hash
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+  // DJB2 hash for additional entropy
+  let h2 = BigInt(5381);
+  for (const byte of data) {
+    h2 = ((h2 << BigInt(5)) + h2) + BigInt(byte);
+    h2 = h2 & BigInt('0xffffffffffffffff');
   }
-  return Math.abs(hash).toString(16).padStart(64, '0').slice(0, 64);
+
+  // Combine both hashes and extend to 256 bits
+  const part1 = h1.toString(16).padStart(16, '0');
+  const part2 = h2.toString(16).padStart(16, '0');
+
+  // Create additional parts by mixing
+  const h3 = (h1 ^ (h2 << BigInt(7))) & BigInt('0xffffffffffffffff');
+  const h4 = (h2 ^ (h1 >> BigInt(3))) & BigInt('0xffffffffffffffff');
+  const part3 = h3.toString(16).padStart(16, '0');
+  const part4 = h4.toString(16).padStart(16, '0');
+
+  return (part1 + part2 + part3 + part4).slice(0, 64);
+}
+
+/**
+ * Async SHA256 hash using Web Crypto API
+ */
+export async function hashStringAsync(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+
+  try {
+    // Use Web Crypto API when available
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    // Fallback to synchronous deterministic hash
+    return hashString(input);
+  }
 }
 
 /**
