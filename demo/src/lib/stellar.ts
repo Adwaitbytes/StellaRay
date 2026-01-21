@@ -1,6 +1,6 @@
 import * as StellarSdk from "@stellar/stellar-sdk";
 
-const HORIZON_URL = process.env.NEXT_PUBLIC_HORIZON_URL || "https://horizon-testnet.stellar.org";
+const HORIZON_URL = process.env.NEXT_PUBLIC_STELLAR_HORIZON_URL || "https://horizon-testnet.stellar.org";
 const FRIENDBOT_URL = process.env.NEXT_PUBLIC_FRIENDBOT_URL || "https://friendbot.stellar.org";
 
 const server = new StellarSdk.Horizon.Server(HORIZON_URL);
