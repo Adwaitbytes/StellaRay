@@ -103,34 +103,49 @@ export function ProofTimeline({ isDark = true }: ProofTimelineProps) {
     return () => clearInterval(interval);
   }, [isLive, loadEvents]);
 
-  // Add new simulated events periodically
+  // Fetch new real events periodically when live
   useEffect(() => {
     if (!isLive) return;
 
-    const interval = setInterval(() => {
-      const operations = [
-        { op: 'Groth16 Proof Verified', type: 'verify' as const, gas: 260000, dur: 12 },
-        { op: 'BN254 Pairing Check', type: 'pairing' as const, gas: 150000, dur: 8 },
-        { op: 'Poseidon Hash Computed', type: 'poseidon' as const, gas: 50000, dur: 1 },
-        { op: 'G1 Scalar Multiplication', type: 'g1_mul' as const, gas: 45000, dur: 3 },
-      ];
-      const selected = operations[Math.floor(Math.random() * operations.length)];
+    const fetchNewEvents = async () => {
+      try {
+        const lastTimestamp = events[0]?.timestamp.toISOString() || '';
+        const response = await fetch(`/api/xray/events?limit=5&since=${encodeURIComponent(lastTimestamp)}`);
+        if (!response.ok) return;
+        const data = await response.json();
 
-      const newEvent: TimelineEvent = {
-        id: Date.now().toString(),
-        operation: selected.op,
-        timestamp: new Date(),
-        durationMs: selected.dur + Math.floor(Math.random() * 3),
-        gasUsed: selected.gas + Math.floor(Math.random() * 10000),
-        status: 'success',
-        type: selected.type
-      };
+        if (data.events && data.events.length > 0) {
+          const newTimelineEvents: TimelineEvent[] = data.events.map((event: any) => ({
+            id: event.id,
+            operation: event.operation || 'Blockchain Operation',
+            timestamp: new Date(event.timestamp),
+            durationMs: Math.min(15, Math.max(5, Math.floor((event.gasUsed || 100000) / 25000))),
+            gasUsed: event.gasUsed || 100000,
+            status: event.status === 'confirmed' ? 'success' as const : 'pending' as const,
+            type: event.type === 'proof_verified' ? 'verify' as const :
+                  event.type === 'pairing_check' ? 'pairing' as const :
+                  event.type === 'poseidon_hash' ? 'poseidon' as const :
+                  event.type === 'g1_operation' ? 'g1_mul' as const : 'verify' as const
+          }));
 
-      setEvents(prev => [newEvent, ...prev.slice(0, 9)]);
-    }, 8000);
+          // Merge with existing, avoiding duplicates
+          setEvents(prev => {
+            const existingIds = new Set(prev.map(e => e.id));
+            const uniqueNewEvents = newTimelineEvents.filter(e => !existingIds.has(e.id));
+            if (uniqueNewEvents.length > 0) {
+              return [...uniqueNewEvents, ...prev].slice(0, 10);
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching new events:', err);
+      }
+    };
 
+    const interval = setInterval(fetchNewEvents, 8000);
     return () => clearInterval(interval);
-  }, [isLive]);
+  }, [isLive, events]);
 
   const getIcon = (type: TimelineEvent['type']) => {
     switch (type) {
