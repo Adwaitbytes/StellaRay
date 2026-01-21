@@ -16,7 +16,8 @@
       "Bash(curl:*)",
       "Bash(rustup target list:*)",
       "Bash(rustup target add:*)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "Bash(pnpm add:*)"
     ]
   }
 }
