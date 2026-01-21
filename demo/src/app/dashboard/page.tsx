@@ -26,7 +26,15 @@ import {
   Moon,
   Activity,
   Zap,
+  Shield,
+  Radio,
 } from "lucide-react";
+import { XRayStatusBadge } from "@/components/XRayStatusBadge";
+import { ProofMetrics } from "@/components/ProofMetrics";
+import { ProofTimeline } from "@/components/ProofTimeline";
+import { GasSavingsComparison } from "@/components/GasSavingsComparison";
+import { ZKProofVisualizer } from "@/components/ZKProofVisualizer";
+import { TransactionXRayBadge } from "@/components/TransactionXRayBadge";
 import {
   generateWalletFromSub,
   fundAccount,
@@ -40,6 +48,7 @@ import {
   type AccountBalance,
   type Transaction,
 } from "@/lib/stellar";
+import { fetchXRayMetrics, formatNumber, type XRayMetrics } from "@/lib/xray";
 import {
   CONTRACT_IDS,
   areContractsConfigured,
@@ -81,6 +90,8 @@ export default function Dashboard() {
 
   const [contractsConfigured, setContractsConfigured] = useState(false);
   const [totalWallets, setTotalWallets] = useState<number>(0);
+  const [xrayMetrics, setXrayMetrics] = useState<XRayMetrics | null>(null);
+  const [xrayLoading, setXrayLoading] = useState(true);
 
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -119,6 +130,25 @@ export default function Dashboard() {
       }
     };
     fetchContractData();
+  }, []);
+
+  // Fetch X-Ray metrics
+  useEffect(() => {
+    const loadXrayMetrics = async () => {
+      try {
+        setXrayLoading(true);
+        const data = await fetchXRayMetrics();
+        setXrayMetrics(data);
+      } catch (err) {
+        console.error('Error fetching X-Ray metrics:', err);
+      } finally {
+        setXrayLoading(false);
+      }
+    };
+    loadXrayMetrics();
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(loadXrayMetrics, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const initializeWallet = useCallback(async () => {
@@ -572,6 +602,91 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+
+        {/* X-Ray Protocol Section */}
+        <div className={`mt-6 border-4 ${isDark ? 'border-[#39FF14]/30 bg-gradient-to-r from-[#39FF14]/5 to-transparent' : 'border-[#00AA55]/30 bg-gradient-to-r from-[#00AA55]/5 to-transparent'}`}>
+          <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-[#39FF14]/30' : 'border-[#00AA55]/30'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#39FF14] flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-black" />
+                </div>
+                <div>
+                  <h2 className={`font-black text-lg ${isDark ? 'text-white' : 'text-black'}`}>X-RAY PROTOCOL</h2>
+                  <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>Stellar Protocol 25 - Native ZK Primitives</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
+                <span className="text-[#39FF14] font-black text-xs">LIVE ON TESTNET</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
+                <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>BN254 OPS</p>
+                <p className="text-2xl font-black text-[#39FF14]">
+                  {xrayMetrics ? formatNumber(xrayMetrics.bn254Operations) : '---'}
+                </p>
+                <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>Curve operations</p>
+              </div>
+              <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
+                <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>POSEIDON</p>
+                <p className="text-2xl font-black text-[#00D4FF]">
+                  {xrayMetrics ? formatNumber(xrayMetrics.poseidonHashes) : '---'}
+                </p>
+                <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>Native hashes</p>
+              </div>
+              <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
+                <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>GAS SAVED</p>
+                <p className="text-2xl font-black text-[#FF10F0]">
+                  {xrayMetrics ? `${xrayMetrics.gasSavingsPercent}%` : '---'}
+                </p>
+                <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>vs WASM impl</p>
+              </div>
+              <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
+                <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>AVG VERIFY</p>
+                <p className="text-2xl font-black text-[#FFD600]">
+                  {xrayMetrics ? `${xrayMetrics.avgVerificationMs}ms` : '---'}
+                </p>
+                <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>Per proof</p>
+              </div>
+            </div>
+
+            {/* Feature badges */}
+            <div className="flex flex-wrap gap-3">
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#39FF14]/30 bg-[#39FF14]/10' : 'border-[#00AA55]/30 bg-[#00AA55]/10'}`}>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[#39FF14]" />
+                  <span className={`text-xs font-black ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`}>GROTH16 VERIFIED</span>
+                </div>
+              </div>
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#00D4FF]/30 bg-[#00D4FF]/10' : 'border-[#0099CC]/30 bg-[#0099CC]/10'}`}>
+                <div className="flex items-center gap-2">
+                  <Radio className="w-4 h-4 text-[#00D4FF]" />
+                  <span className={`text-xs font-black ${isDark ? 'text-[#00D4FF]' : 'text-[#0099CC]'}`}>BN254 NATIVE</span>
+                </div>
+              </div>
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#FF10F0]/30 bg-[#FF10F0]/10' : 'border-[#CC0088]/30 bg-[#CC0088]/10'}`}>
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-[#FF10F0]" />
+                  <span className={`text-xs font-black ${isDark ? 'text-[#FF10F0]' : 'text-[#CC0088]'}`}>POSEIDON HASH</span>
+                </div>
+              </div>
+              <a
+                href="/explorer"
+                className={`px-4 py-2 border-2 ${isDark ? 'border-white/30 hover:border-white' : 'border-black/30 hover:border-black'} transition-all`}
+              >
+                <span className={`text-xs font-black ${isDark ? 'text-white/70' : 'text-black/70'}`}>
+                  EXPLORE PROOFS →
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
 
         {/* Transactions */}
         <div className={`mt-6 border-4 ${isDark ? 'border-white' : 'border-black'}`}>

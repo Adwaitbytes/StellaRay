@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash } from "lucide-react";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -106,9 +106,16 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             {/* Left - Text */}
             <div>
-              {/* Tagline */}
-              <div className={`inline-block px-4 py-2 mb-8 border-4 ${isDark ? 'border-[#FF3366] text-[#FF3366]' : 'border-[#CC0033] text-[#CC0033]'} font-black text-sm`}>
-                POWERED BY STELLAR + ZKLOGIN
+              {/* X-Ray Protocol Badge */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] bg-[#39FF14]/10' : 'border-[#00AA55] bg-[#00AA55]/10'}`}>
+                  <Zap className={`w-4 h-4 ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`} />
+                  <span className={`font-black text-sm ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`}>X-RAY PROTOCOL 25</span>
+                  <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
+                </div>
+                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#FF3366] text-[#FF3366]' : 'border-[#CC0033] text-[#CC0033]'}`}>
+                  <span className="font-black text-sm">STELLAR + ZKLOGIN</span>
+                </div>
               </div>
 
               {/* Headline */}
@@ -237,6 +244,81 @@ export default function Home() {
                 <p className={`font-medium ${hoveredFeature === i ? (isDark ? 'text-black/70' : 'text-white/70') : (isDark ? 'text-white/60' : 'text-black/60')}`}>
                   {feature.description}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* X-Ray Protocol Section */}
+      <section className={`py-20 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'} relative overflow-hidden`}>
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#39FF14]/5 via-transparent to-[#00D4FF]/5" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-[#39FF14] flex items-center justify-center">
+              <Zap className="w-6 h-6 text-black" />
+            </div>
+            <div>
+              <h2 className="text-4xl sm:text-5xl font-black tracking-tighter">
+                <span className="text-[#39FF14]">X-RAY</span> PROTOCOL
+              </h2>
+              <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Stellar Protocol 25 - Native ZK Cryptography</p>
+            </div>
+          </div>
+
+          <p className={`text-xl max-w-3xl mb-12 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+            Powered by native BN254 elliptic curve operations and Poseidon hash functions.
+            The most efficient zero-knowledge proof verification on any blockchain.
+          </p>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0">
+            {[
+              {
+                icon: Cpu,
+                title: "BN254 Native",
+                description: "Hardware-accelerated elliptic curve operations for Groth16 proofs.",
+                accent: "#39FF14",
+                stat: "94%",
+                statLabel: "Gas Savings"
+              },
+              {
+                icon: Hash,
+                title: "Poseidon Hash",
+                description: "ZK-optimized hash function built into the protocol.",
+                accent: "#00D4FF",
+                stat: "10x",
+                statLabel: "Faster"
+              },
+              {
+                icon: Shield,
+                title: "Groth16 Proofs",
+                description: "Succinct non-interactive zero-knowledge proofs.",
+                accent: "#FF10F0",
+                stat: "12ms",
+                statLabel: "Verify Time"
+              },
+              {
+                icon: Lock,
+                title: "Privacy First",
+                description: "Prove identity without revealing personal data.",
+                accent: "#FFD600",
+                stat: "100%",
+                statLabel: "Private"
+              },
+            ].map((feature, i) => (
+              <div
+                key={i}
+                className={`p-6 border-4 ${isDark ? 'border-white' : 'border-black'} ${i > 0 ? 'sm:-ml-1' : ''} ${i >= 2 ? 'lg:-mt-1' : ''}`}
+              >
+                <feature.icon className="w-8 h-8 mb-4" style={{ color: feature.accent }} />
+                <h3 className="text-lg font-black mb-2">{feature.title}</h3>
+                <p className={`text-sm mb-4 ${isDark ? 'text-white/60' : 'text-black/60'}`}>{feature.description}</p>
+                <div className={`pt-4 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+                  <span className="text-2xl font-black" style={{ color: feature.accent }}>{feature.stat}</span>
+                  <span className={`text-xs ml-2 ${isDark ? 'text-white/40' : 'text-black/40'}`}>{feature.statLabel}</span>
+                </div>
               </div>
             ))}
           </div>
