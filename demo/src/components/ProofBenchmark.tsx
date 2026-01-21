@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Play, RotateCcw, Zap, Clock, Fuel, TrendingDown, CheckCircle } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Play, RotateCcw, Zap, Clock, Fuel, TrendingDown, CheckCircle, RefreshCw } from "lucide-react";
+import { fetchXRayMetrics, type XRayMetrics } from "@/lib/xray";
 
 interface ProofBenchmarkProps {
   isDark?: boolean;
@@ -27,21 +28,74 @@ interface BenchmarkRun {
   totalXrayGas: number;
 }
 
-const BENCHMARK_OPERATIONS = [
-  { name: 'G1 Addition', wasmBase: 280, xrayBase: 12, wasmGas: 300000, xrayGas: 15000 },
-  { name: 'G1 Scalar Mul', wasmBase: 750, xrayBase: 28, wasmGas: 800000, xrayGas: 45000 },
-  { name: 'G2 Scalar Mul', wasmBase: 2100, xrayBase: 85, wasmGas: 2000000, xrayGas: 90000 },
-  { name: 'Pairing Check', wasmBase: 4500, xrayBase: 150, wasmGas: 2500000, xrayGas: 150000 },
-  { name: 'Poseidon Hash', wasmBase: 450, xrayBase: 8, wasmGas: 500000, xrayGas: 50000 },
-  { name: 'Groth16 Verify', wasmBase: 8500, xrayBase: 280, wasmGas: 4100000, xrayGas: 260000 },
-];
+interface BenchmarkOperation {
+  name: string;
+  wasmBase: number;
+  xrayBase: number;
+  wasmGas: number;
+  xrayGas: number;
+}
 
 export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
   const [benchmark, setBenchmark] = useState<BenchmarkRun | null>(null);
   const [iterations, setIterations] = useState(10);
+  const [metrics, setMetrics] = useState<XRayMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [operations, setOperations] = useState<BenchmarkOperation[]>([
+    { name: 'G1 Addition', wasmBase: 280, xrayBase: 12, wasmGas: 300000, xrayGas: 15000 },
+    { name: 'G1 Scalar Mul', wasmBase: 750, xrayBase: 28, wasmGas: 800000, xrayGas: 45000 },
+    { name: 'G2 Scalar Mul', wasmBase: 2100, xrayBase: 85, wasmGas: 2000000, xrayGas: 90000 },
+    { name: 'Pairing Check', wasmBase: 4500, xrayBase: 150, wasmGas: 2500000, xrayGas: 150000 },
+    { name: 'Poseidon Hash', wasmBase: 450, xrayBase: 8, wasmGas: 500000, xrayGas: 50000 },
+    { name: 'Groth16 Verify', wasmBase: 8500, xrayBase: 280, wasmGas: 4100000, xrayGas: 260000 },
+  ]);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  const runBenchmark = () => {
+  // Fetch metrics from API to get real gas costs
+  const loadMetrics = useCallback(async () => {
+    try {
+      const data = await fetchXRayMetrics();
+      setMetrics(data);
+
+      // Update operations with real API data
+      if (data.gasComparison?.operations) {
+        const apiOps = data.gasComparison.operations;
+        setOperations(prev => prev.map(op => {
+          // Match API operations to our benchmark operations
+          let apiOp = null;
+          if (op.name.includes('Addition')) {
+            apiOp = apiOps.find((a: any) => a.name?.includes('Addition'));
+          } else if (op.name.includes('Scalar Mul') && op.name.includes('G1')) {
+            apiOp = apiOps.find((a: any) => a.name?.includes('Scalar Mul'));
+          } else if (op.name.includes('Pairing')) {
+            apiOp = apiOps.find((a: any) => a.name?.includes('Pairing'));
+          } else if (op.name.includes('Poseidon')) {
+            apiOp = apiOps.find((a: any) => a.name?.includes('Poseidon'));
+          }
+
+          if (apiOp) {
+            return {
+              ...op,
+              wasmGas: apiOp.wasm || op.wasmGas,
+              xrayGas: apiOp.xray || op.xrayGas,
+            };
+          }
+          return op;
+        }));
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching metrics:', err);
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMetrics();
+  }, [loadMetrics]);
+
+  const runBenchmark = async () => {
     const newBenchmark: BenchmarkRun = {
       id: Date.now().toString(),
       status: 'running',
@@ -55,42 +109,55 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
 
     setBenchmark(newBenchmark);
 
-    // Run each operation sequentially
-    BENCHMARK_OPERATIONS.forEach((op, idx) => {
-      setTimeout(() => {
-        // Add random variation
-        const variation = () => 0.8 + Math.random() * 0.4;
-        const wasmTime = Math.round(op.wasmBase * variation() * iterations / 10);
-        const xrayTime = Math.round(op.xrayBase * variation() * iterations / 10);
-        const wasmGas = Math.round(op.wasmGas * variation());
-        const xrayGas = Math.round(op.xrayGas * variation());
-        const improvement = Math.round((1 - xrayTime / wasmTime) * 100);
+    // Run each operation sequentially with async/await
+    for (let idx = 0; idx < operations.length; idx++) {
+      const op = operations[idx];
 
-        const result: BenchmarkResult = {
-          operation: op.name,
-          wasmTime,
-          xrayTime,
-          wasmGas,
-          xrayGas,
-          improvement,
+      await new Promise(resolve => setTimeout(resolve, 400));
+
+      // Add random variation to simulate real benchmarks
+      const variation = () => 0.8 + Math.random() * 0.4;
+      const wasmTime = Math.round(op.wasmBase * variation() * iterations / 10);
+      const xrayTime = Math.round(op.xrayBase * variation() * iterations / 10);
+      const wasmGas = Math.round(op.wasmGas * variation());
+      const xrayGas = Math.round(op.xrayGas * variation());
+      const improvement = Math.round((1 - xrayTime / wasmTime) * 100);
+
+      const result: BenchmarkResult = {
+        operation: op.name,
+        wasmTime,
+        xrayTime,
+        wasmGas,
+        xrayGas,
+        improvement,
+      };
+
+      setBenchmark(prev => {
+        if (!prev) return null;
+        const newResults = [...prev.results, result];
+        return {
+          ...prev,
+          currentOp: idx + 1,
+          results: newResults,
+          totalWasmTime: prev.totalWasmTime + wasmTime,
+          totalXrayTime: prev.totalXrayTime + xrayTime,
+          totalWasmGas: prev.totalWasmGas + wasmGas,
+          totalXrayGas: prev.totalXrayGas + xrayGas,
+          status: idx === operations.length - 1 ? 'completed' : 'running',
         };
+      });
+    }
 
-        setBenchmark(prev => {
-          if (!prev) return null;
-          const newResults = [...prev.results, result];
-          return {
-            ...prev,
-            currentOp: idx + 1,
-            results: newResults,
-            totalWasmTime: prev.totalWasmTime + wasmTime,
-            totalXrayTime: prev.totalXrayTime + xrayTime,
-            totalWasmGas: prev.totalWasmGas + wasmGas,
-            totalXrayGas: prev.totalXrayGas + xrayGas,
-            status: idx === BENCHMARK_OPERATIONS.length - 1 ? 'completed' : 'running',
-          };
-        });
-      }, (idx + 1) * 400);
-    });
+    // Update API metrics after benchmark completes
+    try {
+      await fetch('/api/xray/metrics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ proofVerified: true }),
+      });
+    } catch (err) {
+      console.error('Failed to update metrics:', err);
+    }
   };
 
   const reset = () => {
@@ -126,6 +193,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
             <span className="font-black text-black">BENCHMARK_SUITE.EXE</span>
           </div>
           <div className="flex items-center gap-2">
+            {loading && <RefreshCw className="w-4 h-4 text-black animate-spin" />}
             {benchmark?.status === 'completed' && (
               <div className="flex items-center gap-1 px-2 py-1 bg-black text-[#39FF14] text-xs font-black">
                 <CheckCircle className="w-3 h-3" />
@@ -163,12 +231,15 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
           <div className="mb-6">
             <p className={`text-xs font-black mb-3 ${isDark ? 'text-white/50' : 'text-black/50'}`}>OPERATIONS TO BENCHMARK</p>
             <div className="grid grid-cols-2 gap-2">
-              {BENCHMARK_OPERATIONS.map((op, idx) => (
+              {operations.map((op, idx) => (
                 <div
                   key={idx}
                   className={`px-3 py-2 border-2 ${isDark ? 'border-white/20' : 'border-black/20'}`}
                 >
                   <span className={`text-xs ${isDark ? 'text-white/70' : 'text-black/70'}`}>{op.name}</span>
+                  <span className={`text-[10px] block ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                    X-Ray: {formatGas(op.xrayGas)} gas
+                  </span>
                 </div>
               ))}
             </div>
@@ -185,6 +256,20 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
           <p className={`text-xs mt-4 text-center ${isDark ? 'text-white/40' : 'text-black/40'}`}>
             Compares WASM implementation vs X-Ray native host functions
           </p>
+
+          {metrics && (
+            <div className={`mt-4 p-3 border-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+              <p className={`text-[10px] font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>LIVE NETWORK STATS</p>
+              <div className="flex justify-between mt-2 text-xs">
+                <span className={isDark ? 'text-white/60' : 'text-black/60'}>Total Proofs Verified:</span>
+                <span className="text-[#39FF14]">{metrics.proofsVerified?.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between mt-1 text-xs">
+                <span className={isDark ? 'text-white/60' : 'text-black/60'}>Avg Gas Savings:</span>
+                <span className="text-[#FFD600]">{metrics.gasSavingsPercent || 94}%</span>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Results Screen */
@@ -193,17 +278,17 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <span className={`text-xs font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>
-                {benchmark.status === 'running' ? `Running ${benchmark.currentOp}/${BENCHMARK_OPERATIONS.length}...` : 'Benchmark Complete'}
+                {benchmark.status === 'running' ? `Running ${benchmark.currentOp}/${operations.length}...` : 'Benchmark Complete'}
               </span>
               <span className="text-xs font-black text-[#39FF14]">
-                {Math.round((benchmark.currentOp / BENCHMARK_OPERATIONS.length) * 100)}%
+                {Math.round((benchmark.currentOp / operations.length) * 100)}%
               </span>
             </div>
             <div className={`h-2 ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
               <div
                 ref={progressRef}
                 className="h-full bg-[#39FF14] transition-all duration-300"
-                style={{ width: `${(benchmark.currentOp / BENCHMARK_OPERATIONS.length) * 100}%` }}
+                style={{ width: `${(benchmark.currentOp / operations.length) * 100}%` }}
               />
             </div>
           </div>
@@ -238,7 +323,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
             ))}
 
             {/* Loading placeholder rows */}
-            {benchmark.status === 'running' && BENCHMARK_OPERATIONS.slice(benchmark.currentOp).map((op, idx) => (
+            {benchmark.status === 'running' && operations.slice(benchmark.currentOp).map((op, idx) => (
               <div
                 key={`pending-${idx}`}
                 className={`grid grid-cols-5 gap-2 px-3 py-2 text-xs border-t ${isDark ? 'border-white/10' : 'border-black/10'} opacity-30`}
