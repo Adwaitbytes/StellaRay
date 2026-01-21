@@ -1,0 +1,12 @@
+# Stellar Gateway - Web3 Wallet
+# https://stellar-gateway.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://stellar-gateway.vercel.app/sitemap.xml
+
+# Block sensitive paths
+Disallow: /api/auth/*
+Disallow: /_next/static/
