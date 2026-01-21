@@ -9,7 +9,14 @@
       "Bash(taskkill:*)",
       "Bash(cmd //c \"taskkill /PID 19784 /F\")",
       "Bash(cmd //c \"taskkill /PID 35512 /F\")",
-      "Bash(cmd //c \"taskkill /PID 22060 /F\")"
+      "Bash(cmd //c \"taskkill /PID 22060 /F\")",
+      "Bash(soroban --version:*)",
+      "Bash(stellar:*)",
+      "Bash(rustc:*)",
+      "Bash(curl:*)",
+      "Bash(rustup target list:*)",
+      "Bash(rustup target add:*)",
+      "Bash(cargo build:*)"
     ]
   }
 }
