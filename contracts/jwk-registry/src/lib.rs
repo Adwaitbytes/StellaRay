@@ -18,7 +18,7 @@
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
-    symbol_short, Address, BytesN, Env, String, Symbol, Vec,
+    Address, BytesN, Env, String, Vec,
 };
 
 /// RSA-2048 modulus is split into 17 chunks of 121 bits each
@@ -355,7 +355,7 @@ impl JwkRegistry {
     pub fn compute_issuer_hash(env: Env, issuer: String) -> BytesN<32> {
         // Convert string to bytes and hash
         let issuer_bytes = Self::string_to_bytes(&env, &issuer);
-        env.crypto().sha256(&issuer_bytes)
+        env.crypto().sha256(&issuer_bytes).into()
     }
 
     /// Get the modulus hash for a JWK
@@ -396,7 +396,7 @@ impl JwkRegistry {
         for i in 0..chunks.len() {
             data.append(&soroban_sdk::Bytes::from_slice(env, &chunks.get(i).unwrap().to_array()));
         }
-        env.crypto().sha256(&data)
+        env.crypto().sha256(&data).into()
     }
 
     fn vec_contains(vec: &Vec<String>, item: &String) -> bool {
