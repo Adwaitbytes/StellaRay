@@ -118,5 +118,5 @@
   </g>
 
   <!-- Bottom URL -->
-  <text x="600" y="580" font-family="JetBrains Mono, monospace" font-size="20" fill="#39FF14" fill-opacity="0.8" text-anchor="middle" filter="url(#text-glow)">stellar-gateway.vercel.app</text>
+  <text x="600" y="580" font-family="JetBrains Mono, monospace" font-size="20" fill="#39FF14" fill-opacity="0.8" text-anchor="middle" filter="url(#text-glow)">stellargateway.vercel.app</text>
 </svg>

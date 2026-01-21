@@ -1,58 +1,84 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+    <!-- Neon glow filters -->
+    <filter id="glow-green" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-intense" x="-100%" y="-100%" width="300%" height="300%">
       <feGaussianBlur stdDeviation="8" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <filter id="glow-pink" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#0A0A0A"/>
-      <stop offset="100%" style="stop-color:#1A1A2E"/>
-    </linearGradient>
-    <linearGradient id="neon-green" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#39FF14"/>
-      <stop offset="100%" style="stop-color:#00FF88"/>
+      <stop offset="50%" style="stop-color:#0D0D1A"/>
+      <stop offset="100%" style="stop-color:#0A0A0A"/>
     </linearGradient>
   </defs>
 
   <!-- Background -->
-  <rect width="512" height="512" fill="url(#bg-gradient)"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
 
-  <!-- Outer border frame -->
-  <rect x="16" y="16" width="480" height="480" fill="none" stroke="#39FF14" stroke-width="12" filter="url(#glow-green)"/>
-
-  <!-- Inner accent corners -->
-  <path d="M16 16 L80 16 L80 28 L28 28 L28 80 L16 80 Z" fill="#FF3366"/>
-  <path d="M496 16 L432 16 L432 28 L484 28 L484 80 L496 80 Z" fill="#00D4FF"/>
-  <path d="M16 496 L80 496 L80 484 L28 484 L28 432 L16 432 Z" fill="#FFD600"/>
-  <path d="M496 496 L432 496 L432 484 L484 484 L484 432 L496 432 Z" fill="#39FF14"/>
-
-  <!-- Main "S" letter - Bold brutalist style -->
-  <g filter="url(#glow-green)">
-    <rect x="140" y="100" width="232" height="56" fill="#FFFFFF"/>
-    <rect x="140" y="100" width="56" height="156" fill="#FFFFFF"/>
-    <rect x="140" y="200" width="232" height="56" fill="#FFFFFF"/>
-    <rect x="316" y="200" width="56" height="156" fill="#FFFFFF"/>
-    <rect x="140" y="300" width="232" height="56" fill="#FFFFFF"/>
+  <!-- Grid pattern overlay -->
+  <g opacity="0.1" stroke="#39FF14" stroke-width="1">
+    <line x1="128" y1="0" x2="128" y2="512"/>
+    <line x1="256" y1="0" x2="256" y2="512"/>
+    <line x1="384" y1="0" x2="384" y2="512"/>
+    <line x1="0" y1="128" x2="512" y2="128"/>
+    <line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="0" y1="384" x2="512" y2="384"/>
   </g>
 
-  <!-- Accent slash through S -->
-  <rect x="120" y="240" width="280" height="8" fill="#FF3366" transform="rotate(-12 256 256)" filter="url(#glow-pink)"/>
+  <!-- Outer frame with glow -->
+  <rect x="24" y="24" width="464" height="464" fill="none" stroke="#39FF14" stroke-width="8" filter="url(#glow-green)"/>
 
-  <!-- Small detail squares -->
-  <rect x="380" y="100" width="24" height="24" fill="#39FF14"/>
-  <rect x="108" y="332" width="24" height="24" fill="#00D4FF"/>
+  <!-- Inner frame -->
+  <rect x="48" y="48" width="416" height="416" fill="none" stroke="white" stroke-width="4" opacity="0.3"/>
+
+  <!-- Corner accent blocks -->
+  <rect x="24" y="24" width="48" height="8" fill="#FF3366"/>
+  <rect x="24" y="24" width="8" height="48" fill="#FF3366"/>
+
+  <rect x="440" y="24" width="48" height="8" fill="#00D4FF"/>
+  <rect x="480" y="24" width="8" height="48" fill="#00D4FF"/>
+
+  <rect x="24" y="480" width="48" height="8" fill="#FFD600"/>
+  <rect x="24" y="440" width="8" height="48" fill="#FFD600"/>
+
+  <rect x="440" y="480" width="48" height="8" fill="#39FF14"/>
+  <rect x="480" y="440" width="8" height="48" fill="#39FF14"/>
+
+  <!-- Main S - Modern geometric brutalist -->
+  <g filter="url(#glow-intense)">
+    <!-- Top horizontal of S -->
+    <rect x="120" y="96" width="272" height="56" fill="white"/>
+    <!-- Top vertical (left side going down) -->
+    <rect x="120" y="96" width="56" height="168" fill="white"/>
+    <!-- Middle horizontal -->
+    <rect x="120" y="208" width="272" height="56" fill="white"/>
+    <!-- Bottom vertical (right side going down) -->
+    <rect x="336" y="208" width="56" height="168" fill="white"/>
+    <!-- Bottom horizontal -->
+    <rect x="120" y="320" width="272" height="56" fill="white"/>
+  </g>
+
+  <!-- Diagonal accent slash -->
+  <rect x="100" y="246" width="320" height="12" fill="#FF3366" transform="rotate(-15 256 256)"/>
+
+  <!-- Small accent details -->
+  <rect x="400" y="96" width="20" height="20" fill="#39FF14"/>
+  <rect x="92" y="348" width="20" height="20" fill="#00D4FF"/>
 
   <!-- Bottom badge -->
-  <rect x="156" y="380" width="200" height="32" fill="#39FF14"/>
-  <text x="256" y="404" font-family="Arial Black, sans-serif" font-size="20" font-weight="900" fill="#000000" text-anchor="middle">STELLAR</text>
+  <rect x="136" y="400" width="240" height="40" fill="#39FF14"/>
+  <text x="256" y="428" font-family="Arial Black, Arial, sans-serif" font-size="22" font-weight="900" fill="black" text-anchor="middle" letter-spacing="2">STELLAR</text>
+
+  <!-- Version indicator -->
+  <rect x="376" y="400" width="40" height="40" fill="#FF3366"/>
+  <text x="396" y="428" font-family="Arial Black, Arial, sans-serif" font-size="16" font-weight="900" fill="white" text-anchor="middle">ZK</text>
 </svg>
