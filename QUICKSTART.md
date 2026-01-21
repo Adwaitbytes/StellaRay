@@ -107,3 +107,7 @@ Then manually add environment variables in Vercel Dashboard.
 ---
 
 **Ready? Click the Deploy button above! 🚀**
+
+757367004425-ll5k12p7b938nhet3odcfk0ulnj1aug7.apps.googleusercontent.com
+
+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
