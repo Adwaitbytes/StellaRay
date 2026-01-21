@@ -38,7 +38,6 @@ import { AdvancedAnalyticsDashboard } from "@/components/AdvancedAnalyticsDashbo
 import {
   fetchXRayMetrics,
   fetchXRayStatus,
-  generateProofData,
   fetchRecentProofs,
   formatNumber,
   type ProofData,
@@ -73,17 +72,13 @@ export default function ExplorerPage() {
       setProtocolStatus(status);
       setRecentProofs(proofs);
 
-      // Set current proof to the most recent one or generate new
+      // Set current proof to the most recent one
       if (proofs.length > 0) {
         setProof(proofs[0]);
-      } else {
-        setProof(generateProofData());
       }
     } catch (err) {
       setError('Failed to load data');
       console.error(err);
-      // Fallback to generated data
-      setProof(generateProofData());
     } finally {
       setLoading(false);
     }
@@ -93,16 +88,25 @@ export default function ExplorerPage() {
     loadData();
   }, [loadData]);
 
-  // Auto-refresh proof data
+  // Auto-refresh proof data from blockchain
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newProof = generateProofData();
-      setProof(newProof);
-      setRecentProofs(prev => [newProof, ...prev.slice(0, 4)]);
+    const interval = setInterval(async () => {
+      try {
+        const proofs = await fetchRecentProofs(5);
+        if (proofs.length > 0) {
+          setRecentProofs(proofs);
+          // Only update current proof if viewing the latest
+          if (!proof || proof.id === recentProofs[0]?.id) {
+            setProof(proofs[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Auto-refresh error:', err);
+      }
     }, 15000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [proof, recentProofs]);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
