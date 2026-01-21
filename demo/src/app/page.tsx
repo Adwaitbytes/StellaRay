@@ -3,7 +3,8 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -83,6 +84,15 @@ export default function Home() {
 
             {/* Right */}
             <div className="flex items-center gap-4">
+              {/* SDK Link */}
+              <Link
+                href="/sdk"
+                className={`hidden sm:flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black' : 'border-[#00AA55] text-[#00AA55] hover:bg-[#00AA55] hover:text-white'} font-black text-sm transition-all`}
+              >
+                <Code className="w-4 h-4" />
+                SDK
+              </Link>
+
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark(!isDark)}

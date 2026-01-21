@@ -28,7 +28,9 @@ import {
   Zap,
   Shield,
   Radio,
+  Code,
 } from "lucide-react";
+import Link from "next/link";
 import { XRayStatusBadge } from "@/components/XRayStatusBadge";
 import { ProofMetrics } from "@/components/ProofMetrics";
 import { ProofTimeline } from "@/components/ProofTimeline";
@@ -370,6 +372,15 @@ export default function Dashboard() {
                   </span>
                 </div>
               )}
+
+              {/* SDK Link */}
+              <Link
+                href="/sdk"
+                className={`hidden sm:flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black' : 'border-[#00AA55] text-[#00AA55] hover:bg-[#00AA55] hover:text-white'} font-black text-sm transition-all`}
+              >
+                <Code className="w-4 h-4" />
+                SDK
+              </Link>
 
               {/* Theme Toggle */}
               <button
