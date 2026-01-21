@@ -19,7 +19,7 @@
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
-    symbol_short, Address, BytesN, Env, Symbol, Vec,
+    Address, BytesN, Env, IntoVal, Symbol, Vec,
 };
 
 /// zkLogin address flag (matches Sui's 0x05 for zkLogin addresses)
@@ -178,12 +178,12 @@ impl GatewayFactory {
         let mut config = Self::get_config(&env)?;
 
         // Generate deterministic salt from address_seed
-        let salt = env.crypto().sha256(&soroban_sdk::Bytes::from_slice(&env, &address_seed.to_array()));
+        let salt: BytesN<32> = env.crypto().sha256(&soroban_sdk::Bytes::from_slice(&env, &address_seed.to_array())).into();
 
         // Deploy wallet contract
         let wallet_address = env.deployer()
             .with_current_contract(salt)
-            .deploy(config.wallet_wasm_hash.clone());
+            .deploy_v2(config.wallet_wasm_hash.clone(), ());
 
         // Initialize the deployed wallet
         let init_args: Vec<soroban_sdk::Val> = soroban_sdk::vec![
@@ -327,9 +327,11 @@ impl GatewayFactory {
             .ok_or(Error::NotInitialized)
     }
 
-    /// Compute deterministic wallet address
+    /// Compute deterministic wallet address prediction
     ///
-    /// Uses Blake2b hash with zkLogin flag prefix
+    /// Note: This is a placeholder for address prediction.
+    /// Actual wallet addresses are determined by the deployer during deployment.
+    /// The predicted address uses a hash of the inputs to demonstrate determinism.
     fn compute_wallet_address(env: &Env, iss_hash: &BytesN<32>, address_seed: &BytesN<32>) -> Address {
         // Build preimage: 0x05 || iss_hash || address_seed
         let mut preimage = soroban_sdk::Bytes::new(env);
@@ -337,11 +339,13 @@ impl GatewayFactory {
         preimage.append(&soroban_sdk::Bytes::from_slice(env, &iss_hash.to_array()));
         preimage.append(&soroban_sdk::Bytes::from_slice(env, &address_seed.to_array()));
 
-        // Compute Blake2b hash (using SHA256 as placeholder for Blake2b)
-        let hash = env.crypto().sha256(&preimage);
+        // Compute hash for deterministic derivation
+        let hash: BytesN<32> = env.crypto().sha256(&preimage).into();
 
-        // Convert to contract address
-        Address::from_contract_id(&hash)
+        // In Soroban, we can't directly create an Address from bytes.
+        // The actual address is determined during deployment.
+        // For prediction, we return a placeholder using the factory's deployed address calculation
+        env.deployer().with_current_contract(hash).deployed_address()
     }
 }
 
