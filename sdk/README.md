@@ -1,18 +1,32 @@
 # @stellar-zklogin/sdk
 
-**Embeddable zkLogin SDK for Stellar** - No external wallets required.
+> **The World's Best zkLogin SDK for Stellar** - Replace wallets with social login in 3 lines of code.
 
-Integrate zkLogin authentication into any Stellar dApp with a single import. Users login with Google or Apple, and a smart contract wallet is created automatically. No Freighter, no Hot Wallet, just works.
+[![npm version](https://badge.fury.io/js/%40stellar-zklogin%2Fsdk.svg)](https://www.npmjs.com/package/@stellar-zklogin/sdk)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+
+## Why zkLogin?
+
+Traditional blockchain wallets kill mainstream adoption:
+- ❌ Users must install browser extensions
+- ❌ Managing seed phrases is error-prone
+- ❌ Poor mobile experience
+- ❌ Complex onboarding
+
+**zkLogin solves this** - users authenticate with Google/Apple while maintaining true self-custody through zero-knowledge cryptography.
 
 ## Features
 
-- **One-Line Integration** - Login users with a single function call
-- **No External Wallets** - Embedded wallet using ephemeral keys + ZK proofs
-- **OAuth Providers** - Google and Apple Sign-In support
-- **X-Ray Protocol** - Native BN254 and Poseidon support (Protocol 25)
-- **React Integration** - Hooks, Provider, and pre-built UI components
-- **x402 Payments** - HTTP payment protocol support
-- **TypeScript** - Full type definitions included
+- 🚀 **3-Line Integration** - Get started in minutes, not days
+- 🔐 **Zero Wallet Extensions** - No Freighter, Ledger, or any external wallet
+- 🌐 **Social Login** - Google, Apple, and more OAuth providers
+- 💾 **Auto Persistence** - Encrypted IndexedDB sessions
+- 🔗 **Full Soroban Support** - Call any smart contract
+- 📱 **Mobile-First** - Works on all devices
+- 🎨 **React Components** - Pre-built UI included
+- 🛡️ **X-Ray Protocol** - BN254 + Poseidon (CAP-0074/75)
+- ⚡ **True Self-Custody** - Users control their keys via ZK proofs
 
 ## Installation
 
@@ -24,28 +38,30 @@ pnpm add @stellar-zklogin/sdk
 yarn add @stellar-zklogin/sdk
 ```
 
-## Quick Start
+## Quick Start (3 Lines!)
 
-### Basic Usage (Vanilla JS/TS)
+```typescript
+import { createWallet } from '@stellar-zklogin/sdk';
+
+const wallet = createWallet({ appName: 'My dApp', oauthClients: { google: 'YOUR_ID' } });
+const account = await wallet.connect('google');
+console.log('Logged in:', account.address);
+```
+
+**That's it!** Users can now login with Google and have a fully functional Stellar wallet.
+
+### Legacy API (Still Supported)
 
 ```typescript
 import { StellarZkLogin } from '@stellar-zklogin/sdk';
 
-// Initialize SDK
 const zkLogin = new StellarZkLogin({
   network: 'testnet',
-  oauth: {
-    google: { clientId: 'YOUR_GOOGLE_CLIENT_ID' }
-  }
+  oauth: { google: { clientId: 'YOUR_GOOGLE_CLIENT_ID' } }
 });
 
-// Login with Google - no Freighter needed!
 const wallet = await zkLogin.login('google');
-
 console.log('Address:', wallet.getAddress());
-console.log('Balance:', await wallet.getBalance());
-
-// Send payment
 await wallet.sendPayment('GDEST...', 'native', '10');
 ```
 

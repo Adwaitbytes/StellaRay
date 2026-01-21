@@ -1,17 +1,19 @@
 {
   "name": "@stellar-zklogin/sdk",
-  "version": "1.0.0",
-  "description": "Embeddable zkLogin SDK for Stellar - No external wallets required",
+  "version": "2.0.0",
+  "description": "World's best zkLogin SDK for Stellar - Replace wallets with social login in 3 lines",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.ts src/react/index.ts --format cjs,esm --dts --external react",
-    "dev": "tsup src/index.ts src/react/index.ts --format cjs,esm --dts --external react --watch",
+    "build": "tsup src/index.ts src/react/index.ts src/core/index.ts --format cjs,esm --dts --external react --minify",
+    "dev": "tsup src/index.ts src/react/index.ts src/core/index.ts --format cjs,esm --dts --external react --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "stellar",
@@ -25,7 +27,14 @@
     "bn254",
     "poseidon",
     "soroban",
-    "embedded-wallet"
+    "embedded-wallet",
+    "web3",
+    "blockchain",
+    "authentication",
+    "social-login",
+    "google-login",
+    "apple-login",
+    "zero-knowledge"
   ],
   "author": "Stellar zkLogin Gateway",
   "license": "MIT",
@@ -34,6 +43,9 @@
     "url": "https://github.com/stellar-zklogin/sdk"
   },
   "homepage": "https://zklogin.stellar.org",
+  "bugs": {
+    "url": "https://github.com/stellar-zklogin/sdk/issues"
+  },
   "dependencies": {
     "@stellar/stellar-sdk": "^12.0.0",
     "snarkjs": "^0.7.0",
@@ -45,6 +57,7 @@
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",
+    "@vitest/coverage-v8": "^1.0.0",
     "eslint": "^8.55.0",
     "react": "^18.2.0",
     "tsup": "^8.0.0",
@@ -61,7 +74,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": {
@@ -73,7 +87,15 @@
       "import": "./dist/react/index.mjs",
       "require": "./dist/react/index.js",
       "types": "./dist/react/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/core/index.mjs",
+      "require": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
     }
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
