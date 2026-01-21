@@ -44,6 +44,14 @@ import {
   type AccountBalance,
   type Transaction,
 } from "@/lib/stellar";
+import {
+  CONTRACT_IDS,
+  areContractsConfigured,
+  getContractStatus,
+  GatewayFactory,
+  formatContractId,
+  getContractExplorerUrl,
+} from "@/lib/soroban";
 
 const EXPLORER_URL = "https://stellar.expert/explorer/testnet";
 
@@ -238,6 +246,10 @@ export default function Dashboard() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastTxCount, setLastTxCount] = useState(0);
 
+  // Contract integration state
+  const [contractsConfigured, setContractsConfigured] = useState(false);
+  const [totalWallets, setTotalWallets] = useState<number>(0);
+
   // Sound effects
   const playSound = useCallback((type: 'success' | 'error' | 'notification') => {
     if (!soundEnabled) return;
@@ -285,6 +297,25 @@ export default function Dashboard() {
     fetchPrice();
     const interval = setInterval(fetchPrice, 60000); // Update every minute
     return () => clearInterval(interval);
+  }, []);
+
+  // Fetch contract status
+  useEffect(() => {
+    const fetchContractData = async () => {
+      const configured = areContractsConfigured();
+      setContractsConfigured(configured);
+
+      if (configured) {
+        try {
+          const count = await GatewayFactory.getWalletCount();
+          setTotalWallets(count);
+        } catch (err) {
+          console.error('Error fetching contract data:', err);
+        }
+      }
+    };
+
+    fetchContractData();
   }, []);
 
   // Toast helper
@@ -767,6 +798,87 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Smart Contracts Status */}
+        {contractsConfigured && (
+          <div className="mt-6 border border-white/10 bg-black/50 backdrop-blur-sm">
+            <div className="p-6">
+              <h3 className="font-black text-lg mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-[#FF10F0]" />
+                SOROBAN CONTRACTS
+              </h3>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* ZK Verifier */}
+                <div className="bg-black/50 border border-white/10 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-[#39FF14] animate-pulse" />
+                    <span className="text-xs text-white/40 font-bold">ZK VERIFIER</span>
+                  </div>
+                  <a
+                    href={getContractExplorerUrl(CONTRACT_IDS.ZK_VERIFIER)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-[#39FF14] hover:underline"
+                  >
+                    {formatContractId(CONTRACT_IDS.ZK_VERIFIER)}
+                  </a>
+                </div>
+
+                {/* Gateway Factory */}
+                <div className="bg-black/50 border border-white/10 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-[#00D4FF] animate-pulse" />
+                    <span className="text-xs text-white/40 font-bold">FACTORY</span>
+                  </div>
+                  <a
+                    href={getContractExplorerUrl(CONTRACT_IDS.GATEWAY_FACTORY)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-[#00D4FF] hover:underline"
+                  >
+                    {formatContractId(CONTRACT_IDS.GATEWAY_FACTORY)}
+                  </a>
+                  {totalWallets > 0 && (
+                    <p className="text-xs text-white/40 mt-1">{totalWallets} wallets</p>
+                  )}
+                </div>
+
+                {/* JWK Registry */}
+                <div className="bg-black/50 border border-white/10 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-[#FF10F0] animate-pulse" />
+                    <span className="text-xs text-white/40 font-bold">JWK REGISTRY</span>
+                  </div>
+                  <a
+                    href={getContractExplorerUrl(CONTRACT_IDS.JWK_REGISTRY)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-[#FF10F0] hover:underline"
+                  >
+                    {formatContractId(CONTRACT_IDS.JWK_REGISTRY)}
+                  </a>
+                </div>
+
+                {/* x402 Facilitator */}
+                <div className="bg-black/50 border border-white/10 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-[#FFFF00] animate-pulse" />
+                    <span className="text-xs text-white/40 font-bold">x402 PAYMENTS</span>
+                  </div>
+                  <a
+                    href={getContractExplorerUrl(CONTRACT_IDS.X402_FACILITATOR)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs text-[#FFFF00] hover:underline"
+                  >
+                    {formatContractId(CONTRACT_IDS.X402_FACILITATOR)}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Transactions */}
         <div className="mt-8">
