@@ -21,7 +21,7 @@
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
-    symbol_short, Address, BytesN, Env, String, Symbol, Vec,
+    xdr::ToXdr, Address, BytesN, Env, String,
     token::TokenClient,
 };
 
@@ -404,20 +404,22 @@ impl X402Facilitator {
 
     fn generate_request_id(env: &Env, requester: &Address, nonce: u64) -> BytesN<32> {
         let mut data = soroban_sdk::Bytes::new(env);
-        data.append(&soroban_sdk::Bytes::from_slice(env, &requester.to_xdr(env).as_slice()));
+        let xdr_bytes = requester.to_xdr(env);
+        data.append(&xdr_bytes);
         data.append(&soroban_sdk::Bytes::from_slice(env, &nonce.to_be_bytes()));
         data.append(&soroban_sdk::Bytes::from_slice(env, &env.ledger().timestamp().to_be_bytes()));
 
-        env.crypto().sha256(&data)
+        env.crypto().sha256(&data).into()
     }
 
     fn generate_tx_hash(env: &Env, request_id: &BytesN<32>, payer: &Address) -> BytesN<32> {
         let mut data = soroban_sdk::Bytes::new(env);
         data.append(&soroban_sdk::Bytes::from_slice(env, &request_id.to_array()));
-        data.append(&soroban_sdk::Bytes::from_slice(env, &payer.to_xdr(env).as_slice()));
+        let xdr_bytes = payer.to_xdr(env);
+        data.append(&xdr_bytes);
         data.append(&soroban_sdk::Bytes::from_slice(env, &env.ledger().sequence().to_be_bytes()));
 
-        env.crypto().sha256(&data)
+        env.crypto().sha256(&data).into()
     }
 }
 
