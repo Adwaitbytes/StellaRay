@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0A0A0A"/>
+      <stop offset="100%" style="stop-color:#1A1A2E"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background with rounded corners for iOS -->
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+
+  <!-- Border -->
+  <rect x="8" y="8" width="164" height="164" rx="32" fill="none" stroke="#39FF14" stroke-width="4" filter="url(#glow)"/>
+
+  <!-- Corner accents -->
+  <rect x="8" y="8" width="20" height="4" fill="#FF3366"/>
+  <rect x="8" y="8" width="4" height="20" fill="#FF3366"/>
+  <rect x="152" y="8" width="20" height="4" fill="#00D4FF"/>
+  <rect x="168" y="8" width="4" height="20" fill="#00D4FF"/>
+  <rect x="8" y="168" width="20" height="4" fill="#FFD600"/>
+  <rect x="8" y="152" width="4" height="20" fill="#FFD600"/>
+  <rect x="152" y="168" width="20" height="4" fill="#39FF14"/>
+  <rect x="168" y="152" width="4" height="20" fill="#39FF14"/>
+
+  <!-- S Letter - Brutalist -->
+  <g filter="url(#glow)">
+    <rect x="48" y="40" width="84" height="20" fill="#FFFFFF"/>
+    <rect x="48" y="40" width="20" height="50" fill="#FFFFFF"/>
+    <rect x="48" y="70" width="84" height="20" fill="#FFFFFF"/>
+    <rect x="112" y="70" width="20" height="50" fill="#FFFFFF"/>
+    <rect x="48" y="100" width="84" height="20" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Accent line -->
+  <rect x="40" y="82" width="100" height="3" fill="#FF3366" transform="rotate(-12 90 90)"/>
+
+  <!-- Small accent -->
+  <rect x="136" y="40" width="8" height="8" fill="#39FF14"/>
+
+  <!-- Badge -->
+  <rect x="52" y="132" width="76" height="14" fill="#39FF14"/>
+  <text x="90" y="143" font-family="Arial Black, sans-serif" font-size="9" font-weight="900" fill="#000000" text-anchor="middle">STELLAR</text>
+</svg>

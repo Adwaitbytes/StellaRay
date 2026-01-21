@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code } from "lucide-react";
+import LoadingScreen, { ButtonLoader } from "@/components/LoadingScreen";
 import Link from "next/link";
 
 export default function Home() {
@@ -58,11 +59,7 @@ export default function Home() {
   ];
 
   if (status === "loading") {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'}`}>
-        <div className={`w-16 h-16 border-4 ${isDark ? 'border-white' : 'border-black'} border-t-transparent animate-spin`} />
-      </div>
-    );
+    return <LoadingScreen message="INITIALIZING" />;
   }
 
   return (
@@ -151,7 +148,7 @@ export default function Home() {
                 <div className={`absolute inset-0 ${isDark ? 'bg-[#FF3366]' : 'bg-[#CC0033]'} translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3`} />
                 <div className={`relative flex items-center justify-center gap-4 px-10 py-5 ${isDark ? 'bg-white text-black' : 'bg-black text-white'} font-black text-lg border-4 ${isDark ? 'border-white' : 'border-black'} transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}>
                   {isLoading ? (
-                    <div className="w-6 h-6 border-4 border-current border-t-transparent animate-spin" />
+                    <ButtonLoader text="CONNECTING" />
                   ) : (
                     <>
                       <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -391,7 +388,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-[#FF3366] translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3" />
             <div className={`relative flex items-center justify-center gap-4 px-12 py-6 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'} font-black text-xl border-4 border-[#FF3366] transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}>
               {isLoading ? (
-                <div className="w-6 h-6 border-4 border-[#FF3366] border-t-transparent animate-spin" />
+                <ButtonLoader color="#FF3366" text="CREATING" />
               ) : (
                 <>
                   CREATE FREE WALLET

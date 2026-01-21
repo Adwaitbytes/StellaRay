@@ -321,6 +321,219 @@ body.dark {
   to { transform: rotate(360deg); }
 }
 
+/* Advanced Loading Animation - Stellar Gateway */
+.loader-stellar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.loader-stellar::before,
+.loader-stellar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid transparent;
+}
+
+.loader-stellar::before {
+  border-color: var(--neon-green);
+  animation: spin 2s linear infinite;
+}
+
+.loader-stellar::after {
+  border-color: var(--neon-pink);
+  animation: spin 2s linear infinite reverse;
+  inset: 8px;
+}
+
+/* Glitch loader */
+.loader-glitch {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-glitch::before {
+  content: 'S';
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--white);
+  animation: glitch 0.5s infinite;
+}
+
+.loader-glitch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--neon-green);
+  animation: glitch-border 0.3s infinite alternate;
+}
+
+@keyframes glitch {
+  0%, 100% {
+    text-shadow: 2px 0 var(--neon-pink), -2px 0 var(--neon-blue);
+    transform: translate(0);
+  }
+  25% {
+    text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-blue);
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    text-shadow: 2px 2px var(--neon-pink), -2px -2px var(--neon-blue);
+    transform: translate(1px, -1px);
+  }
+  75% {
+    text-shadow: -2px -2px var(--neon-pink), 2px 2px var(--neon-blue);
+    transform: translate(-1px, 2px);
+  }
+}
+
+@keyframes glitch-border {
+  0% {
+    transform: translate(0);
+    border-color: var(--neon-green);
+  }
+  50% {
+    transform: translate(2px, -2px);
+    border-color: var(--neon-pink);
+  }
+  100% {
+    transform: translate(-2px, 2px);
+    border-color: var(--neon-blue);
+  }
+}
+
+/* Pulse loader */
+.loader-pulse {
+  width: 60px;
+  height: 60px;
+  position: relative;
+}
+
+.loader-pulse > div {
+  position: absolute;
+  inset: 0;
+  border: 4px solid var(--neon-green);
+  animation: pulse-expand 1.5s ease-out infinite;
+}
+
+.loader-pulse > div:nth-child(2) {
+  animation-delay: 0.5s;
+  border-color: var(--neon-pink);
+}
+
+.loader-pulse > div:nth-child(3) {
+  animation-delay: 1s;
+  border-color: var(--neon-blue);
+}
+
+@keyframes pulse-expand {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Matrix-style dots loader */
+.loader-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  width: 44px;
+  height: 44px;
+}
+
+.loader-matrix > div {
+  width: 12px;
+  height: 12px;
+  background: var(--neon-green);
+  animation: matrix-blink 1.2s ease-in-out infinite;
+}
+
+.loader-matrix > div:nth-child(1) { animation-delay: 0ms; }
+.loader-matrix > div:nth-child(2) { animation-delay: 100ms; }
+.loader-matrix > div:nth-child(3) { animation-delay: 200ms; }
+.loader-matrix > div:nth-child(4) { animation-delay: 300ms; }
+.loader-matrix > div:nth-child(5) { animation-delay: 400ms; background: var(--neon-pink); }
+.loader-matrix > div:nth-child(6) { animation-delay: 500ms; }
+.loader-matrix > div:nth-child(7) { animation-delay: 600ms; }
+.loader-matrix > div:nth-child(8) { animation-delay: 700ms; }
+.loader-matrix > div:nth-child(9) { animation-delay: 800ms; }
+
+@keyframes matrix-blink {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Blockchain-style loader */
+.loader-blockchain {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.loader-blockchain > div {
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--white);
+  position: relative;
+  animation: blockchain-pulse 1.5s ease-in-out infinite;
+}
+
+.loader-blockchain > div::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  width: 8px;
+  height: 3px;
+  background: var(--neon-green);
+  animation: chain-link 1.5s ease-in-out infinite;
+}
+
+.loader-blockchain > div:last-child::after {
+  display: none;
+}
+
+.loader-blockchain > div:nth-child(1) { animation-delay: 0ms; }
+.loader-blockchain > div:nth-child(2) { animation-delay: 300ms; }
+.loader-blockchain > div:nth-child(3) { animation-delay: 600ms; }
+
+@keyframes blockchain-pulse {
+  0%, 100% {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    border-color: var(--neon-green);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes chain-link {
+  0%, 100% {
+    background: rgba(57, 255, 20, 0.3);
+  }
+  50% {
+    background: var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green);
+  }
+}
+
 /* ============================================
    TRANSACTION ITEMS
    ============================================ */
