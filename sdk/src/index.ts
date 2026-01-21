@@ -1,28 +1,79 @@
 /**
- * Stellar zkLogin Gateway SDK
+ * Stellar zkLogin SDK - World's Best zkLogin Implementation
  *
- * Complete TypeScript SDK for zkLogin-based authentication on Stellar.
- * No external wallets (Freighter, Hot Wallet) required.
+ * The most powerful, easy-to-use zkLogin SDK for Stellar blockchain.
+ * Replace traditional wallets with social login in just 3 lines of code.
  *
- * @example
+ * Features:
+ * - Zero wallet extensions required
+ * - Login with Google, Apple, and more
+ * - Automatic session management
+ * - IndexedDB persistence with encryption
+ * - Full Soroban smart contract support
+ * - X-Ray Protocol (BN254 + Poseidon) integration
+ * - React hooks and components included
+ *
+ * @example Quick Start (3 lines)
  * ```typescript
- * import { StellarZkLogin } from '@stellar-zklogin/sdk';
+ * import { createWallet } from '@stellar-zklogin/sdk';
  *
- * const zkLogin = new StellarZkLogin({
- *   network: 'testnet',
- *   oauth: { google: { clientId: 'YOUR_ID' } }
- * });
- *
- * const wallet = await zkLogin.login('google');
- * console.log('Address:', wallet.getAddress());
+ * const wallet = createWallet({ appName: 'My dApp', oauthClients: { google: 'YOUR_ID' } });
+ * const account = await wallet.connect('google');
+ * console.log('Logged in:', account.address);
  * ```
+ *
+ * @example React Integration
+ * ```tsx
+ * import { ZkLoginProvider, useWallet, LoginButton } from '@stellar-zklogin/sdk/react';
+ *
+ * function App() {
+ *   return (
+ *     <ZkLoginProvider config={{ appName: 'My dApp', oauthClients: { google: 'ID' } }}>
+ *       <MyDApp />
+ *     </ZkLoginProvider>
+ *   );
+ * }
+ *
+ * function MyDApp() {
+ *   const { isConnected, address, connect, disconnect } = useWallet();
+ *   if (!isConnected) return <LoginButton provider="google" />;
+ *   return <div>Welcome {address}!</div>;
+ * }
+ * ```
+ *
+ * @packageDocumentation
  */
 
 // ==========================================
-// Main API (Simplified)
+// SIMPLE API - Start Here
 // ==========================================
 
-// Primary entry point - simplified high-level API
+// The easiest way to integrate - just import createWallet
+export {
+  ZkLoginWalletAdapter,
+  createWallet,
+  getWallet,
+  setGlobalWallet,
+} from "./core/wallet-adapter";
+export type {
+  WalletConfig,
+  WalletAccount,
+  WalletEvent,
+  WalletEventType,
+  WalletEventListener,
+  ConnectionStatus,
+  OAuthProvider,
+  BalanceInfo,
+  TransactionRequest,
+  ContractCallRequest,
+  SignedTransaction,
+} from "./core/wallet-adapter";
+
+// ==========================================
+// LEGACY API - For Backward Compatibility
+// ==========================================
+
+// Original high-level API
 export {
   StellarZkLogin,
   type StellarZkLoginConfig,
@@ -60,17 +111,78 @@ export {
 } from "./config";
 
 // ==========================================
-// Advanced API (Low-Level)
+// CORE MODULES - Production-Ready Primitives
 // ==========================================
 
-// Core client (for advanced usage)
+// Blake2b cryptographic hashing (proper implementation)
+export {
+  blake2b,
+  blake2b256,
+  blake2b256Async,
+  blake2bPersonalized,
+} from "./core/blake2b";
+
+// Stellar XDR encoding/decoding
+export {
+  XdrWriter,
+  XdrReader,
+  encodeStrKey,
+  decodeStrKey,
+  isValidAddress,
+  isValidContractAddress,
+  toStroops,
+  fromStroops,
+  NETWORK_PASSPHRASE,
+  VERSION_BYTES,
+  OperationType,
+  encodeAsset,
+  encodePaymentOp,
+  encodeSorobanValue,
+  encodeTransaction,
+  computeTransactionHash,
+} from "./core/stellar-xdr";
+export type {
+  NetworkType,
+  Asset,
+  PaymentOp,
+  InvokeHostFunctionOp,
+  SorobanValue,
+  SorobanAuth,
+  TransactionEnvelope,
+  Operation as XdrOperation,
+} from "./core/stellar-xdr";
+
+// Soroban smart contract client
+export {
+  SorobanClient,
+  SOROBAN_RPC_URLS,
+  HORIZON_URLS,
+  createContractClient,
+} from "./core/soroban-client";
+export type {
+  InvokeOptions,
+  SimulationResult,
+  SubmissionResult,
+  AccountInfo,
+  LedgerEntry,
+} from "./core/soroban-client";
+
+// Persistent storage with encryption
+export { StorageManager, MemoryStorage, getStorage } from "./core/storage";
+export type { StoredSession, StorageOptions } from "./core/storage";
+
+// ==========================================
+// ADVANCED API - Low-Level Access
+// ==========================================
+
+// Core zkLogin client
 export { ZkLoginClient, type ZkLoginClientConfig } from "./client";
 
 // OAuth providers
 export {
   GoogleOAuthProvider,
   AppleOAuthProvider,
-  type OAuthProvider,
+  type OAuthProvider as OAuthProviderType,
   type OAuthConfig,
   type OAuthToken,
 } from "./oauth";
@@ -91,7 +203,7 @@ export {
   type ProverConfig,
 } from "./prover";
 
-// x402 payment
+// x402 payment protocol
 export {
   X402PaymentClient,
   type PaymentRequest,
@@ -99,11 +211,11 @@ export {
   type X402Config,
 } from "./x402";
 
-// Transaction builder
+// Transaction builder (legacy)
 export {
   TransactionBuilder,
   type TransactionOptions,
-  type SignedTransaction,
+  type SignedTransaction as LegacySignedTransaction,
 } from "./transaction";
 
 // Address utilities
@@ -114,7 +226,7 @@ export {
   deriveZkLoginAddress,
 } from "./utils/address";
 
-// Crypto utilities
+// Crypto utilities (Poseidon)
 export {
   poseidonHash,
   hashBytesToField,
@@ -123,3 +235,9 @@ export {
 
 // Types
 export * from "./types";
+
+// ==========================================
+// VERSION
+// ==========================================
+
+export const SDK_VERSION = "2.0.0";

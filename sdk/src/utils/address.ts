@@ -164,11 +164,9 @@ function base64UrlEncode(bytes: Uint8Array): string {
 }
 
 async function blake2b256(data: Uint8Array): Promise<Uint8Array> {
-  // Use SubtleCrypto for hashing
-  // Note: Blake2b is not natively supported, would use a library
-  // Using SHA-256 as placeholder
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  return new Uint8Array(hashBuffer);
+  // Use the proper Blake2b-256 implementation from core
+  const { blake2b256: blake2bHash } = await import("../core/blake2b");
+  return blake2bHash(data);
 }
 
 function toStellarAddress(hash: Uint8Array): string {
