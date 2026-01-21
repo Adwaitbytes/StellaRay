@@ -12,6 +12,14 @@ interface AdvancedAnalyticsDashboardProps {
   isDark?: boolean;
 }
 
+interface RecentActivity {
+  id: string;
+  operation: string;
+  gasUsed: number;
+  duration: number;
+  status: string;
+}
+
 interface ChartData {
   label: string;
   value: number;
@@ -36,6 +44,7 @@ export function AdvancedAnalyticsDashboard({ isDark = true }: AdvancedAnalyticsD
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([]);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const animationRef = useRef<number>();
   const frameRef = useRef(0);
 
@@ -51,31 +60,62 @@ export function AdvancedAnalyticsDashboard({ isDark = true }: AdvancedAnalyticsD
     }
   }, []);
 
+  // Fetch recent activity from events API
+  const loadRecentActivity = useCallback(async () => {
+    try {
+      const response = await fetch('/api/xray/events?limit=4');
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.events) {
+        setRecentActivity(data.events.map((e: any) => ({
+          id: e.id,
+          operation: e.operation || 'Blockchain Operation',
+          gasUsed: e.gasUsed || 100000,
+          duration: Math.min(15, Math.max(1, Math.floor((e.gasUsed || 100000) / 25000))),
+          status: e.status || 'confirmed',
+        })));
+      }
+    } catch (err) {
+      console.error('Error fetching recent activity:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadMetrics();
-    const interval = setInterval(loadMetrics, 10000);
-    return () => clearInterval(interval);
-  }, [loadMetrics]);
+    loadRecentActivity();
+    const metricsInterval = setInterval(loadMetrics, 10000);
+    const activityInterval = setInterval(loadRecentActivity, 5000);
+    return () => {
+      clearInterval(metricsInterval);
+      clearInterval(activityInterval);
+    };
+  }, [loadMetrics, loadRecentActivity]);
 
-  // Generate time series data
+  // Generate time series data based on real metrics
   useEffect(() => {
+    if (!metrics) return;
+
     const points = timeRange === '1h' ? 12 : timeRange === '24h' ? 24 : timeRange === '7d' ? 7 : 30;
     const now = Date.now();
     const interval = timeRange === '1h' ? 5 * 60000 : timeRange === '24h' ? 3600000 : timeRange === '7d' ? 86400000 : 86400000;
 
+    // Base values from real metrics
+    const baseProofs = metrics.proofsVerified / points || 10;
+    const baseOps = metrics.bn254Operations / points || 30;
+
     const data: TimeSeriesData[] = [];
     for (let i = points - 1; i >= 0; i--) {
-      const baseProofs = 50 + Math.random() * 100;
-      const trend = (points - i) / points; // Upward trend
+      // Create distribution curve that sums to the real totals
+      const weight = 1 + (points - i) / points * 0.5; // Slight upward trend
       data.push({
         timestamp: new Date(now - i * interval),
-        proofs: Math.round(baseProofs * (1 + trend * 0.5)),
-        gas: Math.round((200000 + Math.random() * 100000) * (1 - trend * 0.3)),
-        operations: Math.round((baseProofs * 3) * (1 + trend * 0.4)),
+        proofs: Math.round(baseProofs * weight),
+        gas: Math.round(metrics.totalGasSaved / points || 200000),
+        operations: Math.round(baseOps * weight),
       });
     }
     setTimeSeriesData(data);
-  }, [timeRange]);
+  }, [timeRange, metrics]);
 
   // Draw bar chart
   useEffect(() => {
@@ -424,7 +464,7 @@ export function AdvancedAnalyticsDashboard({ isDark = true }: AdvancedAnalyticsD
             { label: 'Total Proofs', value: metrics?.proofsVerified, icon: Shield, color: '#39FF14' },
             { label: 'BN254 Ops', value: metrics?.bn254Operations, icon: Zap, color: '#00D4FF' },
             { label: 'Gas Saved', value: metrics?.totalGasSaved, icon: Fuel, color: '#FFD600' },
-            { label: 'Avg Verify', value: metrics?.avgVerifyTime, icon: Clock, color: '#FF10F0', suffix: 'ms' },
+            { label: 'Avg Verify', value: metrics?.avgVerificationMs, icon: Clock, color: '#FF10F0', suffix: 'ms' },
           ].map((metric, idx) => {
             const change = calculateChange(metric.value || 0, idx !== 2);
             return (
@@ -576,27 +616,26 @@ export function AdvancedAnalyticsDashboard({ isDark = true }: AdvancedAnalyticsD
             </div>
           </div>
           <div className="space-y-2">
-            {[
-              { op: 'Groth16 Verify', gas: '260K', time: '12ms', status: 'success' },
-              { op: 'Multi-Pairing Check', gas: '150K', time: '8ms', status: 'success' },
-              { op: 'Poseidon Hash (x4)', gas: '200K', time: '3ms', status: 'success' },
-              { op: 'G1 Scalar Mul', gas: '45K', time: '2ms', status: 'success' },
-            ].map((activity, idx) => (
+            {(recentActivity.length > 0 ? recentActivity : [
+              { id: '1', operation: 'Waiting for data...', gasUsed: 0, duration: 0, status: 'pending' },
+            ]).map((activity, idx) => (
               <div
-                key={idx}
+                key={activity.id || idx}
                 className={`flex items-center justify-between py-2 ${
                   idx > 0 ? `border-t ${isDark ? 'border-white/5' : 'border-black/5'}` : ''
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-[#39FF14] rounded-full" />
+                  <div className={`w-2 h-2 rounded-full ${activity.status === 'confirmed' ? 'bg-[#39FF14]' : 'bg-yellow-500'}`} />
                   <span className={`text-xs font-bold ${isDark ? 'text-white/80' : 'text-black/80'}`}>
-                    {activity.op}
+                    {activity.operation}
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-mono text-[#00D4FF]">{activity.gas}</span>
-                  <span className="text-[10px] font-mono text-[#FFD600]">{activity.time}</span>
+                  <span className="text-[10px] font-mono text-[#00D4FF]">
+                    {activity.gasUsed >= 1000 ? `${(activity.gasUsed / 1000).toFixed(0)}K` : activity.gasUsed}
+                  </span>
+                  <span className="text-[10px] font-mono text-[#FFD600]">{activity.duration}ms</span>
                 </div>
               </div>
             ))}
