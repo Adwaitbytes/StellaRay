@@ -19,20 +19,31 @@ const BN254_FIELD_PRIME = BigInt(
  */
 export async function poseidonHash(inputs: bigint[]): Promise<bigint> {
   // Import poseidon-lite for actual implementation
-  try {
-    const { poseidon } = await import("poseidon-lite");
+  const poseidonLib = await import("poseidon-lite");
 
-    // Ensure inputs are in field
-    const normalizedInputs = inputs.map((x) => mod(x, BN254_FIELD_PRIME));
+  // Ensure inputs are in field
+  const normalizedInputs = inputs.map((x) => mod(x, BN254_FIELD_PRIME));
 
-    // Call poseidon with appropriate width
-    const result = poseidon(normalizedInputs);
-
-    return BigInt(result.toString());
-  } catch {
-    // Fallback: simplified hash for development
-    return simplifiedPoseidon(inputs);
+  // Call poseidon with appropriate width based on input length
+  // poseidon-lite supports 1-16 inputs
+  if (normalizedInputs.length === 0) {
+    throw new Error("Poseidon hash requires at least 1 input");
   }
+  if (normalizedInputs.length > 16) {
+    throw new Error("Poseidon hash supports maximum 16 inputs");
+  }
+
+  // Select the appropriate poseidon function based on input count
+  const poseidonFn = (poseidonLib as unknown as Record<string, (inputs: bigint[]) => bigint>)[
+    `poseidon${normalizedInputs.length}`
+  ];
+
+  if (!poseidonFn) {
+    throw new Error(`Poseidon hash for ${normalizedInputs.length} inputs not available`);
+  }
+
+  const result = poseidonFn(normalizedInputs);
+  return BigInt(result.toString());
 }
 
 /**
@@ -202,20 +213,22 @@ function base64UrlDecode(str: string): Uint8Array {
 }
 
 /**
- * Simplified Poseidon for development/testing
- * Uses a basic sponge construction - NOT cryptographically secure
+ * Convert hex string to Uint8Array
  */
-function simplifiedPoseidon(inputs: bigint[]): bigint {
-  // This is a placeholder - actual implementation uses proper Poseidon
-  let state = BigInt(0);
-
-  for (const input of inputs) {
-    // Mix input into state
-    state ^= input;
-    // Apply a simple permutation
-    state = mod(state * BigInt("0x123456789abcdef") + BigInt(1), BN254_FIELD_PRIME);
-    state = mod(state * state * state, BN254_FIELD_PRIME); // x^3
+export function hexToBytes(hex: string): Uint8Array {
+  const cleanHex = hex.startsWith("0x") ? hex.slice(2) : hex;
+  const bytes = new Uint8Array(cleanHex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(cleanHex.substr(i * 2, 2), 16);
   }
+  return bytes;
+}
 
-  return state;
+/**
+ * Convert Uint8Array to hex string
+ */
+export function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }

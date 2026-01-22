@@ -4,7 +4,6 @@
  * Primary hook for zkLogin authentication.
  */
 
-import { useCallback } from 'react';
 import { useZkLoginContext } from './Provider';
 import type { EmbeddedWallet } from '../StellarZkLogin';
 

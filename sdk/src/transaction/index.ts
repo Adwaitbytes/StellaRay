@@ -181,26 +181,76 @@ export class TransactionBuilder {
   }
 
   /**
-   * Build a transaction
+   * Build a transaction using Stellar SDK
    */
   async buildTransaction(options: TransactionOptions): Promise<string> {
-    const currentLedger = await this.getCurrentLedger();
+    const {
+      TransactionBuilder: StellarTxBuilder,
+      Operation,
+      Asset,
+      Memo,
+      Account,
+    } = await import("@stellar/stellar-sdk");
 
-    const tx = {
-      source: options.sourceAddress,
-      fee: options.fee ?? 100,
-      seqNum: await this.getSequenceNumber(options.sourceAddress),
-      timeBounds: {
-        minTime: 0,
-        maxTime: currentLedger + (options.timeout ?? 300),
-      },
-      memo: options.memo,
-      operations: options.operations,
-      networkPassphrase: NETWORK_PASSPHRASES[this.config.network],
-    };
+    // Get account info
+    const response = await fetch(`${this.config.horizonUrl}/accounts/${options.sourceAddress}`);
+    let account: InstanceType<typeof Account>;
 
-    // Serialize to XDR (simplified - actual uses Stellar SDK)
-    return btoa(JSON.stringify(tx));
+    if (response.ok) {
+      const accountData = await response.json();
+      account = new Account(options.sourceAddress, accountData.sequence);
+    } else {
+      // New account, use sequence 0
+      account = new Account(options.sourceAddress, "0");
+    }
+
+    // Get network passphrase
+    const networkPassphrase = NETWORK_PASSPHRASES[this.config.network];
+
+    // Build transaction
+    let builder = new StellarTxBuilder(account, {
+      fee: String(options.fee ?? 100),
+      networkPassphrase,
+    });
+
+    // Add operations
+    for (const op of options.operations) {
+      if (op.type === "payment") {
+        builder = builder.addOperation(
+          Operation.payment({
+            destination: op.destination as string,
+            asset: op.asset === "native" ? Asset.native() : new Asset(op.assetCode as string, op.assetIssuer as string),
+            amount: op.amount as string,
+          })
+        );
+      } else if (op.type === "invokeHostFunction") {
+        // For Soroban operations, we need to use invokeContractFunction
+        // This is a simplified version - full implementation would use Soroban SDK
+        builder = builder.addOperation(
+          Operation.invokeHostFunction({
+            func: {
+              type: "invokeContract",
+              contractAddress: op.contract as string,
+              functionName: op.function as string,
+              args: op.args as unknown[],
+            } as any,
+            auth: [],
+          })
+        );
+      }
+    }
+
+    // Add memo if provided
+    if (options.memo) {
+      builder = builder.addMemo(Memo.text(options.memo));
+    }
+
+    // Set timeout
+    builder = builder.setTimeout(options.timeout ?? 300);
+
+    // Build and return XDR
+    const tx = builder.build();
+    return tx.toXDR();
   }
 
   /**
@@ -357,25 +407,6 @@ export class TransactionBuilder {
       ErrorCode.TRANSACTION_FAILED,
       "Transaction confirmation timeout"
     );
-  }
-
-  /**
-   * Get account sequence number
-   */
-  private async getSequenceNumber(address: string): Promise<string> {
-    try {
-      const response = await fetch(`${this.config.horizonUrl}/accounts/${address}`);
-
-      if (!response.ok) {
-        // Account might not exist yet (new zkLogin wallet)
-        return "0";
-      }
-
-      const data = await response.json();
-      return data.sequence;
-    } catch {
-      return "0";
-    }
   }
 
   /**

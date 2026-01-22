@@ -705,8 +705,8 @@ export function computeTransactionHash(tx: TransactionEnvelope): Uint8Array {
  * Sign a transaction
  */
 export function signTransaction(
-  txHash: Uint8Array,
-  secretKey: Uint8Array
+  _txHash: Uint8Array,
+  _secretKey: Uint8Array
 ): Uint8Array {
   // Use Ed25519 signing (imported separately)
   // This is a placeholder - actual implementation uses tweetnacl

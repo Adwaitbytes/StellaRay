@@ -11,28 +11,16 @@
  * 7. Sign and submit transactions
  */
 
-import {
-  Keypair,
-  TransactionBuilder as StellarTransactionBuilder,
-  Networks,
-  Operation,
-  Asset as StellarAsset,
-  Memo,
-  xdr,
-} from "@stellar/stellar-sdk";
-
 import { EphemeralKeyManager, type EphemeralKeyPair } from "./keys";
-import { GoogleOAuthProvider, AppleOAuthProvider, type OAuthProvider, type OAuthToken } from "./oauth";
-import { ProverClient, type ZkProof } from "./prover";
+import { GoogleOAuthProvider, AppleOAuthProvider, type OAuthToken } from "./oauth";
+import { ProverClient } from "./prover";
 import { X402PaymentClient } from "./x402";
-import { TransactionBuilder, type SignedTransaction } from "./transaction";
+import { TransactionBuilder, type SignedTransaction, type Operation } from "./transaction";
 import {
   computeAddressSeed,
   computeNonce,
-  computeEphPkHash,
   deriveZkLoginAddress,
-} from "./utils/address";
-import { poseidonHash } from "./utils/crypto";
+} from "./utils/Address";
 import {
   type StellarNetwork,
   type ContractAddresses,
@@ -418,26 +406,31 @@ export class ZkLoginClient {
     destination: string,
     amount: string
   ): Promise<TransactionResult> {
-    const operation = Operation.invokeContractFunction({
+    // Validate session exists
+    if (!this.currentSession?.address) {
+      throw new ZkLoginError(
+        ErrorCode.SESSION_NOT_FOUND,
+        "No active session. Please login first."
+      );
+    }
+
+    // Validate inputs
+    if (!tokenAddress || !destination || !amount) {
+      throw new ZkLoginError(
+        ErrorCode.INVALID_INPUT,
+        "Token address, destination, and amount are required"
+      );
+    }
+
+    // Create a Soroban token transfer operation
+    const operation: Operation = {
+      type: "invokeHostFunction",
       contract: tokenAddress,
       function: "transfer",
-      args: [
-        xdr.ScVal.scvAddress(
-          xdr.ScAddress.scAddressTypeAccount(
-            Keypair.fromPublicKey(this.currentSession!.address!).xdrPublicKey()
-          )
-        ),
-        xdr.ScVal.scvAddress(
-          xdr.ScAddress.scAddressTypeAccount(
-            Keypair.fromPublicKey(destination).xdrPublicKey()
-          )
-        ),
-        xdr.ScVal.scvI128(new xdr.Int128Parts({
-          lo: xdr.Uint64.fromString(amount),
-          hi: xdr.Int64.fromString("0"),
-        })),
-      ],
-    });
+      from: this.currentSession.address,
+      to: destination,
+      amount,
+    };
 
     return this.signAndSubmitTransaction([operation]);
   }
@@ -548,6 +541,15 @@ export class ZkLoginClient {
       exp: payload.exp,
       iat: payload.iat,
     };
+  }
+
+  /**
+   * Sign a transaction XDR with the ephemeral key
+   * Returns the signed XDR
+   */
+  async signTransactionXdr(txXdr: string): Promise<string> {
+    const signedTx = await this.signWithEphemeralKey(txXdr);
+    return signedTx.txXdr; // Return the signed XDR
   }
 
   private async signWithEphemeralKey(tx: string): Promise<SignedTransaction> {

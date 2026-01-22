@@ -352,8 +352,21 @@ The SDK eliminates the need for external wallets through:
 
 MIT
 
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Node.js Support
+
+- Node.js 18+ (required for Web Crypto API)
+
 ## Links
 
-- [Documentation](https://zklogin.stellar.org/docs)
+- [Demo & Documentation](https://stellargateway.vercel.app)
+- [SDK Demo](https://stellargateway.vercel.app/sdk-demo)
+- [Integration Tutorial](https://stellargateway.vercel.app/sdk-demo/tutorial)
 - [GitHub](https://github.com/stellar-zklogin/sdk)
 - [X-Ray Protocol (CAP-0062/63)](https://stellar.org/protocol)

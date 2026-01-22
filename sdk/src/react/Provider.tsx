@@ -6,7 +6,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { StellarZkLogin, type StellarZkLoginConfig, type EmbeddedWallet } from '../StellarZkLogin';
-import { XRayClient, type XRayMetrics, type XRayStatus } from '../xray';
+import { XRayClient } from '../xray';
 
 /**
  * ZkLogin context value
@@ -103,31 +103,39 @@ export function ZkLoginProvider({
 
   // Event handlers
   useEffect(() => {
-    zkLogin.on('login', (data: any) => {
+    // Define handlers as named functions so we can properly remove them
+    const handleLogin = (_data: unknown) => {
       const w = zkLogin.getWallet();
       setWallet(w);
       onLogin?.(w!);
-    });
+    };
 
-    zkLogin.on('logout', () => {
+    const handleLogout = () => {
       setWallet(null);
       onLogout?.();
-    });
+    };
 
-    zkLogin.on('error', (err: any) => {
+    const handleError = (err: any) => {
       setError(err);
       onError?.(err);
-    });
+    };
 
-    zkLogin.on('sessionExpired', () => {
+    const handleSessionExpired = () => {
       setWallet(null);
-    });
+    };
 
+    // Register handlers
+    zkLogin.on('login', handleLogin);
+    zkLogin.on('logout', handleLogout);
+    zkLogin.on('error', handleError);
+    zkLogin.on('sessionExpired', handleSessionExpired);
+
+    // Cleanup: remove the exact same handler references
     return () => {
-      zkLogin.off('login', () => {});
-      zkLogin.off('logout', () => {});
-      zkLogin.off('error', () => {});
-      zkLogin.off('sessionExpired', () => {});
+      zkLogin.off('login', handleLogin);
+      zkLogin.off('logout', handleLogout);
+      zkLogin.off('error', handleError);
+      zkLogin.off('sessionExpired', handleSessionExpired);
     };
   }, [zkLogin, onLogin, onLogout, onError]);
 

@@ -42,7 +42,7 @@
     "type": "git",
     "url": "https://github.com/stellar-zklogin/sdk"
   },
-  "homepage": "https://zklogin.stellar.org",
+  "homepage": "https://stellargateway.vercel.app",
   "bugs": {
     "url": "https://github.com/stellar-zklogin/sdk/issues"
   },
@@ -79,19 +79,19 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./react": {
+      "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.mjs",
-      "require": "./dist/react/index.js",
-      "types": "./dist/react/index.d.ts"
+      "require": "./dist/react/index.js"
     },
     "./core": {
+      "types": "./dist/core/index.d.ts",
       "import": "./dist/core/index.mjs",
-      "require": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
+      "require": "./dist/core/index.js"
     }
   },
   "sideEffects": false,

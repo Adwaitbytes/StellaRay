@@ -98,13 +98,11 @@ type EventHandler = (data?: unknown) => void;
  */
 export class StellarZkLogin {
   private client: ZkLoginClient;
-  private config: StellarZkLoginConfig;
   private currentWallet: EmbeddedWallet | null = null;
   private eventHandlers: Map<StellarZkLoginEvent, Set<EventHandler>> = new Map();
   private oauthPopup: Window | null = null;
 
   constructor(config: StellarZkLoginConfig = {}) {
-    this.config = config;
     const network = config.network ?? "testnet";
     const defaults = getDefaultConfig(network);
 
@@ -318,12 +316,10 @@ export class StellarZkLogin {
       },
 
       async signTransaction(txXdr: string): Promise<string> {
-        // Sign with ephemeral key via client
-        const signedTx = await client.signAndSubmitTransaction([{
-          type: 'custom',
-          xdr: txXdr,
-        }]);
-        return signedTx.hash;
+        // Sign the pre-built XDR transaction
+        // The client will sign with the ephemeral key
+        const signedXdr = await client.signTransactionXdr(txXdr);
+        return signedXdr;
       },
 
       getSession(): Session | null {
@@ -335,20 +331,59 @@ export class StellarZkLogin {
       },
 
       async export(password: string): Promise<string> {
-        // Encrypt session data
+        // Encrypt session data using AES-GCM
         const sessionData = {
           session: client.getSessionInfo(),
           address: client.getAddress(),
           timestamp: Date.now(),
         };
 
-        // Simple encryption (production would use proper crypto)
-        const encrypted = btoa(JSON.stringify({
-          ...sessionData,
-          password: btoa(password), // Just for demo - use proper encryption
-        }));
+        const jsonData = JSON.stringify(sessionData);
+        const encoder = new TextEncoder();
+        const data = encoder.encode(jsonData);
 
-        return encrypted;
+        // Derive key from password using PBKDF2
+        const passwordKey = await crypto.subtle.importKey(
+          "raw",
+          encoder.encode(password),
+          "PBKDF2",
+          false,
+          ["deriveBits", "deriveKey"]
+        );
+
+        // Generate random salt and IV
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+
+        // Derive AES key
+        const aesKey = await crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt,
+            iterations: 100000,
+            hash: "SHA-256",
+          },
+          passwordKey,
+          { name: "AES-GCM", length: 256 },
+          false,
+          ["encrypt"]
+        );
+
+        // Encrypt data
+        const ciphertext = await crypto.subtle.encrypt(
+          { name: "AES-GCM", iv },
+          aesKey,
+          data
+        );
+
+        // Combine salt + iv + ciphertext and encode as base64
+        const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+        combined.set(salt, 0);
+        combined.set(iv, salt.length);
+        combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+
+        // Return as base64 with version prefix
+        return "v1:" + btoa(String.fromCharCode(...combined));
       },
     };
   }

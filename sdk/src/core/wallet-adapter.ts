@@ -14,13 +14,11 @@
 
 import { blake2b256 } from "./blake2b";
 import { StorageManager, StoredSession } from "./storage";
-import { SorobanClient, NetworkType, HORIZON_URLS } from "./soroban-client";
+import { SorobanClient, HORIZON_URLS } from "./soroban-client";
 import {
   encodeStrKey,
-  decodeStrKey,
-  toStroops,
-  fromStroops,
-  NETWORK_PASSPHRASE,
+  NetworkType,
+  SorobanValue,
 } from "./stellar-xdr";
 
 /**
@@ -499,16 +497,29 @@ export class ZkLoginWalletAdapter {
       throw new Error(simulation.error || "Contract call simulation failed");
     }
 
-    // Build and sign transaction with simulation data
-    // ... implementation details
+    // Build transaction with simulation data
+    const txXdr = await this.sorobanClient.buildContractTransaction({
+      source: this.currentSession.address,
+      contract: request.contract,
+      function: request.method,
+      args,
+      simulationResult: simulation,
+    });
+
+    // Sign the transaction
+    const signedTx = await this.signTransaction(txXdr);
+
+    // Submit the transaction
+    const result = await this.sorobanClient.submitTransaction(signedTx.xdr);
 
     this.emit("transaction", {
       type: "contract_call",
       contract: request.contract,
       method: request.method,
+      hash: result.hash,
     });
 
-    return simulation.result;
+    return result;
   }
 
   /**
@@ -533,36 +544,44 @@ export class ZkLoginWalletAdapter {
       throw new Error("Wallet not connected");
     }
 
-    // Decode transaction
-    const txBytes = Uint8Array.from(atob(txXdr), (c) => c.charCodeAt(0));
+    // Use the Stellar SDK to properly sign transactions
+    const {
+      TransactionBuilder,
+      Keypair,
+      Networks,
+    } = await import("@stellar/stellar-sdk");
 
-    // Compute transaction hash
-    const networkHash = blake2b256(
-      new TextEncoder().encode(NETWORK_PASSPHRASE[this.config.network])
-    );
-    const preimage = new Uint8Array(networkHash.length + txBytes.length);
-    preimage.set(networkHash);
-    preimage.set(txBytes, networkHash.length);
-    const txHash = blake2b256(preimage);
+    // Get network passphrase
+    const networkPassphrase = this.config.network === "mainnet"
+      ? Networks.PUBLIC
+      : Networks.TESTNET;
 
-    // Sign with ephemeral key
-    const signature = await this.signWithEphemeralKey(txHash);
+    // Parse the transaction from XDR
+    const transaction = TransactionBuilder.fromXDR(txXdr, networkPassphrase);
 
-    // Build decorated signature
-    const hint = Uint8Array.from(
-      atob(this.currentSession.ephemeralPublicKey),
-      (c) => c.charCodeAt(0)
-    ).slice(-4);
+    // Get the ephemeral keypair for signing
+    // The ephemeral secret key is stored encrypted in the session
+    if (!this.currentSession.ephemeralSecretKey) {
+      throw new Error("No ephemeral secret key available for signing");
+    }
 
-    // Append signature to transaction
-    // ... XDR manipulation to add signature
+    // The ephemeralSecretKey may be encrypted - decrypt if needed
+    const secretKey = await this.decryptSecretKey(this.currentSession.ephemeralSecretKey);
+    const keypair = Keypair.fromSecret(secretKey);
+
+    // Sign the transaction
+    transaction.sign(keypair);
+
+    // Get the signed XDR
+    const signedXdr = transaction.toXDR();
+
+    // Compute the transaction hash for return value
+    const txHash = transaction.hash();
 
     return {
-      xdr: txXdr, // Would be the signed XDR
-      hash: Array.from(txHash)
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join(""),
-      networkPassphrase: NETWORK_PASSPHRASE[this.config.network],
+      xdr: signedXdr,
+      hash: txHash.toString("hex"),
+      networkPassphrase,
     };
   }
 
@@ -667,7 +686,7 @@ export class ZkLoginWalletAdapter {
     randomness: string
   ): Promise<string> {
     // Import poseidon
-    const { poseidon } = await import("poseidon-lite");
+    const poseidonLib = await import("poseidon-lite");
 
     const pkBytes = Uint8Array.from(atob(publicKey), (c) => c.charCodeAt(0));
     const high = BigInt(
@@ -690,7 +709,7 @@ export class ZkLoginWalletAdapter {
           .join("")
     );
 
-    const hash = poseidon([high, low, BigInt(maxEpoch), rand]);
+    const hash = poseidonLib.poseidon4([high, low, BigInt(maxEpoch), rand]);
     const hashBytes = new Uint8Array(20);
     let h = BigInt(hash.toString());
     for (let i = 19; i >= 0; i--) {
@@ -828,17 +847,16 @@ export class ZkLoginWalletAdapter {
     audience: string,
     salt: string
   ): Promise<string> {
-    const { poseidon } = await import("poseidon-lite");
+    const poseidonLib = await import("poseidon-lite");
 
     // Hash components to field elements
-    const issuerField = await this.hashToField(issuer);
     const subjectField = await this.hashToField(subject);
     const audienceField = await this.hashToField(audience);
     const saltField = BigInt("0x" + Buffer.from(salt, "base64").toString("hex"));
 
     // Compute address seed
-    const saltHash = poseidon([saltField]);
-    const addressSeed = poseidon([
+    const saltHash = poseidonLib.poseidon1([saltField]);
+    const addressSeed = poseidonLib.poseidon4([
       await this.hashToField("sub"),
       subjectField,
       audienceField,
@@ -925,6 +943,27 @@ export class ZkLoginWalletAdapter {
   }
 
   /**
+   * Decrypt the ephemeral secret key for Stellar SDK usage
+   * The key is stored as base64 and needs to be converted to Stellar secret format
+   */
+  private async decryptSecretKey(encryptedKey: string): Promise<string> {
+    // The ephemeralSecretKey is stored as base64-encoded nacl secret key
+    // We need to convert it to Stellar's secret key format
+    const { Keypair } = await import("@stellar/stellar-sdk");
+    const { decodeBase64 } = await import("tweetnacl-util");
+
+    // Decode the base64 secret key
+    const rawSecret = decodeBase64(encryptedKey);
+
+    // The first 32 bytes are the secret seed
+    const seed = rawSecret.slice(0, 32);
+
+    // Create Stellar keypair from seed and return the secret
+    const keypair = Keypair.fromRawEd25519Seed(Buffer.from(seed));
+    return keypair.secret();
+  }
+
+  /**
    * Sign data with ephemeral key
    */
   private async signWithEphemeralKey(data: Uint8Array): Promise<Uint8Array> {
@@ -940,22 +979,169 @@ export class ZkLoginWalletAdapter {
   }
 
   /**
-   * Build payment transaction
+   * Build payment transaction using Stellar SDK
    */
   private async buildPaymentTransaction(
     request: TransactionRequest
   ): Promise<string> {
-    // Simplified - would use proper XDR building
-    return "";
+    const {
+      TransactionBuilder,
+      Networks,
+      Operation,
+      Asset,
+      Memo,
+      Account,
+      Horizon,
+    } = await import("@stellar/stellar-sdk");
+
+    if (!this.currentSession) {
+      throw new Error("No active session");
+    }
+
+    // Get network passphrase
+    const networkPassphrase = this.config.network === "mainnet"
+      ? Networks.PUBLIC
+      : Networks.TESTNET;
+
+    // Get Horizon URL
+    const horizonUrl = HORIZON_URLS[this.config.network as keyof typeof HORIZON_URLS] || HORIZON_URLS.testnet;
+
+    // Load account from Horizon
+    const server = new Horizon.Server(horizonUrl);
+    let account: InstanceType<typeof Account>;
+
+    try {
+      const accountData = await server.loadAccount(this.currentSession.address);
+      account = accountData;
+    } catch {
+      // Account doesn't exist yet, use sequence 0
+      account = new Account(this.currentSession.address, "0");
+    }
+
+    // Determine asset
+    let asset: InstanceType<typeof Asset>;
+    if (!request.asset || request.asset.code === "XLM" || request.asset.code === "native") {
+      asset = Asset.native();
+    } else if (request.asset.issuer) {
+      asset = new Asset(request.asset.code, request.asset.issuer);
+    } else {
+      // It's a Soroban token contract address
+      // Use invokeHostFunction for token transfers
+      return this.buildSorobanTransfer(
+        this.currentSession.address,
+        request.to,
+        request.asset.code, // This is actually the contract address
+        request.amount,
+        request.memo
+      );
+    }
+
+    // Build transaction
+    let builder = new TransactionBuilder(account, {
+      fee: "100",
+      networkPassphrase,
+    });
+
+    // Add payment operation
+    builder = builder.addOperation(
+      Operation.payment({
+        destination: request.to,
+        asset,
+        amount: request.amount,
+      })
+    );
+
+    // Add memo if provided
+    if (request.memo) {
+      builder = builder.addMemo(Memo.text(request.memo.slice(0, 28)));
+    }
+
+    // Set timeout
+    builder = builder.setTimeout(300);
+
+    // Build and return XDR
+    const tx = builder.build();
+    return tx.toXDR();
+  }
+
+  /**
+   * Build Soroban token transfer transaction
+   */
+  private async buildSorobanTransfer(
+    from: string,
+    to: string,
+    tokenContract: string,
+    amount: string,
+    memo?: string
+  ): Promise<string> {
+    const {
+      TransactionBuilder,
+      Networks,
+      Operation,
+      Memo,
+      Account,
+      Horizon,
+    } = await import("@stellar/stellar-sdk");
+
+    // Get network passphrase
+    const networkPassphrase = this.config.network === "mainnet"
+      ? Networks.PUBLIC
+      : Networks.TESTNET;
+
+    // Get Horizon URL
+    const horizonUrl = HORIZON_URLS[this.config.network as keyof typeof HORIZON_URLS] || HORIZON_URLS.testnet;
+
+    // Load account
+    const server = new Horizon.Server(horizonUrl);
+    let account: InstanceType<typeof Account>;
+
+    try {
+      const accountData = await server.loadAccount(from);
+      account = accountData;
+    } catch {
+      account = new Account(from, "0");
+    }
+
+    // Build transaction with Soroban token transfer
+    let builder = new TransactionBuilder(account, {
+      fee: "100",
+      networkPassphrase,
+    });
+
+    // Add invokeHostFunction for token transfer
+    builder = builder.addOperation(
+      Operation.invokeHostFunction({
+        func: {
+          type: "invokeContract",
+          contractAddress: tokenContract,
+          functionName: "transfer",
+          args: [
+            { type: "address", value: from },
+            { type: "address", value: to },
+            { type: "i128", value: amount },
+          ],
+        } as any,
+        auth: [],
+      })
+    );
+
+    // Add memo if provided
+    if (memo) {
+      builder = builder.addMemo(Memo.text(memo.slice(0, 28)));
+    }
+
+    // Set timeout
+    builder = builder.setTimeout(300);
+
+    // Build and return XDR
+    const tx = builder.build();
+    return tx.toXDR();
   }
 
   /**
    * Convert JS value to Soroban value
    */
-  private toSorobanValue(value: unknown): {
-    type: string;
-    value: unknown;
-  } {
+  private toSorobanValue(value: unknown): SorobanValue {
     if (typeof value === "boolean") {
       return { type: "bool", value };
     }

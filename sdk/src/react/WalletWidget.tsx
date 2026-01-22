@@ -239,7 +239,7 @@ const logoutButtonStyles = (isDark: boolean): React.CSSProperties => ({
   cursor: 'pointer',
 });
 
-const addressStyles = (isDark: boolean): React.CSSProperties => ({
+const addressStyles = (_isDark: boolean): React.CSSProperties => ({
   marginBottom: '16px',
   display: 'flex',
   flexDirection: 'column',
@@ -256,7 +256,7 @@ const copyButtonStyles = (isDark: boolean): React.CSSProperties => ({
   alignItems: 'center',
 });
 
-const balanceStyles = (isDark: boolean): React.CSSProperties => ({
+const balanceStyles = (_isDark: boolean): React.CSSProperties => ({
   marginBottom: '16px',
   display: 'flex',
   flexDirection: 'column',

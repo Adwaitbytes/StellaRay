@@ -15,7 +15,6 @@
 import type {
   X402PaymentRequired,
   X402PaymentProof,
-  X402Scheme,
   X402Payload,
   StellarNetwork,
   TransactionResult,
@@ -104,7 +103,7 @@ export class X402PaymentClient {
     const txXdr = await this.buildPaymentTransaction(request.payload);
 
     // Sign transaction
-    const { txXdr: signedTxXdr, signature } = await this.signTransaction(txXdr);
+    const { txXdr: signedTxXdr } = await this.signTransaction(txXdr);
 
     // Submit transaction
     const result = await this.submitPaymentTransaction(signedTxXdr);
@@ -248,40 +247,122 @@ export class X402PaymentClient {
   }
 
   private async buildPaymentTransaction(payload: X402Payload): Promise<string> {
-    // Build Soroban contract invocation for token transfer
-    // This would use the Stellar SDK to construct the transaction
+    const {
+      TransactionBuilder,
+      Networks,
+      Operation,
+      Asset,
+      Memo,
+      Account,
+      Horizon,
+    } = await import("@stellar/stellar-sdk");
 
-    const txData = {
-      source: this.payerAddress,
-      operations: [
-        {
-          type: "invokeHostFunction",
-          contract: payload.asset,
-          function: "transfer",
-          args: [
-            this.payerAddress,
-            payload.destination,
-            payload.amount,
-          ],
-        },
-      ],
-      memo: payload.memo || `x402:${payload.resourceId || "payment"}`,
-    };
+    // Determine network passphrase
+    const networkPassphrase = this.config.network === "mainnet"
+      ? Networks.PUBLIC
+      : Networks.TESTNET;
 
-    // Serialize to XDR (simplified - actual implementation uses Stellar SDK)
-    return btoa(JSON.stringify(txData));
+    // Get Horizon URL
+    const horizonUrl = this.config.network === "mainnet"
+      ? "https://horizon.stellar.org"
+      : "https://horizon-testnet.stellar.org";
+
+    // Get account info
+    const server = new Horizon.Server(horizonUrl);
+    let account: InstanceType<typeof Account>;
+
+    try {
+      const accountData = await server.loadAccount(this.payerAddress!);
+      account = accountData;
+    } catch {
+      throw new ZkLoginError(
+        ErrorCode.INVALID_INPUT,
+        "Payer account not found on network"
+      );
+    }
+
+    // Check if it's native XLM or a token contract
+    const isNative = payload.asset === "native" || payload.asset === "XLM";
+
+    let builder = new TransactionBuilder(account, {
+      fee: "100",
+      networkPassphrase,
+    });
+
+    if (isNative) {
+      // Native XLM payment
+      builder = builder.addOperation(
+        Operation.payment({
+          destination: payload.destination,
+          asset: Asset.native(),
+          amount: payload.amount,
+        })
+      );
+    } else {
+      // Soroban token transfer
+      builder = builder.addOperation(
+        Operation.invokeHostFunction({
+          func: {
+            type: "invokeContract",
+            contractAddress: payload.asset,
+            functionName: "transfer",
+            args: [
+              { type: "address", value: this.payerAddress },
+              { type: "address", value: payload.destination },
+              { type: "i128", value: payload.amount },
+            ],
+          } as any,
+          auth: [],
+        })
+      );
+    }
+
+    // Add memo
+    const memoText = payload.memo || `x402:${payload.resourceId || "payment"}`;
+    builder = builder.addMemo(Memo.text(memoText.slice(0, 28)));
+
+    // Set timeout
+    builder = builder.setTimeout(300);
+
+    // Build and return XDR
+    const tx = builder.build();
+    return tx.toXDR();
   }
 
   private async submitPaymentTransaction(txXdr: string): Promise<TransactionResult> {
-    // Submit to Stellar network
-    // This would use the Stellar SDK to submit
+    const { Horizon } = await import("@stellar/stellar-sdk");
 
-    // Placeholder implementation
-    return {
-      hash: `tx_${Date.now().toString(16)}`,
-      ledger: 0,
-      success: true,
-    };
+    // Get Horizon URL
+    const horizonUrl = this.config.network === "mainnet"
+      ? "https://horizon.stellar.org"
+      : "https://horizon-testnet.stellar.org";
+
+    const server = new Horizon.Server(horizonUrl);
+
+    try {
+      // Submit signed transaction
+      const result = await server.submitTransaction(txXdr as any);
+
+      return {
+        hash: result.hash,
+        ledger: result.ledger,
+        success: true,
+      };
+    } catch (error: any) {
+      // Check for specific error types
+      if (error?.response?.data?.extras?.result_codes) {
+        const codes = error.response.data.extras.result_codes;
+        throw new ZkLoginError(
+          ErrorCode.TRANSACTION_FAILED,
+          `Transaction failed: ${JSON.stringify(codes)}`
+        );
+      }
+
+      throw new ZkLoginError(
+        ErrorCode.TRANSACTION_FAILED,
+        error?.message || "Transaction submission failed"
+      );
+    }
   }
 }
 

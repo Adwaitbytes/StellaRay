@@ -224,7 +224,7 @@ export {
   computeNonce,
   computeEphPkHash,
   deriveZkLoginAddress,
-} from "./utils/address";
+} from "./utils/Address";
 
 // Crypto utilities (Poseidon)
 export {

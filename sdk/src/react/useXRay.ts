@@ -105,6 +105,7 @@ export function useXRay(options?: { autoRefresh?: number }): UseXRayReturn {
       const interval = setInterval(refresh, autoRefresh);
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [refresh, autoRefresh]);
 
   // Estimate gas
