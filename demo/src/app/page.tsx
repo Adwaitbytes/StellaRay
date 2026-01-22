@@ -444,6 +444,9 @@ export default function Home() {
             <Link href="/sdk-demo" className={`font-bold text-sm hover:text-[#39FF14] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               SDK DEMO
             </Link>
+            <Link href="/sdk-live" className={`font-bold text-sm hover:text-[#CB3837] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+              NPM LIVE
+            </Link>
             <a href="https://github.com/stellar-zklogin/sdk" target="_blank" rel="noopener noreferrer" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               GITHUB
             </a>

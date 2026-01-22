@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^12.3.0",
+    "@stellar-zklogin/sdk": "^2.0.0",
     "lucide-react": "^0.300.0",
     "next": "15.3.8",
     "next-auth": "^4.24.7",
