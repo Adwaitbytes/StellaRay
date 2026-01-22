@@ -13,10 +13,22 @@ export default function Home() {
   const [isDark, setIsDark] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+  const [showContent, setShowContent] = useState(false);
+
+  // Show content after a brief delay to prevent infinite loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowContent(true);
+    }, 2000); // Show content after 2 seconds max
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/dashboard");
+    }
+    if (status !== "loading") {
+      setShowContent(true);
     }
   }, [status, router]);
 
@@ -58,7 +70,7 @@ export default function Home() {
     { value: "100%", label: "PRIVATE" },
   ];
 
-  if (status === "loading") {
+  if (status === "loading" && !showContent) {
     return <LoadingScreen message="INITIALIZING" />;
   }
 

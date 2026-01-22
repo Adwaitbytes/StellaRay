@@ -11,17 +11,35 @@ const GATEWAY_FACTORY_CONTRACT = process.env.NEXT_PUBLIC_GATEWAY_FACTORY_CONTRAC
 // Cache for metrics to avoid excessive API calls
 let cachedMetrics: any = null;
 let lastFetchTime = 0;
-const CACHE_TTL = 5000; // 5 seconds cache
+const CACHE_TTL = 30000; // 30 seconds cache (increased to reduce API calls)
+
+// Helper function for fetch with timeout
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout = 5000): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
 
 // Fetch real ledger data from Horizon
 async function fetchLedgerInfo() {
   try {
-    const response = await fetch(`${HORIZON_URL}/ledgers?order=desc&limit=1`);
+    const response = await fetchWithTimeout(`${HORIZON_URL}/ledgers?order=desc&limit=1`);
     if (!response.ok) throw new Error("Failed to fetch ledger info");
     const data = await response.json();
     return data._embedded?.records?.[0] || null;
   } catch (error) {
-    console.error("Error fetching ledger info:", error);
+    // Silently fail - will use fallback data
     return null;
   }
 }
@@ -29,7 +47,7 @@ async function fetchLedgerInfo() {
 // Fetch contract events from Soroban RPC (for proof verifications)
 async function fetchContractEvents(contractId: string, startLedger: number) {
   try {
-    const response = await fetch(SOROBAN_RPC_URL, {
+    const response = await fetchWithTimeout(SOROBAN_RPC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -53,7 +71,7 @@ async function fetchContractEvents(contractId: string, startLedger: number) {
     const data = await response.json();
     return data.result?.events || [];
   } catch (error) {
-    console.error("Error fetching contract events:", error);
+    // Silently fail - will use fallback data
     return [];
   }
 }
@@ -61,13 +79,17 @@ async function fetchContractEvents(contractId: string, startLedger: number) {
 // Fetch network statistics from Horizon
 async function fetchNetworkStats() {
   try {
-    const [feeStatsRes, operationsRes] = await Promise.all([
-      fetch(`${HORIZON_URL}/fee_stats`),
-      fetch(`${HORIZON_URL}/operations?order=desc&limit=100`),
+    const [feeStatsRes, operationsRes] = await Promise.allSettled([
+      fetchWithTimeout(`${HORIZON_URL}/fee_stats`),
+      fetchWithTimeout(`${HORIZON_URL}/operations?order=desc&limit=100`),
     ]);
 
-    const feeStats = feeStatsRes.ok ? await feeStatsRes.json() : null;
-    const operations = operationsRes.ok ? await operationsRes.json() : null;
+    const feeStats = feeStatsRes.status === 'fulfilled' && feeStatsRes.value.ok
+      ? await feeStatsRes.value.json()
+      : null;
+    const operations = operationsRes.status === 'fulfilled' && operationsRes.value.ok
+      ? await operationsRes.value.json()
+      : null;
 
     // Count invoke_host_function operations (Soroban calls)
     const sorobanOps = operations?._embedded?.records?.filter(
@@ -80,7 +102,7 @@ async function fetchNetworkStats() {
       recentOps: sorobanOps.slice(0, 10),
     };
   } catch (error) {
-    console.error("Error fetching network stats:", error);
+    // Silently fail - will use fallback data
     return { feeStats: null, sorobanOperationsCount: 0, recentOps: [] };
   }
 }
@@ -88,7 +110,7 @@ async function fetchNetworkStats() {
 // Get ledger sequence for recent events
 async function getRecentLedgerSequence() {
   try {
-    const response = await fetch(`${HORIZON_URL}/ledgers?order=desc&limit=1`);
+    const response = await fetchWithTimeout(`${HORIZON_URL}/ledgers?order=desc&limit=1`);
     if (!response.ok) throw new Error("Failed to fetch ledger");
     const data = await response.json();
     const currentLedger = data._embedded?.records?.[0]?.sequence || 0;

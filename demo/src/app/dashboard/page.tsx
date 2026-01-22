@@ -71,6 +71,7 @@ export default function Dashboard() {
   const [balances, setBalances] = useState<AccountBalance[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -214,6 +215,7 @@ export default function Dashboard() {
       setError(err.message || "Failed to initialize wallet");
     } finally {
       setIsLoading(false);
+      setHasInitialized(true);
     }
   }, [session]);
 
@@ -309,7 +311,7 @@ export default function Dashboard() {
     }
   };
 
-  if (status === "loading" || isLoading) {
+  if ((status === "loading" || isLoading) && !hasInitialized) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center relative overflow-hidden">
         {/* Animated grid background */}
