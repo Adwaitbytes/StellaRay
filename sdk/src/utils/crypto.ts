@@ -2,9 +2,19 @@
  * Cryptographic Utilities
  *
  * Provides Poseidon hashing and field arithmetic for zkLogin.
+ *
+ * ## Protocol 25 (X-Ray) Compatibility
+ *
+ * This module uses poseidon-lite which implements the same Poseidon hash
+ * function as Stellar's soroban-poseidon (Protocol 25):
+ * - BN254 scalar field (Fr)
+ * - Circom-compatible parameters
+ * - State sizes T=2,3,4,5,6 supported
+ *
+ * All hashes computed here will match those computed on-chain by Soroban contracts.
  */
 
-// BN254 scalar field prime
+// BN254 scalar field prime (matches soroban-poseidon Bn254Fr)
 const BN254_FIELD_PRIME = BigInt(
   "21888242871839275222246405745257275088548364400416034343698204186575808495617"
 );
@@ -83,6 +93,10 @@ export async function hashBytesToField(bytes: Uint8Array): Promise<bigint> {
 /**
  * Hash JWK RSA modulus to field element
  *
+ * Uses a tree structure matching the Soroban contract implementation:
+ * - First layer: hash groups of 4 elements (4 groups of 4 + 1 remaining)
+ * - Second layer: hash the 5 intermediate results
+ *
  * @param modulusChunks - RSA modulus as 17 chunks of 121 bits
  * @returns Field element
  */
@@ -91,13 +105,95 @@ export async function hashModulusToField(modulusChunks: bigint[]): Promise<bigin
     throw new Error("Expected 17 modulus chunks");
   }
 
-  // Hash iteratively
-  let state = BigInt(0);
-  for (const chunk of modulusChunks) {
-    state = await poseidonHash([state, chunk]);
+  // Hash in a tree structure to handle 17 inputs
+  // First layer: hash groups of 4 elements (4 groups of 4 + 1 remaining)
+  const intermediate: bigint[] = [];
+
+  // Groups of 4: indices 0-3, 4-7, 8-11, 12-15
+  for (let group = 0; group < 4; group++) {
+    const start = group * 4;
+    const hash = await poseidonHash([
+      modulusChunks[start],
+      modulusChunks[start + 1],
+      modulusChunks[start + 2],
+      modulusChunks[start + 3],
+    ]);
+    intermediate.push(hash);
   }
 
-  return state;
+  // Last element (index 16)
+  const lastHash = await poseidonHash([modulusChunks[16]]);
+  intermediate.push(lastHash);
+
+  // Second layer: hash the 5 intermediate results
+  const finalHash = await poseidonHash(intermediate);
+
+  return finalHash;
+}
+
+/**
+ * Compute ephemeral public key hash using Poseidon
+ *
+ * eph_pk_hash = Poseidon(eph_pk_high, eph_pk_low)
+ *
+ * This matches the Soroban contract implementation for session binding.
+ *
+ * @param ephPkHigh - High 128 bits of ephemeral public key
+ * @param ephPkLow - Low 128 bits of ephemeral public key
+ * @returns Poseidon hash as bigint
+ */
+export async function computeEphPkHash(ephPkHigh: bigint, ephPkLow: bigint): Promise<bigint> {
+  return poseidonHash([ephPkHigh, ephPkLow]);
+}
+
+/**
+ * Compute address seed from OAuth identity using Poseidon
+ *
+ * Formula: address_seed = Poseidon(kc_name_F, kc_value_F, aud_F, Poseidon(salt))
+ *
+ * This matches the Soroban contract implementation for address derivation.
+ *
+ * @param kcNameHash - Hash of key claim name (e.g., "sub")
+ * @param kcValueHash - Hash of key claim value (e.g., user ID)
+ * @param audHash - Hash of audience (client ID)
+ * @param salt - User-specific salt
+ * @returns Address seed as bigint
+ */
+export async function computeAddressSeed(
+  kcNameHash: bigint,
+  kcValueHash: bigint,
+  audHash: bigint,
+  salt: bigint
+): Promise<bigint> {
+  // Step 1: Poseidon(salt)
+  const saltHash = await poseidonHash([salt]);
+
+  // Step 2: Poseidon(kc_name_F, kc_value_F, aud_F, salt_hash)
+  const addressSeed = await poseidonHash([kcNameHash, kcValueHash, audHash, saltHash]);
+
+  return addressSeed;
+}
+
+/**
+ * Compute nonce for session binding using Poseidon
+ *
+ * nonce = Poseidon(eph_pk_high, eph_pk_low, max_epoch, randomness)
+ *
+ * This matches the Soroban contract implementation for OAuth nonce.
+ *
+ * @param ephPkHigh - High 128 bits of ephemeral public key
+ * @param ephPkLow - Low 128 bits of ephemeral public key
+ * @param maxEpoch - Maximum ledger sequence for session validity
+ * @param randomness - Random value for additional entropy
+ * @returns Nonce as bigint
+ */
+export async function computeNonce(
+  ephPkHigh: bigint,
+  ephPkLow: bigint,
+  maxEpoch: bigint,
+  randomness: bigint
+): Promise<bigint> {
+  return poseidonHash([ephPkHigh, ephPkLow, maxEpoch, randomness]);
 }
 
 /**

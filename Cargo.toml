@@ -18,8 +18,11 @@ license = "MIT"
 repository = "https://github.com/stellar-gateway/stellar-gateway"
 
 [workspace.dependencies]
-soroban-sdk = "22.0.0"
-soroban-token-sdk = "22.0.0"
+# Protocol 25 (X-Ray) - Latest Soroban SDK with BN254 and Poseidon support
+soroban-sdk = "25.0.0-rc.2"
+soroban-token-sdk = "25.0.0-rc.2"
+# Official Stellar Poseidon SDK for ZK-friendly hashing
+soroban-poseidon = "25.0.0-rc.1"
 
 [profile.release]
 opt-level = "z"

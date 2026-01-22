@@ -1,6 +1,11 @@
 //! # zkLogin Smart Wallet Contract
 //!
 //! This contract implements a Soroban custom account with zkLogin authentication.
+//!
+//! ## Protocol 25 (X-Ray) Integration:
+//! - **Poseidon Hashing**: ZK-friendly hashing for session and ephemeral key hashes
+//! - **BN254 Compatibility**: All hashes are computed in BN254 scalar field
+//! - **ZK Verifier Integration**: Calls Protocol 25 zk-verifier for proof verification
 
 #![no_std]
 
@@ -8,9 +13,10 @@ use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
     auth::{Context, CustomAccountInterface},
     crypto::Hash,
-    Address, BytesN, Env, Symbol, Vec,
+    Address, BytesN, Env, Symbol, Vec, U256,
     token::TokenClient,
 };
+use soroban_poseidon::{poseidon_hash, Bn254Fr};
 
 /// Session information for a zkLogin authentication
 #[contracttype]
@@ -336,33 +342,60 @@ impl SmartWallet {
         Ok(())
     }
 
+    /// Compute session ID using Poseidon hash of ephemeral public key
     fn compute_session_id(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
-        let bytes = soroban_sdk::Bytes::from_slice(env, &eph_pk.to_array());
-        env.crypto().sha256(&bytes).into()
+        let eph_pk_fe = Self::bytes_to_field_element(env, eph_pk);
+        let inputs = soroban_sdk::vec![env, eph_pk_fe];
+        let hash = poseidon_hash::<2, Bn254Fr>(env, &inputs);
+        Self::field_element_to_bytes(env, &hash)
     }
 
+    /// Compute proof hash using Poseidon for nullifier derivation
     fn compute_proof_hash(env: &Env, proof: &Groth16Proof) -> BytesN<32> {
-        let mut data = soroban_sdk::Bytes::new(env);
-        data.append(&soroban_sdk::Bytes::from_slice(env, &proof.a_x.to_array()));
-        data.append(&soroban_sdk::Bytes::from_slice(env, &proof.a_y.to_array()));
-        data.append(&soroban_sdk::Bytes::from_slice(env, &proof.c_x.to_array()));
-        data.append(&soroban_sdk::Bytes::from_slice(env, &proof.c_y.to_array()));
-        env.crypto().sha256(&data).into()
+        let a_x = Self::bytes_to_field_element(env, &proof.a_x);
+        let a_y = Self::bytes_to_field_element(env, &proof.a_y);
+        let c_x = Self::bytes_to_field_element(env, &proof.c_x);
+        let c_y = Self::bytes_to_field_element(env, &proof.c_y);
+
+        let inputs = soroban_sdk::vec![env, a_x, a_y, c_x, c_y];
+        let hash = poseidon_hash::<5, Bn254Fr>(env, &inputs);
+        Self::field_element_to_bytes(env, &hash)
     }
 
+    /// Compute ephemeral public key hash using Poseidon
+    ///
+    /// Split the 32-byte public key into high and low 128-bit parts,
+    /// then compute Poseidon(high, low)
     fn compute_eph_pk_hash(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
         let pk_bytes = eph_pk.to_array();
+
+        // Split into high and low parts (16 bytes each, padded to 32 bytes)
         let mut high = [0u8; 32];
         let mut low = [0u8; 32];
-
         high[16..32].copy_from_slice(&pk_bytes[0..16]);
         low[16..32].copy_from_slice(&pk_bytes[16..32]);
 
-        let mut data = soroban_sdk::Bytes::new(env);
-        data.append(&soroban_sdk::Bytes::from_slice(env, &high));
-        data.append(&soroban_sdk::Bytes::from_slice(env, &low));
+        let high_fe = U256::from_be_bytes(env, &BytesN::from_array(env, &high));
+        let low_fe = U256::from_be_bytes(env, &BytesN::from_array(env, &low));
 
-        env.crypto().sha256(&data).into()
+        let inputs = soroban_sdk::vec![env, high_fe, low_fe];
+        let hash = poseidon_hash::<3, Bn254Fr>(env, &inputs);
+        Self::field_element_to_bytes(env, &hash)
+    }
+
+    /// Convert BytesN<32> to U256 field element
+    fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
+        U256::from_be_bytes(env, bytes)
+    }
+
+    /// Convert U256 field element to BytesN<32>
+    fn field_element_to_bytes(env: &Env, fe: &U256) -> BytesN<32> {
+        let bytes = fe.to_be_bytes();
+        let mut arr = [0u8; 32];
+        for i in 0..32 {
+            arr[i] = bytes.get(i as u32).unwrap();
+        }
+        BytesN::from_array(env, &arr)
     }
 }
 

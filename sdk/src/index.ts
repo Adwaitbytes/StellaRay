@@ -226,18 +226,89 @@ export {
   deriveZkLoginAddress,
 } from "./utils/Address";
 
-// Crypto utilities (Poseidon)
+// Crypto utilities (Poseidon - Protocol 25 compatible)
 export {
   poseidonHash,
   hashBytesToField,
   hashModulusToField,
+  computeEphPkHash as cryptoComputeEphPkHash,
+  computeAddressSeed as cryptoComputeAddressSeed,
+  computeNonce as cryptoComputeNonce,
+  mod,
+  modPow,
+  modInverse,
+  bigintToBytes,
+  bytesToBigint,
+  hexToBytes,
+  bytesToHex,
 } from "./utils/crypto";
 
 // Types
 export * from "./types";
 
 // ==========================================
-// VERSION
+// VERSION & PROTOCOL 25 INFO
 // ==========================================
 
-export const SDK_VERSION = "2.0.0";
+/**
+ * SDK Version - Updated for Protocol 25 (X-Ray)
+ *
+ * Version 2.1.0 includes:
+ * - Protocol 25 Poseidon hashing compatibility
+ * - BN254 elliptic curve support
+ * - Native Groth16 verification integration
+ * - soroban-poseidon compatible hashing
+ */
+export const SDK_VERSION = "2.1.0";
+
+/**
+ * Protocol 25 (X-Ray) information
+ *
+ * Stellar's Protocol 25 introduces native cryptographic primitives
+ * for zero-knowledge proofs:
+ *
+ * - **BN254 Elliptic Curve (CAP-0074)**: Native pairing operations
+ *   for Groth16 proof verification on-chain
+ *
+ * - **Poseidon Hash (CAP-0075)**: ZK-friendly hash function
+ *   optimized for use in circuits and on-chain verification
+ *
+ * @see https://stellar.org/blog/developers/announcing-stellar-x-ray-protocol-25
+ */
+export const PROTOCOL_25 = {
+  version: 25,
+  name: "X-Ray",
+  caps: ["CAP-0074", "CAP-0075"],
+  features: {
+    bn254: {
+      description: "BN254 elliptic curve operations for Groth16 verification",
+      hostFunctions: {
+        g1Add: "bn254_g1_add",
+        g1Mul: "bn254_g1_mul",
+        pairingCheck: "bn254_multi_pairing_check",
+      },
+      gasSavings: "94%", // Compared to WASM implementation
+    },
+    poseidon: {
+      description: "ZK-friendly hash function for circuit inputs",
+      hostFunctions: {
+        permutation: "poseidon_permutation",
+        permutation2: "poseidon2_permutation",
+      },
+      supportedStateSizes: [2, 3, 4, 5, 6],
+      sdkPackage: "soroban-poseidon",
+      sdkVersion: "25.0.0-rc.1",
+      gasSavings: "90%", // Compared to WASM implementation
+    },
+  },
+  timeline: {
+    testnetVote: "2026-01-07",
+    mainnetVote: "2026-01-22",
+  },
+  links: {
+    announcement: "https://stellar.org/blog/developers/announcing-stellar-x-ray-protocol-25",
+    cap74: "https://github.com/stellar/stellar-protocol/blob/master/core/cap-0074.md",
+    cap75: "https://github.com/stellar/stellar-protocol/blob/master/core/cap-0075.md",
+    sorobanPoseidon: "https://github.com/stellar/rs-soroban-poseidon",
+  },
+} as const;

@@ -8,18 +8,25 @@
 //! - Store RSA public keys (modulus chunked for BN254 compatibility)
 //! - Key rotation support with versioning
 //! - Oracle-based updates with multi-sig support
+//! - **Protocol 25 (X-Ray)**: Native Poseidon hashing for ZK compatibility
 //!
 //! ## Security:
 //! - Only authorized oracles can update JWKs
 //! - Keys are validated before storage
 //! - Revocation support for compromised keys
+//!
+//! ## Protocol 25 Integration:
+//! - Uses soroban-poseidon for ZK-friendly hashing
+//! - Poseidon hash of modulus chunks matches Circom circuit
+//! - BN254 scalar field compatible
 
 #![no_std]
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
-    Address, BytesN, Env, String, Vec,
+    Address, BytesN, Env, String, Vec, U256,
 };
+use soroban_poseidon::{poseidon_hash, Bn254Fr};
 
 /// RSA-2048 modulus is split into 17 chunks of 121 bits each
 /// This ensures each chunk fits in BN254 scalar field (~254 bits)
@@ -387,16 +394,67 @@ impl JwkRegistry {
             .ok_or(Error::ProviderNotFound)
     }
 
-    /// Compute Poseidon hash of modulus chunks
-    /// This creates a single field element representing the RSA modulus
+    /// Compute Poseidon hash of modulus chunks using Protocol 25 native support
+    ///
+    /// This creates a single BN254 field element representing the RSA modulus.
+    /// The hash is computed using a tree structure to handle 17 chunks:
+    /// - First, hash chunks in groups of 4 (state size T=5)
+    /// - Then combine the intermediate hashes
+    ///
+    /// This matches the Circom circuit implementation for verification.
     fn compute_modulus_hash(env: &Env, chunks: &Vec<BytesN<32>>) -> BytesN<32> {
-        // Concatenate all chunks and hash
-        // In production, this would use Poseidon hash for ZK compatibility
-        let mut data = soroban_sdk::Bytes::new(env);
+        // Convert chunks to U256 field elements for Poseidon
+        let mut field_elements = Vec::<U256>::new(env);
         for i in 0..chunks.len() {
-            data.append(&soroban_sdk::Bytes::from_slice(env, &chunks.get(i).unwrap().to_array()));
+            let chunk = chunks.get(i).unwrap();
+            let fe = Self::bytes_to_field_element(env, &chunk);
+            field_elements.push_back(fe);
         }
-        env.crypto().sha256(&data).into()
+
+        // Hash in a tree structure to handle 17 inputs
+        // First layer: hash groups of 4 elements (4 groups of 4 + 1 remaining)
+        let mut intermediate = Vec::<U256>::new(env);
+
+        // Groups of 4: indices 0-3, 4-7, 8-11, 12-15
+        for group in 0..4u32 {
+            let start = group * 4;
+            let inputs = vec![
+                env,
+                field_elements.get(start).unwrap(),
+                field_elements.get(start + 1).unwrap(),
+                field_elements.get(start + 2).unwrap(),
+                field_elements.get(start + 3).unwrap(),
+            ];
+            let hash = poseidon_hash::<5, Bn254Fr>(env, &inputs);
+            intermediate.push_back(hash);
+        }
+
+        // Last element (index 16)
+        let last_input = vec![env, field_elements.get(16).unwrap()];
+        let last_hash = poseidon_hash::<2, Bn254Fr>(env, &last_input);
+        intermediate.push_back(last_hash);
+
+        // Second layer: hash the 5 intermediate results
+        let final_hash = poseidon_hash::<6, Bn254Fr>(env, &intermediate);
+
+        // Convert U256 back to BytesN<32>
+        Self::field_element_to_bytes(env, &final_hash)
+    }
+
+    /// Convert BytesN<32> to U256 field element for Poseidon input
+    fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
+        let arr = bytes.to_array();
+        U256::from_be_bytes(env, &soroban_sdk::BytesN::from_array(env, &arr))
+    }
+
+    /// Convert U256 field element back to BytesN<32>
+    fn field_element_to_bytes(env: &Env, fe: &U256) -> BytesN<32> {
+        let bytes = fe.to_be_bytes();
+        let mut arr = [0u8; 32];
+        for i in 0..32 {
+            arr[i] = bytes.get(i as u32).unwrap();
+        }
+        BytesN::from_array(env, &arr)
     }
 
     fn vec_contains(vec: &Vec<String>, item: &String) -> bool {

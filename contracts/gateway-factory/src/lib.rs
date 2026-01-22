@@ -8,19 +8,28 @@
 //! - CREATE2-style deployment with address_seed as salt
 //! - Wallet registry for address lookups
 //! - Configuration management for ZK verifier and JWK registry
+//! - **Protocol 25 (X-Ray)**: Native Poseidon hashing for address derivation
 //!
 //! ## Address Derivation:
 //! ```
-//! address = Blake2b_256(0x05 || iss_len || iss || address_seed)
+//! address = Blake2b_256(0x05 || iss_hash || address_seed)
 //! ```
-//! where address_seed = Poseidon(kc_name_F, kc_value_F, aud_F, Poseidon(salt))
+//! where:
+//! - address_seed = Poseidon(kc_name_F, kc_value_F, aud_F, Poseidon(salt))
+//! - All Poseidon hashes use BN254 scalar field (Protocol 25 native)
+//!
+//! ## Protocol 25 Integration:
+//! - Uses soroban-poseidon for ZK-friendly hashing
+//! - Address seed computation matches Circom circuit
+//! - BN254 scalar field compatible
 
 #![no_std]
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
-    Address, BytesN, Env, IntoVal, Symbol, Vec,
+    Address, BytesN, Env, IntoVal, Symbol, Vec, U256,
 };
+use soroban_poseidon::{poseidon_hash, Bn254Fr};
 
 /// zkLogin address flag (matches Sui's 0x05 for zkLogin addresses)
 const ZKLOGIN_FLAG: u8 = 0x05;
@@ -329,23 +338,74 @@ impl GatewayFactory {
 
     /// Compute deterministic wallet address prediction
     ///
-    /// Note: This is a placeholder for address prediction.
-    /// Actual wallet addresses are determined by the deployer during deployment.
-    /// The predicted address uses a hash of the inputs to demonstrate determinism.
+    /// Uses Protocol 25 Poseidon hashing for deterministic derivation.
+    /// The address is computed as:
+    /// ```
+    /// salt = Poseidon(iss_hash, address_seed)
+    /// address = deployed_address(factory, salt)
+    /// ```
     fn compute_wallet_address(env: &Env, iss_hash: &BytesN<32>, address_seed: &BytesN<32>) -> Address {
-        // Build preimage: 0x05 || iss_hash || address_seed
-        let mut preimage = soroban_sdk::Bytes::new(env);
-        preimage.push_back(ZKLOGIN_FLAG);
-        preimage.append(&soroban_sdk::Bytes::from_slice(env, &iss_hash.to_array()));
-        preimage.append(&soroban_sdk::Bytes::from_slice(env, &address_seed.to_array()));
+        // Convert inputs to BN254 field elements
+        let iss_fe = Self::bytes_to_field_element(env, iss_hash);
+        let seed_fe = Self::bytes_to_field_element(env, address_seed);
 
-        // Compute hash for deterministic derivation
-        let hash: BytesN<32> = env.crypto().sha256(&preimage).into();
+        // Compute Poseidon hash of (iss_hash, address_seed) for deterministic salt
+        let inputs = soroban_sdk::vec![env, iss_fe, seed_fe];
+        let poseidon_salt = poseidon_hash::<3, Bn254Fr>(env, &inputs);
 
-        // In Soroban, we can't directly create an Address from bytes.
-        // The actual address is determined during deployment.
-        // For prediction, we return a placeholder using the factory's deployed address calculation
-        env.deployer().with_current_contract(hash).deployed_address()
+        // Convert Poseidon hash back to bytes for deployment salt
+        let salt = Self::field_element_to_bytes(env, &poseidon_salt);
+
+        // Return the predicted deployed address
+        env.deployer().with_current_contract(salt).deployed_address()
+    }
+
+    /// Compute address seed from OAuth identity components using Poseidon
+    ///
+    /// Formula: address_seed = Poseidon(kc_name_F, kc_value_F, aud_F, Poseidon(salt))
+    ///
+    /// # Arguments
+    /// * `kc_name_hash` - Hash of key claim name (e.g., "sub")
+    /// * `kc_value_hash` - Hash of key claim value (e.g., user ID)
+    /// * `aud_hash` - Hash of audience (client ID)
+    /// * `user_salt` - User-specific salt
+    pub fn compute_address_seed(
+        env: Env,
+        kc_name_hash: BytesN<32>,
+        kc_value_hash: BytesN<32>,
+        aud_hash: BytesN<32>,
+        user_salt: BytesN<32>,
+    ) -> BytesN<32> {
+        // Step 1: Poseidon(salt)
+        let salt_fe = Self::bytes_to_field_element(&env, &user_salt);
+        let salt_inputs = soroban_sdk::vec![&env, salt_fe];
+        let salt_hash = poseidon_hash::<2, Bn254Fr>(&env, &salt_inputs);
+
+        // Step 2: Poseidon(kc_name_F, kc_value_F, aud_F, salt_hash)
+        let kc_name_fe = Self::bytes_to_field_element(&env, &kc_name_hash);
+        let kc_value_fe = Self::bytes_to_field_element(&env, &kc_value_hash);
+        let aud_fe = Self::bytes_to_field_element(&env, &aud_hash);
+
+        let inputs = soroban_sdk::vec![&env, kc_name_fe, kc_value_fe, aud_fe, salt_hash];
+        let address_seed_fe = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+
+        Self::field_element_to_bytes(&env, &address_seed_fe)
+    }
+
+    /// Convert BytesN<32> to U256 field element for Poseidon input
+    fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
+        let arr = bytes.to_array();
+        U256::from_be_bytes(env, &soroban_sdk::BytesN::from_array(env, &arr))
+    }
+
+    /// Convert U256 field element back to BytesN<32>
+    fn field_element_to_bytes(env: &Env, fe: &U256) -> BytesN<32> {
+        let bytes = fe.to_be_bytes();
+        let mut arr = [0u8; 32];
+        for i in 0..32 {
+            arr[i] = bytes.get(i as u32).unwrap();
+        }
+        BytesN::from_array(env, &arr)
     }
 }
 
