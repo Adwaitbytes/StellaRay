@@ -25,7 +25,10 @@
       "Bash(timeout 20 pnpm dev:*)",
       "Bash(pnpm dev)",
       "Bash(cargo --version:*)",
-      "Bash(cargo search:*)"
+      "Bash(cargo search:*)",
+      "Bash(git -C /c/Users/adwai/Stellar-new-project log --oneline)",
+      "Bash(find:*)",
+      "Bash(npm test:*)"
     ]
   }
 }
