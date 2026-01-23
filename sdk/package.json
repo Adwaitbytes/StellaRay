@@ -1,6 +1,6 @@
 {
   "name": "@stellar-zklogin/sdk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "World's best zkLogin SDK for Stellar - Replace wallets with social login in 3 lines",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

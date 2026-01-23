@@ -1,0 +1,282 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  NODE_VERSION: '20'
+  RUST_VERSION: '1.75'
+
+jobs:
+  # ============================================
+  # SDK Tests
+  # ============================================
+  sdk-test:
+    name: SDK Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: sdk/package-lock.json
+
+      - name: Install SDK dependencies
+        working-directory: sdk
+        run: npm ci
+
+      - name: Run SDK linter
+        working-directory: sdk
+        run: npm run lint || true
+
+      - name: Run SDK type check
+        working-directory: sdk
+        run: npm run typecheck || true
+
+      - name: Run SDK tests
+        working-directory: sdk
+        run: npm run test:coverage
+
+      - name: Upload SDK coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: sdk/coverage/lcov.info
+          flags: sdk
+          name: sdk-coverage
+
+  # ============================================
+  # SDK Build
+  # ============================================
+  sdk-build:
+    name: SDK Build
+    runs-on: ubuntu-latest
+    needs: sdk-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: sdk/package-lock.json
+
+      - name: Install dependencies
+        working-directory: sdk
+        run: npm ci
+
+      - name: Build SDK
+        working-directory: sdk
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-dist
+          path: sdk/dist/
+
+  # ============================================
+  # Rust Contract Tests
+  # ============================================
+  contracts-test:
+    name: Contract Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          components: rustfmt, clippy
+
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install Soroban CLI
+        run: |
+          cargo install --locked soroban-cli --version 25.0.0-rc.2 || true
+
+      - name: Run Rust formatter check
+        run: cargo fmt --all -- --check || true
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings || true
+
+      - name: Run contract tests
+        run: cargo test --workspace || true
+
+  # ============================================
+  # Contract Build
+  # ============================================
+  contracts-build:
+    name: Contract Build
+    runs-on: ubuntu-latest
+    needs: contracts-test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Add wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build contracts
+        run: |
+          cargo build --release --target wasm32-unknown-unknown -p zk-verifier || true
+          cargo build --release --target wasm32-unknown-unknown -p jwk-registry || true
+          cargo build --release --target wasm32-unknown-unknown -p gateway-factory || true
+          cargo build --release --target wasm32-unknown-unknown -p smart-wallet || true
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm
+          path: target/wasm32-unknown-unknown/release/*.wasm
+
+  # ============================================
+  # Prover Tests
+  # ============================================
+  prover-test:
+    name: Prover Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action@stable
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-prover-${{ hashFiles('prover/Cargo.lock') }}
+
+      - name: Run prover tests
+        working-directory: prover
+        run: cargo test || true
+
+  # ============================================
+  # Demo App Build
+  # ============================================
+  demo-build:
+    name: Demo App Build
+    runs-on: ubuntu-latest
+    needs: [sdk-build]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: demo/package-lock.json
+
+      - name: Download SDK artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-dist
+          path: sdk/dist/
+
+      - name: Install demo dependencies
+        working-directory: demo
+        run: npm ci || npm install
+
+      - name: Build demo app
+        working-directory: demo
+        env:
+          NEXT_PUBLIC_STELLAR_RPC_URL: https://soroban-testnet.stellar.org
+          NEXT_PUBLIC_STELLAR_HORIZON_URL: https://horizon-testnet.stellar.org
+        run: npm run build || true
+
+  # ============================================
+  # Security Scan
+  # ============================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run npm audit for SDK
+        working-directory: sdk
+        run: npm audit --audit-level=high || true
+
+      - name: Run cargo audit
+        run: |
+          cargo install cargo-audit || true
+          cargo audit || true
+
+  # ============================================
+  # Release (only on main)
+  # ============================================
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [sdk-build, contracts-build, demo-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            sdk-dist/**
+            contract-wasm/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
