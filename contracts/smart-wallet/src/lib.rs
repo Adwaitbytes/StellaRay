@@ -12,11 +12,11 @@
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
     auth::{Context, CustomAccountInterface},
-    crypto::Hash,
+    crypto::{Hash, BnScalar},
     Address, BytesN, Env, Symbol, Vec, U256,
     token::TokenClient,
 };
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
+use soroban_poseidon::poseidon_hash;
 
 /// Session information for a zkLogin authentication
 #[contracttype]
@@ -346,7 +346,7 @@ impl SmartWallet {
     fn compute_session_id(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
         let eph_pk_fe = Self::bytes_to_field_element(env, eph_pk);
         let inputs = soroban_sdk::vec![env, eph_pk_fe];
-        let hash = poseidon_hash::<2, Bn254Fr>(env, &inputs);
+        let hash = poseidon_hash::<2, BnScalar>(env, &inputs);
         Self::field_element_to_bytes(env, &hash)
     }
 
@@ -358,7 +358,7 @@ impl SmartWallet {
         let c_y = Self::bytes_to_field_element(env, &proof.c_y);
 
         let inputs = soroban_sdk::vec![env, a_x, a_y, c_x, c_y];
-        let hash = poseidon_hash::<5, Bn254Fr>(env, &inputs);
+        let hash = poseidon_hash::<5, BnScalar>(env, &inputs);
         Self::field_element_to_bytes(env, &hash)
     }
 
@@ -375,17 +375,17 @@ impl SmartWallet {
         high[16..32].copy_from_slice(&pk_bytes[0..16]);
         low[16..32].copy_from_slice(&pk_bytes[16..32]);
 
-        let high_fe = U256::from_be_bytes(env, &BytesN::from_array(env, &high));
-        let low_fe = U256::from_be_bytes(env, &BytesN::from_array(env, &low));
+        let high_fe = U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &high));
+        let low_fe = U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &low));
 
         let inputs = soroban_sdk::vec![env, high_fe, low_fe];
-        let hash = poseidon_hash::<3, Bn254Fr>(env, &inputs);
+        let hash = poseidon_hash::<3, BnScalar>(env, &inputs);
         Self::field_element_to_bytes(env, &hash)
     }
 
     /// Convert BytesN<32> to U256 field element
     fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
-        U256::from_be_bytes(env, bytes)
+        U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &bytes.to_array()))
     }
 
     /// Convert U256 field element to BytesN<32>

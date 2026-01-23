@@ -26,8 +26,9 @@
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
     Address, BytesN, Env, Vec, U256,
+    crypto::{BnScalar, bn254::{Bn254G1Affine, Bn254G2Affine, Fr}},
 };
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
+use soroban_poseidon::poseidon_hash;
 
 /// BN254 field modulus (Fr)
 /// p = 21888242871839275222246405745257275088548364400416034343698204186575808495617
@@ -266,7 +267,7 @@ impl ZkVerifier {
         let rand_fe = Self::bytes_to_field_element(&env, &randomness);
 
         let inputs = soroban_sdk::vec![&env, high_fe, low_fe, epoch_fe, rand_fe];
-        let hash = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+        let hash = poseidon_hash::<5, BnScalar>(&env, &inputs);
 
         Self::field_element_to_bytes(&env, &hash)
     }
@@ -284,7 +285,7 @@ impl ZkVerifier {
         // Step 1: Poseidon(salt)
         let salt_fe = Self::bytes_to_field_element(&env, &salt);
         let salt_inputs = soroban_sdk::vec![&env, salt_fe];
-        let salt_hash = poseidon_hash::<2, Bn254Fr>(&env, &salt_inputs);
+        let salt_hash = poseidon_hash::<2, BnScalar>(&env, &salt_inputs);
 
         // Step 2: Poseidon(kc_name, kc_value, aud, salt_hash)
         let kc_name_fe = Self::bytes_to_field_element(&env, &kc_name_hash);
@@ -292,7 +293,7 @@ impl ZkVerifier {
         let aud_fe = Self::bytes_to_field_element(&env, &aud_hash);
 
         let inputs = soroban_sdk::vec![&env, kc_name_fe, kc_value_fe, aud_fe, salt_hash];
-        let address_seed = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+        let address_seed = poseidon_hash::<5, BnScalar>(&env, &inputs);
 
         Self::field_element_to_bytes(&env, &address_seed)
     }
@@ -309,7 +310,7 @@ impl ZkVerifier {
         let low_fe = Self::bytes_to_field_element(&env, &eph_pk_low);
 
         let inputs = soroban_sdk::vec![&env, high_fe, low_fe];
-        let hash = poseidon_hash::<3, Bn254Fr>(&env, &inputs);
+        let hash = poseidon_hash::<3, BnScalar>(&env, &inputs);
 
         Self::field_element_to_bytes(&env, &hash)
     }
@@ -360,7 +361,7 @@ impl ZkVerifier {
         let c_y = Self::bytes_to_field_element(env, &proof.c.y);
 
         let inputs = soroban_sdk::vec![env, a_x, a_y, c_x, c_y];
-        let hash = poseidon_hash::<5, Bn254Fr>(env, &inputs);
+        let hash = poseidon_hash::<5, BnScalar>(env, &inputs);
 
         Self::field_element_to_bytes(env, &hash)
     }
@@ -413,57 +414,63 @@ impl ZkVerifier {
 
     /// BN254 G1 point addition using Protocol 25 host function
     fn g1_add(env: &Env, p1: &G1Point, p2: &G1Point) -> G1Point {
+        // Convert to SDK types
+        let p1_affine = Self::g1_point_to_affine(env, p1);
+        let p2_affine = Self::g1_point_to_affine(env, p2);
+
         // Use BN254 G1 addition host function (CAP-0074)
-        let result = env.crypto().bn254_g1_add(
-            soroban_sdk::Bytes::from_slice(env, &[
-                &p1.x.to_array()[..],
-                &p1.y.to_array()[..],
-            ].concat()),
-            soroban_sdk::Bytes::from_slice(env, &[
-                &p2.x.to_array()[..],
-                &p2.y.to_array()[..],
-            ].concat()),
-        );
+        let result = env.crypto().bn254().g1_add(&p1_affine, &p2_affine);
 
-        let result_bytes = result.to_alloc_vec();
-        let mut x_arr = [0u8; 32];
-        let mut y_arr = [0u8; 32];
-        x_arr.copy_from_slice(&result_bytes[0..32]);
-        y_arr.copy_from_slice(&result_bytes[32..64]);
-
-        G1Point {
-            x: BytesN::from_array(env, &x_arr),
-            y: BytesN::from_array(env, &y_arr),
-        }
+        Self::affine_to_g1_point(env, &result)
     }
 
     /// BN254 G1 scalar multiplication using Protocol 25 host function
     fn g1_scalar_mul(env: &Env, point: &G1Point, scalar: &U256) -> G1Point {
-        let scalar_bytes = scalar.to_be_bytes();
-        let mut scalar_arr = [0u8; 32];
-        for i in 0..32 {
-            scalar_arr[i] = scalar_bytes.get(i as u32).unwrap();
-        }
+        let point_affine = Self::g1_point_to_affine(env, point);
+        let scalar_fr = Self::u256_to_fr(env, scalar);
 
         // Use BN254 G1 multiplication host function (CAP-0074)
-        let result = env.crypto().bn254_g1_mul(
-            soroban_sdk::Bytes::from_slice(env, &[
-                &point.x.to_array()[..],
-                &point.y.to_array()[..],
-            ].concat()),
-            soroban_sdk::Bytes::from_slice(env, &scalar_arr),
-        );
+        let result = env.crypto().bn254().g1_mul(&point_affine, &scalar_fr);
 
-        let result_bytes = result.to_alloc_vec();
-        let mut x_arr = [0u8; 32];
-        let mut y_arr = [0u8; 32];
-        x_arr.copy_from_slice(&result_bytes[0..32]);
-        y_arr.copy_from_slice(&result_bytes[32..64]);
+        Self::affine_to_g1_point(env, &result)
+    }
 
+    /// Convert G1Point to Bn254G1Affine
+    fn g1_point_to_affine(env: &Env, point: &G1Point) -> Bn254G1Affine {
+        Bn254G1Affine::from_bytes(BytesN::from_array(env, &{
+            let mut arr = [0u8; 64];
+            arr[..32].copy_from_slice(&point.x.to_array());
+            arr[32..].copy_from_slice(&point.y.to_array());
+            arr
+        }))
+    }
+
+    /// Convert Bn254G1Affine to G1Point
+    fn affine_to_g1_point(env: &Env, affine: &Bn254G1Affine) -> G1Point {
+        let bytes = affine.to_bytes();
+        let arr = bytes.to_array();
         G1Point {
-            x: BytesN::from_array(env, &x_arr),
-            y: BytesN::from_array(env, &y_arr),
+            x: BytesN::from_array(env, &{
+                let mut x = [0u8; 32];
+                x.copy_from_slice(&arr[..32]);
+                x
+            }),
+            y: BytesN::from_array(env, &{
+                let mut y = [0u8; 32];
+                y.copy_from_slice(&arr[32..]);
+                y
+            }),
         }
+    }
+
+    /// Convert U256 to Fr scalar
+    fn u256_to_fr(env: &Env, val: &U256) -> Fr {
+        let bytes = val.to_be_bytes();
+        let mut arr = [0u8; 32];
+        for i in 0..32 {
+            arr[i] = bytes.get(i as u32).unwrap();
+        }
+        Fr::from_bytes(BytesN::from_array(env, &arr))
     }
 
     /// Verify Groth16 pairing equation using Protocol 25 multi-pairing
@@ -479,35 +486,41 @@ impl ZkVerifier {
         let neg_a = Self::g1_negate(env, &proof.a);
 
         // Prepare pairing inputs (4 pairs)
-        let mut g1_points = Vec::new(env);
-        let mut g2_points = Vec::new(env);
+        let mut g1_points: Vec<Bn254G1Affine> = Vec::new(env);
+        let mut g2_points: Vec<Bn254G2Affine> = Vec::new(env);
 
         // Pair 1: e(-A, B)
-        g1_points.push_back(Self::g1_to_bytes(env, &neg_a));
-        g2_points.push_back(Self::g2_to_bytes(env, &proof.b));
+        g1_points.push_back(Self::g1_point_to_affine(env, &neg_a));
+        g2_points.push_back(Self::g2_point_to_affine(env, &proof.b));
 
         // Pair 2: e(α, β)
-        g1_points.push_back(Self::g1_to_bytes(env, &vk.alpha));
-        g2_points.push_back(Self::g2_to_bytes(env, &vk.beta));
+        g1_points.push_back(Self::g1_point_to_affine(env, &vk.alpha));
+        g2_points.push_back(Self::g2_point_to_affine(env, &vk.beta));
 
         // Pair 3: e(vk_x, γ)
-        g1_points.push_back(Self::g1_to_bytes(env, vk_x));
-        g2_points.push_back(Self::g2_to_bytes(env, &vk.gamma));
+        g1_points.push_back(Self::g1_point_to_affine(env, vk_x));
+        g2_points.push_back(Self::g2_point_to_affine(env, &vk.gamma));
 
         // Pair 4: e(C, δ)
-        g1_points.push_back(Self::g1_to_bytes(env, &proof.c));
-        g2_points.push_back(Self::g2_to_bytes(env, &vk.delta));
+        g1_points.push_back(Self::g1_point_to_affine(env, &proof.c));
+        g2_points.push_back(Self::g2_point_to_affine(env, &vk.delta));
 
         // Multi-pairing check (CAP-0074)
         // Returns true if product of pairings equals 1
-        Ok(env.crypto().bn254_multi_pairing_check(g1_points, g2_points))
+        Ok(env.crypto().bn254().pairing_check(g1_points, g2_points))
     }
 
     /// Negate G1 point (flip y coordinate in field)
     fn g1_negate(env: &Env, point: &G1Point) -> G1Point {
         // In BN254, negation is (x, -y mod p)
-        // For field negation, we compute p - y
-        let p = U256::from_be_bytes(env, &BytesN::from_array(env, &BN254_FR_MODULUS));
+        // BN254 base field modulus for G1 y-coordinate
+        const BN254_P: [u8; 32] = [
+            0x30, 0x64, 0x4e, 0x72, 0xe1, 0x31, 0xa0, 0x29,
+            0xb8, 0x50, 0x45, 0xb6, 0x81, 0x81, 0x58, 0x5d,
+            0x97, 0x81, 0x6a, 0x91, 0x68, 0x71, 0xca, 0x8d,
+            0x3c, 0x20, 0x8c, 0x16, 0xd8, 0x7c, 0xfd, 0x47,
+        ];
+        let p = U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &BN254_P));
         let y = Self::bytes_to_field_element(env, &point.y);
 
         // -y = p - y (mod p)
@@ -523,35 +536,28 @@ impl ZkVerifier {
         }
     }
 
-    /// Convert G1 point to bytes for pairing function
-    fn g1_to_bytes(env: &Env, point: &G1Point) -> soroban_sdk::Bytes {
-        let mut result = soroban_sdk::Bytes::new(env);
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.x.to_array()));
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.y.to_array()));
-        result
-    }
-
-    /// Convert G2 point to bytes for pairing function
-    fn g2_to_bytes(env: &Env, point: &G2Point) -> soroban_sdk::Bytes {
-        let mut result = soroban_sdk::Bytes::new(env);
-        // G2 encoding: (x_c0, x_c1, y_c0, y_c1)
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.x_c0.to_array()));
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.x_c1.to_array()));
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.y_c0.to_array()));
-        result.append(&soroban_sdk::Bytes::from_slice(env, &point.y_c1.to_array()));
-        result
+    /// Convert G2Point to Bn254G2Affine
+    fn g2_point_to_affine(env: &Env, point: &G2Point) -> Bn254G2Affine {
+        Bn254G2Affine::from_bytes(BytesN::from_array(env, &{
+            let mut arr = [0u8; 128];
+            arr[..32].copy_from_slice(&point.x_c0.to_array());
+            arr[32..64].copy_from_slice(&point.x_c1.to_array());
+            arr[64..96].copy_from_slice(&point.y_c0.to_array());
+            arr[96..].copy_from_slice(&point.y_c1.to_array());
+            arr
+        }))
     }
 
     /// Convert BytesN<32> to U256 field element
     fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
-        U256::from_be_bytes(env, bytes)
+        U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &bytes.to_array()))
     }
 
     /// Convert u64 to U256 field element
     fn u64_to_field_element(env: &Env, val: u64) -> U256 {
         let mut bytes = [0u8; 32];
         bytes[24..32].copy_from_slice(&val.to_be_bytes());
-        U256::from_be_bytes(env, &BytesN::from_array(env, &bytes))
+        U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &bytes))
     }
 
     /// Convert U256 field element to BytesN<32>
