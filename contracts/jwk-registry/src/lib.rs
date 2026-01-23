@@ -25,8 +25,9 @@
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
     Address, BytesN, Env, String, Vec, U256,
+    crypto::BnScalar,
 };
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
+use soroban_poseidon::poseidon_hash;
 
 /// RSA-2048 modulus is split into 17 chunks of 121 bits each
 /// This ensures each chunk fits in BN254 scalar field (~254 bits)
@@ -418,24 +419,24 @@ impl JwkRegistry {
         // Groups of 4: indices 0-3, 4-7, 8-11, 12-15
         for group in 0..4u32 {
             let start = group * 4;
-            let inputs = vec![
+            let inputs = soroban_sdk::vec![
                 env,
                 field_elements.get(start).unwrap(),
                 field_elements.get(start + 1).unwrap(),
                 field_elements.get(start + 2).unwrap(),
                 field_elements.get(start + 3).unwrap(),
             ];
-            let hash = poseidon_hash::<5, Bn254Fr>(env, &inputs);
+            let hash = poseidon_hash::<5, BnScalar>(env, &inputs);
             intermediate.push_back(hash);
         }
 
         // Last element (index 16)
-        let last_input = vec![env, field_elements.get(16).unwrap()];
-        let last_hash = poseidon_hash::<2, Bn254Fr>(env, &last_input);
+        let last_input = soroban_sdk::vec![env, field_elements.get(16).unwrap()];
+        let last_hash = poseidon_hash::<2, BnScalar>(env, &last_input);
         intermediate.push_back(last_hash);
 
         // Second layer: hash the 5 intermediate results
-        let final_hash = poseidon_hash::<6, Bn254Fr>(env, &intermediate);
+        let final_hash = poseidon_hash::<6, BnScalar>(env, &intermediate);
 
         // Convert U256 back to BytesN<32>
         Self::field_element_to_bytes(env, &final_hash)
@@ -443,8 +444,7 @@ impl JwkRegistry {
 
     /// Convert BytesN<32> to U256 field element for Poseidon input
     fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
-        let arr = bytes.to_array();
-        U256::from_be_bytes(env, &soroban_sdk::BytesN::from_array(env, &arr))
+        U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &bytes.to_array()))
     }
 
     /// Convert U256 field element back to BytesN<32>

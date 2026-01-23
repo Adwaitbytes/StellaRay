@@ -28,8 +28,9 @@
 use soroban_sdk::{
     contract, contractimpl, contracttype, contracterror,
     Address, BytesN, Env, IntoVal, Symbol, Vec, U256,
+    crypto::BnScalar,
 };
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
+use soroban_poseidon::poseidon_hash;
 
 /// zkLogin address flag (matches Sui's 0x05 for zkLogin addresses)
 const ZKLOGIN_FLAG: u8 = 0x05;
@@ -351,7 +352,7 @@ impl GatewayFactory {
 
         // Compute Poseidon hash of (iss_hash, address_seed) for deterministic salt
         let inputs = soroban_sdk::vec![env, iss_fe, seed_fe];
-        let poseidon_salt = poseidon_hash::<3, Bn254Fr>(env, &inputs);
+        let poseidon_salt = poseidon_hash::<3, BnScalar>(env, &inputs);
 
         // Convert Poseidon hash back to bytes for deployment salt
         let salt = Self::field_element_to_bytes(env, &poseidon_salt);
@@ -379,7 +380,7 @@ impl GatewayFactory {
         // Step 1: Poseidon(salt)
         let salt_fe = Self::bytes_to_field_element(&env, &user_salt);
         let salt_inputs = soroban_sdk::vec![&env, salt_fe];
-        let salt_hash = poseidon_hash::<2, Bn254Fr>(&env, &salt_inputs);
+        let salt_hash = poseidon_hash::<2, BnScalar>(&env, &salt_inputs);
 
         // Step 2: Poseidon(kc_name_F, kc_value_F, aud_F, salt_hash)
         let kc_name_fe = Self::bytes_to_field_element(&env, &kc_name_hash);
@@ -387,15 +388,14 @@ impl GatewayFactory {
         let aud_fe = Self::bytes_to_field_element(&env, &aud_hash);
 
         let inputs = soroban_sdk::vec![&env, kc_name_fe, kc_value_fe, aud_fe, salt_hash];
-        let address_seed_fe = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+        let address_seed_fe = poseidon_hash::<5, BnScalar>(&env, &inputs);
 
         Self::field_element_to_bytes(&env, &address_seed_fe)
     }
 
     /// Convert BytesN<32> to U256 field element for Poseidon input
     fn bytes_to_field_element(env: &Env, bytes: &BytesN<32>) -> U256 {
-        let arr = bytes.to_array();
-        U256::from_be_bytes(env, &soroban_sdk::BytesN::from_array(env, &arr))
+        U256::from_be_bytes(env, &soroban_sdk::Bytes::from_slice(env, &bytes.to_array()))
     }
 
     /// Convert U256 field element back to BytesN<32>
