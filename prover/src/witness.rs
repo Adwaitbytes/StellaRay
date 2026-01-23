@@ -11,7 +11,7 @@ use anyhow::{anyhow, Result};
 use ark_bn254::Fr;
 use ark_ff::{BigInteger, PrimeField};
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
-use poseidon_lite::{poseidon_bn254::PoseidonBn254 as Poseidon, PoseidonHash};
+use light_poseidon::{Poseidon, PoseidonHasher, PoseidonBytesHasher, parameters::bn254_x5};
 use sha2::{Digest, Sha256};
 
 use crate::types::{JWTClaims, PublicInputs, Witness, RSA_CHUNK_SIZE, RSA_NUM_CHUNKS};
@@ -163,34 +163,22 @@ fn bytes_to_chunks(bytes: &[u8], chunk_bits: usize, num_chunks: usize) -> Vec<St
 
 /// Compute Poseidon hash of inputs (BN254 compatible)
 ///
-/// Uses poseidon-lite which matches Circom's Poseidon implementation
+/// Uses light-poseidon which matches Circom's Poseidon implementation
 fn compute_poseidon_hash(inputs: &[Fr]) -> Result<Fr> {
-    match inputs.len() {
-        1 => Ok(Poseidon::hash(&[inputs[0]])),
-        2 => Ok(Poseidon::hash(&[inputs[0], inputs[1]])),
-        3 => Ok(Poseidon::hash(&[inputs[0], inputs[1], inputs[2]])),
-        4 => Ok(Poseidon::hash(&[inputs[0], inputs[1], inputs[2], inputs[3]])),
-        5 => Ok(Poseidon::hash(&[inputs[0], inputs[1], inputs[2], inputs[3], inputs[4]])),
-        n => {
-            // For larger inputs, use a tree structure
-            let mut current = inputs.to_vec();
-            while current.len() > 1 {
-                let mut next = Vec::new();
-                for chunk in current.chunks(4) {
-                    let hash = match chunk.len() {
-                        1 => Poseidon::hash(&[chunk[0]]),
-                        2 => Poseidon::hash(&[chunk[0], chunk[1]]),
-                        3 => Poseidon::hash(&[chunk[0], chunk[1], chunk[2]]),
-                        4 => Poseidon::hash(&[chunk[0], chunk[1], chunk[2], chunk[3]]),
-                        _ => unreachable!(),
-                    };
-                    next.push(hash);
-                }
-                current = next;
-            }
-            Ok(current[0])
-        }
-    }
+    let mut poseidon = Poseidon::<Fr>::new_circom(inputs.len())
+        .map_err(|e| anyhow!("Failed to create Poseidon hasher: {:?}", e))?;
+    let hash = poseidon.hash(inputs)
+        .map_err(|e| anyhow!("Failed to compute Poseidon hash: {:?}", e))?;
+    Ok(hash)
+}
+
+/// Compute Poseidon hash for a fixed number of inputs
+fn poseidon_hash_fixed<const N: usize>(inputs: &[Fr; N]) -> Result<Fr> {
+    let mut poseidon = Poseidon::<Fr>::new_circom(N)
+        .map_err(|e| anyhow!("Failed to create Poseidon hasher: {:?}", e))?;
+    let hash = poseidon.hash(inputs)
+        .map_err(|e| anyhow!("Failed to compute Poseidon hash: {:?}", e))?;
+    Ok(hash)
 }
 
 /// Compute ephemeral public key hash using Poseidon
@@ -200,7 +188,7 @@ fn compute_eph_pk_hash(eph_pk_high: &str, eph_pk_low: &str) -> Result<String> {
     let high = string_to_field(eph_pk_high)?;
     let low = string_to_field(eph_pk_low)?;
 
-    let hash = Poseidon::hash(&[high, low]);
+    let hash = poseidon_hash_fixed(&[high, low])?;
     Ok(field_to_hex(&hash))
 }
 
@@ -217,7 +205,7 @@ fn compute_address_seed(
 ) -> Result<String> {
     // Step 1: Poseidon(salt)
     let salt_fe = string_to_field(salt)?;
-    let salt_hash = Poseidon::hash(&[salt_fe]);
+    let salt_hash = poseidon_hash_fixed(&[salt_fe])?;
 
     // Step 2: Convert claim components to field elements
     let kc_name_f = hash_string_to_field(kc_name)?;
@@ -225,7 +213,7 @@ fn compute_address_seed(
     let aud_f = hash_string_to_field(aud)?;
 
     // Step 3: Poseidon(kc_name_F, kc_value_F, aud_F, salt_hash)
-    let address_seed = Poseidon::hash(&[kc_name_f, kc_value_f, aud_f, salt_hash]);
+    let address_seed = poseidon_hash_fixed(&[kc_name_f, kc_value_f, aud_f, salt_hash])?;
 
     Ok(field_to_hex(&address_seed))
 }
@@ -281,29 +269,29 @@ fn compute_modulus_hash(chunks: &[String]) -> Result<String> {
     // Groups of 4: indices 0-3, 4-7, 8-11, 12-15
     for i in 0..4 {
         let start = i * 4;
-        let hash = Poseidon::hash(&[
+        let hash = poseidon_hash_fixed(&[
             field_elements[start],
             field_elements[start + 1],
             field_elements[start + 2],
             field_elements[start + 3],
-        ]);
+        ])?;
         intermediate.push(hash);
     }
 
     // Last element (index 16)
     if field_elements.len() > 16 {
-        let last_hash = Poseidon::hash(&[field_elements[16]]);
+        let last_hash = poseidon_hash_fixed(&[field_elements[16]])?;
         intermediate.push(last_hash);
     }
 
     // Second layer: hash the 5 intermediate results
-    let final_hash = Poseidon::hash(&[
+    let final_hash = poseidon_hash_fixed(&[
         intermediate[0],
         intermediate[1],
         intermediate[2],
         intermediate[3],
         intermediate.get(4).copied().unwrap_or(Fr::from(0u64)),
-    ]);
+    ])?;
 
     Ok(field_to_hex(&final_hash))
 }
@@ -351,7 +339,7 @@ pub fn compute_nonce(
     let epoch = Fr::from(max_epoch);
     let rand = string_to_field(randomness)?;
 
-    let hash = Poseidon::hash(&[high, low, epoch, rand]);
+    let hash = poseidon_hash_fixed(&[high, low, epoch, rand])?;
     Ok(field_to_hex(&hash))
 }
 
@@ -384,10 +372,10 @@ mod tests {
         let input1 = Fr::from(1u64);
         let input2 = Fr::from(2u64);
 
-        let hash = Poseidon::hash(&[input1, input2]);
+        let hash = poseidon_hash_fixed(&[input1, input2]).unwrap();
 
         // Hash should be deterministic
-        let hash2 = Poseidon::hash(&[input1, input2]);
+        let hash2 = poseidon_hash_fixed(&[input1, input2]).unwrap();
         assert_eq!(hash, hash2);
     }
 

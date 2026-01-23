@@ -32,7 +32,7 @@ ark-std = "0.4"
 num-bigint = "0.4"
 
 # Poseidon hashing for ZK-friendly witness computation
-poseidon-lite = "0.2"
+light-poseidon = "0.4"
 
 [dev-dependencies]
 tower = { version = "0.4", features = ["util"] }
