@@ -4,7 +4,7 @@
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-OAuth-based wallet creation for Stellar using zero-knowledge proofs. Sign in with Google or Apple - no seed phrases required.
+OAuth-based wallet creation for Stellar using zero-knowledge proofs. Sign in with Google or Apple - no seed phrases required
 
 ## 🚀 Quick Deploy to Vercel
 

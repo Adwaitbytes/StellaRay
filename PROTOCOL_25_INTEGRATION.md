@@ -51,7 +51,7 @@ soroban-poseidon = "25.0.0-rc.1"
 ```toml
 [dependencies]
 # Poseidon hashing for ZK-friendly witness computation
-poseidon-lite = "0.2"
+light-poseidon = "0.4"
 ```
 
 ## Contract Updates
@@ -67,31 +67,34 @@ poseidon-lite = "0.2"
 **New Functions:**
 
 ```rust
+use soroban_sdk::crypto::bn254::{Bn254G1Affine, Bn254G2Affine, Fr};
+
 // BN254 G1 point addition using Protocol 25 host function
-fn g1_add(env: &Env, p1: &G1Point, p2: &G1Point) -> G1Point {
-    env.crypto().bn254_g1_add(...)
+fn g1_add(env: &Env, p1: &Bn254G1Affine, p2: &Bn254G1Affine) -> Bn254G1Affine {
+    env.crypto().bn254().g1_add(p1, p2)
 }
 
 // BN254 G1 scalar multiplication using Protocol 25 host function
-fn g1_scalar_mul(env: &Env, point: &G1Point, scalar: &U256) -> G1Point {
-    env.crypto().bn254_g1_mul(...)
+fn g1_scalar_mul(env: &Env, point: &Bn254G1Affine, scalar: &Fr) -> Bn254G1Affine {
+    env.crypto().bn254().g1_mul(point, scalar)
 }
 
 // Verify Groth16 pairing equation
-fn verify_pairing(env: &Env, proof: &Groth16Proof, vk: &VerificationKey, vk_x: &G1Point) -> Result<bool, Error> {
-    env.crypto().bn254_multi_pairing_check(g1_points, g2_points)
+fn verify_pairing(env: &Env, g1_points: Vec<Bn254G1Affine>, g2_points: Vec<Bn254G2Affine>) -> bool {
+    env.crypto().bn254().pairing_check(g1_points, g2_points)
 }
 ```
 
 **Poseidon Usage:**
 
 ```rust
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
+use soroban_poseidon::poseidon_hash;
+use soroban_sdk::crypto::BnScalar;
 
 // Compute address seed using Poseidon
 pub fn compute_address_seed(...) -> BytesN<32> {
-    let salt_hash = poseidon_hash::<2, Bn254Fr>(&env, &salt_inputs);
-    let address_seed = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+    let salt_hash = poseidon_hash::<2, BnScalar>(&env, &salt_inputs);
+    let address_seed = poseidon_hash::<5, BnScalar>(&env, &inputs);
     // ...
 }
 ```
@@ -111,7 +114,7 @@ fn compute_modulus_hash(env: &Env, chunks: &Vec<BytesN<32>>) -> BytesN<32> {
     // Hash in a tree structure to handle 17 inputs
     // First layer: hash groups of 4 elements
     // Second layer: hash the 5 intermediate results
-    let final_hash = poseidon_hash::<6, Bn254Fr>(env, &intermediate);
+    let final_hash = poseidon_hash::<6, BnScalar>(env, &intermediate);
     // ...
 }
 ```
@@ -135,10 +138,10 @@ pub fn compute_address_seed(
     user_salt: BytesN<32>,
 ) -> BytesN<32> {
     // Step 1: Poseidon(salt)
-    let salt_hash = poseidon_hash::<2, Bn254Fr>(&env, &salt_inputs);
+    let salt_hash = poseidon_hash::<2, BnScalar>(&env, &salt_inputs);
 
     // Step 2: Poseidon(kc_name_F, kc_value_F, aud_F, salt_hash)
-    let address_seed_fe = poseidon_hash::<5, Bn254Fr>(&env, &inputs);
+    let address_seed_fe = poseidon_hash::<5, BnScalar>(&env, &inputs);
     // ...
 }
 ```
@@ -157,7 +160,7 @@ pub fn compute_address_seed(
 fn compute_session_id(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
     let eph_pk_fe = Self::bytes_to_field_element(env, eph_pk);
     let inputs = soroban_sdk::vec![env, eph_pk_fe];
-    let hash = poseidon_hash::<2, Bn254Fr>(env, &inputs);
+    let hash = poseidon_hash::<2, BnScalar>(env, &inputs);
     // ...
 }
 
@@ -165,7 +168,7 @@ fn compute_session_id(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
 fn compute_eph_pk_hash(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
     // Split into high and low parts
     let inputs = soroban_sdk::vec![env, high_fe, low_fe];
-    let hash = poseidon_hash::<3, Bn254Fr>(env, &inputs);
+    let hash = poseidon_hash::<3, BnScalar>(env, &inputs);
     // ...
 }
 ```
@@ -176,27 +179,34 @@ fn compute_eph_pk_hash(env: &Env, eph_pk: &BytesN<32>) -> BytesN<32> {
 
 **Key Changes:**
 
-- Uses `poseidon-lite` for Circom-compatible Poseidon hashing
+- Uses `light-poseidon` for Circom-compatible Poseidon hashing
 - Proper field element conversion for BN254
 - Tree structure for modulus hash matching contract implementation
 
 **Implementation:**
 
 ```rust
-use poseidon_lite::{poseidon_bn254::PoseidonBn254 as Poseidon, PoseidonHash};
+use light_poseidon::{Poseidon, PoseidonHasher};
+use ark_bn254::Fr;
+
+/// Compute Poseidon hash for a fixed number of inputs
+fn poseidon_hash_fixed<const N: usize>(inputs: &[Fr; N]) -> Result<Fr> {
+    let mut poseidon = Poseidon::<Fr>::new_circom(N)?;
+    poseidon.hash(inputs)
+}
 
 /// Compute ephemeral public key hash using Poseidon
 fn compute_eph_pk_hash(eph_pk_high: &str, eph_pk_low: &str) -> Result<String> {
     let high = string_to_field(eph_pk_high)?;
     let low = string_to_field(eph_pk_low)?;
-    let hash = Poseidon::hash(&[high, low]);
+    let hash = poseidon_hash_fixed(&[high, low])?;
     Ok(field_to_hex(&hash))
 }
 
 /// Compute address seed from OAuth identity using Poseidon
 fn compute_address_seed(...) -> Result<String> {
-    let salt_hash = Poseidon::hash(&[salt_fe]);
-    let address_seed = Poseidon::hash(&[kc_name_f, kc_value_f, aud_f, salt_hash]);
+    let salt_hash = poseidon_hash_fixed(&[salt_fe])?;
+    let address_seed = poseidon_hash_fixed(&[kc_name_f, kc_value_f, aud_f, salt_hash])?;
     // ...
 }
 ```
@@ -291,14 +301,17 @@ Now uses tree structure matching the Soroban contract implementation for 17-chun
 env.crypto().sha256(&data).into()
 
 // After (Poseidon)
-use soroban_poseidon::{poseidon_hash, Bn254Fr};
-let hash = poseidon_hash::<3, Bn254Fr>(&env, &inputs);
+use soroban_poseidon::poseidon_hash;
+use soroban_sdk::crypto::BnScalar;
+let hash = poseidon_hash::<3, BnScalar>(&env, &inputs);
 ```
 
 3. For Groth16 verification, use native BN254 pairing:
 
 ```rust
-env.crypto().bn254_multi_pairing_check(g1_points, g2_points)
+use soroban_sdk::crypto::bn254::{Bn254G1Affine, Bn254G2Affine};
+
+let result = env.crypto().bn254().pairing_check(g1_points, g2_points);
 ```
 
 ### For SDK Users
@@ -313,6 +326,20 @@ import { computeAddressSeed, computeNonce } from '@stellar-zklogin/sdk';
 const addressSeed = await computeAddressSeed(kcNameHash, kcValueHash, audHash, salt);
 const nonce = await computeNonce(ephPkHigh, ephPkLow, maxEpoch, randomness);
 ```
+
+## Deployed Contracts (Testnet)
+
+| Contract | Contract ID |
+|----------|-------------|
+| ZK Verifier | `CDAQXHNK2HZJJE6EDJAO3AWM6XQSM4C3IRB5R3AJSKFDRK4BZ77PACP6` |
+| JWK Registry | `CAMO5LYOANZWUZGJYNEBOAQ6SAQKQO3WBLTDBJ6VAGYNMBOIUOVXGS2I` |
+| Gateway Factory | `CAAOQR7L5UVV7CZVYDS5IU72JKAUIEUBLTVLYGTBGBENULLNM3ZJIF76` |
+| Smart Wallet (WASM) | `2a7e72543da92134de77821c920b82e6c5fb7cd02b5283cfeb87deb894e14d5d` |
+
+**Explorer Links:**
+- [ZK Verifier on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDAQXHNK2HZJJE6EDJAO3AWM6XQSM4C3IRB5R3AJSKFDRK4BZ77PACP6)
+- [JWK Registry on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAMO5LYOANZWUZGJYNEBOAQ6SAQKQO3WBLTDBJ6VAGYNMBOIUOVXGS2I)
+- [Gateway Factory on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAAOQR7L5UVV7CZVYDS5IU72JKAUIEUBLTVLYGTBGBENULLNM3ZJIF76)
 
 ## Timeline
 
