@@ -23,7 +23,9 @@
       "Bash(npm pack:*)",
       "Bash(pnpm build:*)",
       "Bash(timeout 20 pnpm dev:*)",
-      "Bash(pnpm dev)"
+      "Bash(pnpm dev)",
+      "Bash(cargo --version:*)",
+      "Bash(cargo search:*)"
     ]
   }
 }
