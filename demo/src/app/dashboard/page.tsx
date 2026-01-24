@@ -47,8 +47,13 @@ import {
   formatBalance,
   shortenAddress,
   accountExists,
+  getCurrentNetwork,
+  getNetworkConfig,
+  hasFriendbot,
+  getExplorerUrl,
   type AccountBalance,
   type Transaction,
+  type NetworkType,
 } from "@/lib/stellar";
 import { fetchXRayMetrics, formatNumber, type XRayMetrics } from "@/lib/xray";
 import {
@@ -58,8 +63,7 @@ import {
   formatContractId,
   getContractExplorerUrl,
 } from "@/lib/soroban";
-
-const EXPLORER_URL = "https://stellar.expert/explorer/testnet";
+import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -67,6 +71,7 @@ export default function Dashboard() {
 
   const [isDark, setIsDark] = useState(true);
   const [baseUrl, setBaseUrl] = useState("https://stellargateway.vercel.app");
+  const [network, setNetwork] = useState<NetworkType>("testnet");
   const [publicKey, setPublicKey] = useState<string>("");
   const [secretKey, setSecretKey] = useState<string>("");
   const [balances, setBalances] = useState<AccountBalance[]>([]);
@@ -102,10 +107,11 @@ export default function Dashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Set base URL for QR codes on client side
+  // Set base URL for QR codes and network on client side
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setBaseUrl(window.location.origin);
+      setNetwork(getCurrentNetwork());
     }
   }, []);
 
@@ -508,9 +514,9 @@ export default function Dashboard() {
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
 
-              {/* Testnet */}
-              <div className={`hidden sm:block px-4 py-2 border-4 ${isDark ? 'border-[#00FF88] text-[#00FF88]' : 'border-[#00AA55] text-[#00AA55]'} font-black text-sm`}>
-                TESTNET
+              {/* Network Switcher */}
+              <div className="hidden sm:block">
+                <NetworkSwitcher compact isDark={isDark} />
               </div>
 
               {/* Sign Out */}
@@ -606,7 +612,7 @@ export default function Dashboard() {
                       {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     </button>
                     <a
-                      href={`${EXPLORER_URL}/account/${publicKey}`}
+                      href={`${getNetworkConfig(network).explorerUrl}/account/${publicKey}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`w-10 h-10 border-4 ${isDark ? 'border-white/30 hover:border-[#00D4FF] hover:text-[#00D4FF]' : 'border-black/30 hover:border-[#0099CC] hover:text-[#0099CC]'} flex items-center justify-center transition-all`}
@@ -682,7 +688,7 @@ export default function Dashboard() {
               </div>
 
               <a
-                href={`${EXPLORER_URL}/account/${publicKey}`}
+                href={`${getNetworkConfig(network).explorerUrl}/account/${publicKey}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`mt-6 flex items-center justify-center gap-2 w-full py-3 border-4 ${isDark ? 'border-[#00D4FF] text-[#00D4FF] hover:bg-[#00D4FF] hover:text-black' : 'border-[#0099CC] text-[#0099CC] hover:bg-[#0099CC] hover:text-white'} font-black text-sm transition-all`}
@@ -1020,8 +1026,8 @@ export default function Dashboard() {
               <div className="space-y-3">
                 {[
                   { label: 'DATE', value: new Date(showTxModal.timestamp).toLocaleString() },
-                  { label: 'FROM', value: shortenAddress(showTxModal.from), link: `${EXPLORER_URL}/account/${showTxModal.from}` },
-                  { label: 'TO', value: shortenAddress(showTxModal.to), link: `${EXPLORER_URL}/account/${showTxModal.to}` },
+                  { label: 'FROM', value: shortenAddress(showTxModal.from), link: `${getNetworkConfig(network).explorerUrl}/account/${showTxModal.from}` },
+                  { label: 'TO', value: shortenAddress(showTxModal.to), link: `${getNetworkConfig(network).explorerUrl}/account/${showTxModal.to}` },
                 ].map((item, i) => (
                   <div key={i} className={`flex justify-between py-3 border-b-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
                     <span className={`font-bold text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>{item.label}</span>
@@ -1038,7 +1044,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <a
-                href={`${EXPLORER_URL}/tx/${showTxModal.id}`}
+                href={`${getNetworkConfig(network).explorerUrl}/tx/${showTxModal.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative w-full block mt-6"
