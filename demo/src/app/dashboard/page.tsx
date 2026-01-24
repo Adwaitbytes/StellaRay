@@ -66,6 +66,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   const [isDark, setIsDark] = useState(true);
+  const [baseUrl, setBaseUrl] = useState("https://stellargateway.vercel.app");
   const [publicKey, setPublicKey] = useState<string>("");
   const [secretKey, setSecretKey] = useState<string>("");
   const [balances, setBalances] = useState<AccountBalance[]>([]);
@@ -100,6 +101,13 @@ export default function Dashboard() {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
+
+  // Set base URL for QR codes on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setBaseUrl(window.location.origin);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -960,7 +968,7 @@ export default function Dashboard() {
             <div className="p-6 flex flex-col items-center">
               <div className={`p-4 border-4 ${isDark ? 'border-white' : 'border-black'} mb-6 bg-white`}>
                 <QRCodeSVG
-                  value={`stellar:${publicKey}?network=testnet`}
+                  value={`${baseUrl}/pay?to=${publicKey}&network=testnet`}
                   size={200}
                   level="H"
                   includeMargin={true}
