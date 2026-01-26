@@ -49,3 +49,7 @@ temp/
 # Lock files (keep pnpm-lock.yaml for reproducibility)
 package-lock.json
 yarn.lock
+
+nul
+demo/nul
+

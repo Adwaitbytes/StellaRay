@@ -12,7 +12,7 @@ Visit http://localhost:3000
 
 ## Vercel Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions
 
 ### Quick Deploy
 
