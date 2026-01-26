@@ -29,7 +29,10 @@
       "Bash(git -C /c/Users/adwai/Stellar-new-project log --oneline)",
       "Bash(find:*)",
       "Bash(npm test:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(tree:*)",
+      "Bash(node scripts/init-db.js:*)",
+      "Bash(timeout:*)"
     ]
   }
 }
