@@ -412,7 +412,7 @@ export default function SDKDemo() {
         </button>
       </div>
       <pre
-        className={`p-4 overflow-x-auto text-sm ${isDark ? "bg-black/30 text-[#39FF14]" : "bg-white/50 text-[#006600]"}`}
+        className={`p-4 overflow-x-auto text-sm ${isDark ? "bg-black/30 text-[#0066FF]" : "bg-white/50 text-[#006600]"}`}
       >
         <code>{code}</code>
       </pre>
@@ -431,14 +431,16 @@ export default function SDKDemo() {
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-4">
-                <div
-                  className={`w-12 h-12 ${isDark ? "bg-white text-black" : "bg-black text-white"} flex items-center justify-center text-2xl font-black`}
-                >
-                  S
+                <div className="w-12 h-12 bg-[#0066FF] flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7">
+                    <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="3"/>
+                    <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3"/>
+                    <circle cx="12" cy="12" r="2" fill="white"/>
+                  </svg>
                 </div>
                 <div className="hidden sm:block">
                   <span className="text-2xl font-black tracking-tighter">SDK</span>
-                  <span className="text-2xl font-black tracking-tighter text-[#39FF14]">DEMO</span>
+                  <span className="text-2xl font-black tracking-tighter text-[#0066FF]">DEMO</span>
                 </div>
               </Link>
             </div>
@@ -460,7 +462,7 @@ export default function SDKDemo() {
               </button>
 
               <div
-                className={`px-4 py-2 border-4 ${isDark ? "border-[#39FF14] text-[#39FF14]" : "border-[#00AA55] text-[#00AA55]"} font-black text-sm`}
+                className={`px-4 py-2 border-4 ${isDark ? "border-[#0066FF] text-[#0066FF]" : "border-[#0066FF] text-[#0066FF]"} font-black text-sm`}
               >
                 LIVE DEMO
               </div>
@@ -473,14 +475,14 @@ export default function SDKDemo() {
       <section className="pt-32 pb-12 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-3 h-3 bg-[#39FF14] animate-pulse" />
-            <span className={`font-black text-sm ${isDark ? "text-[#39FF14]" : "text-[#00AA55]"}`}>
+            <div className="w-3 h-3 bg-[#0066FF] animate-pulse" />
+            <span className={`font-black text-sm ${isDark ? "text-[#0066FF]" : "text-[#0066FF]"}`}>
               INTERACTIVE DEMO
             </span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter mb-6">
-            STELLAR <span className="text-[#39FF14]">ZKLOGIN</span> SDK
+            STELLA<span className="text-[#0066FF]">RAY</span> SDK
             <br />
             <span className={isDark ? "text-white/40" : "text-black/40"}>IN ACTION</span>
           </h1>
@@ -503,8 +505,8 @@ export default function SDKDemo() {
                 className={`flex items-center gap-2 px-6 py-4 border-4 font-black text-sm transition-all ${
                   activeTab === tab.id
                     ? isDark
-                      ? "border-[#39FF14] bg-[#39FF14] text-black"
-                      : "border-[#00AA55] bg-[#00AA55] text-white"
+                      ? "border-[#0066FF] bg-[#0066FF] text-black"
+                      : "border-[#0066FF] bg-[#0066FF] text-white"
                     : isDark
                       ? "border-white/30 hover:border-white"
                       : "border-black/30 hover:border-black"
@@ -531,8 +533,8 @@ export default function SDKDemo() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex gap-2">
-                      <div className="w-4 h-4 bg-[#FF3366]" />
-                      <div className="w-4 h-4 bg-[#FFD600]" />
+                      <div className="w-4 h-4 bg-[#0066FF]" />
+                      <div className="w-4 h-4 bg-[#00D4FF]" />
                       <div className="w-4 h-4 bg-[#00FF88]" />
                     </div>
                     <span className="font-black text-sm">CODE_EDITOR.JS</span>
@@ -542,8 +544,8 @@ export default function SDKDemo() {
                     disabled={isRunning}
                     className={`flex items-center gap-2 px-4 py-2 font-black text-sm transition-all ${
                       isDark
-                        ? "bg-[#39FF14] text-black hover:bg-[#50FF30]"
-                        : "bg-[#00AA55] text-white hover:bg-[#00BB66]"
+                        ? "bg-[#0066FF] text-black hover:bg-[#0055DD]"
+                        : "bg-[#0066FF] text-white hover:bg-[#0055DD]"
                     } disabled:opacity-50`}
                   >
                     {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
@@ -555,7 +557,7 @@ export default function SDKDemo() {
                     value={playgroundCode}
                     onChange={(e) => setPlaygroundCode(e.target.value)}
                     className={`w-full h-[400px] p-4 font-mono text-sm resize-none focus:outline-none ${
-                      isDark ? "bg-black/50 text-[#39FF14]" : "bg-white text-[#006600]"
+                      isDark ? "bg-black/50 text-[#0066FF]" : "bg-white text-[#006600]"
                     }`}
                     spellCheck={false}
                   />
@@ -578,8 +580,8 @@ export default function SDKDemo() {
                         onClick={() => setPlaygroundCode(example.code)}
                         className={`px-3 py-1 text-xs font-black border-2 transition-all ${
                           isDark
-                            ? "border-white/30 hover:border-[#39FF14] hover:text-[#39FF14]"
-                            : "border-black/30 hover:border-[#00AA55] hover:text-[#00AA55]"
+                            ? "border-white/30 hover:border-[#0066FF] hover:text-[#0066FF]"
+                            : "border-black/30 hover:border-[#0066FF] hover:text-[#0066FF]"
                         }`}
                       >
                         {example.label}
@@ -618,13 +620,13 @@ export default function SDKDemo() {
                             ? "text-[#FF3366]"
                             : line.includes("success") || line.includes("Connected")
                               ? "text-[#00FF88]"
-                              : "text-[#39FF14]"
+                              : "text-[#0066FF]"
                       }`}
                     >
                       {line}
                     </div>
                   ))}
-                  <div className="h-4 w-2 bg-[#39FF14] animate-pulse inline-block" />
+                  <div className="h-4 w-2 bg-[#0066FF] animate-pulse inline-block" />
                 </div>
 
                 {/* Wallet Status */}
@@ -729,10 +731,10 @@ export default function SDKDemo() {
                           className="group relative inline-block"
                         >
                           <div
-                            className={`absolute inset-0 ${isDark ? "bg-[#39FF14]" : "bg-[#00AA55]"} translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform`}
+                            className={`absolute inset-0 ${isDark ? "bg-[#0066FF]" : "bg-[#0066FF]"} translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform`}
                           />
                           <div
-                            className={`relative flex items-center gap-3 px-8 py-4 ${isDark ? "bg-[#0A0A0A] border-[#39FF14]" : "bg-[#F5F5F5] border-[#00AA55]"} border-4 font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}
+                            className={`relative flex items-center gap-3 px-8 py-4 ${isDark ? "bg-[#0A0A0A] border-[#0066FF]" : "bg-[#F5F5F5] border-[#0066FF]"} border-4 font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}
                           >
                             {isConnecting ? (
                               <>
@@ -798,13 +800,13 @@ export default function SDKDemo() {
                           </p>
                           <div className="flex items-center gap-3">
                             <code
-                              className={`flex-1 font-mono text-sm break-all ${isDark ? "text-[#39FF14]" : "text-[#00AA55]"}`}
+                              className={`flex-1 font-mono text-sm break-all ${isDark ? "text-[#0066FF]" : "text-[#0066FF]"}`}
                             >
                               {demoWallet.address}
                             </code>
                             <button
                               onClick={() => copyCode(demoWallet.address, "address")}
-                              className={`w-10 h-10 border-4 ${isDark ? "border-white/30 hover:border-[#00FF88]" : "border-black/30 hover:border-[#00AA55]"} flex items-center justify-center transition-all`}
+                              className={`w-10 h-10 border-4 ${isDark ? "border-white/30 hover:border-[#00FF88]" : "border-black/30 hover:border-[#0066FF]"} flex items-center justify-center transition-all`}
                             >
                               {copiedCode === "address" ? (
                                 <Check className="w-4 h-4 text-[#00FF88]" />
@@ -832,7 +834,7 @@ export default function SDKDemo() {
                                 value={sendTo}
                                 onChange={(e) => setSendTo(e.target.value)}
                                 placeholder="GDEST..."
-                                className={`w-full px-4 py-3 border-4 ${isDark ? "border-white/30 bg-transparent" : "border-black/30 bg-transparent"} font-mono text-sm focus:outline-none focus:border-[#39FF14]`}
+                                className={`w-full px-4 py-3 border-4 ${isDark ? "border-white/30 bg-transparent" : "border-black/30 bg-transparent"} font-mono text-sm focus:outline-none focus:border-[#0066FF]`}
                               />
                             </div>
                             <div>
@@ -846,7 +848,7 @@ export default function SDKDemo() {
                                 value={sendAmount}
                                 onChange={(e) => setSendAmount(e.target.value)}
                                 placeholder="0.00"
-                                className={`w-full px-4 py-3 border-4 ${isDark ? "border-white/30 bg-transparent" : "border-black/30 bg-transparent"} font-mono text-sm focus:outline-none focus:border-[#39FF14]`}
+                                className={`w-full px-4 py-3 border-4 ${isDark ? "border-white/30 bg-transparent" : "border-black/30 bg-transparent"} font-mono text-sm focus:outline-none focus:border-[#0066FF]`}
                               />
                             </div>
                           </div>
@@ -910,7 +912,7 @@ export default function SDKDemo() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-mono text-xs text-[#39FF14]">{tx.hash}</p>
+                            <p className="font-mono text-xs text-[#0066FF]">{tx.hash}</p>
                             <p className={`text-xs ${isDark ? "text-white/50" : "text-black/50"}`}>
                               {new Date(tx.timestamp).toLocaleTimeString()}
                             </p>
@@ -924,20 +926,20 @@ export default function SDKDemo() {
 
               {/* X-Ray Metrics */}
               <div>
-                <div className={`border-4 ${isDark ? "border-[#39FF14]/30" : "border-[#00AA55]/30"}`}>
+                <div className={`border-4 ${isDark ? "border-[#0066FF]/30" : "border-[#0066FF]/30"}`}>
                   <div
-                    className={`px-6 py-4 border-b-4 ${isDark ? "border-[#39FF14]/30 bg-[#39FF14]/10" : "border-[#00AA55]/30 bg-[#00AA55]/10"}`}
+                    className={`px-6 py-4 border-b-4 ${isDark ? "border-[#0066FF]/30 bg-[#0066FF]/10" : "border-[#0066FF]/30 bg-[#0066FF]/10"}`}
                   >
                     <div className="flex items-center gap-3">
-                      <Zap className={`w-5 h-5 ${isDark ? "text-[#39FF14]" : "text-[#00AA55]"}`} />
-                      <span className={`font-black text-sm ${isDark ? "text-[#39FF14]" : "text-[#00AA55]"}`}>
+                      <Zap className={`w-5 h-5 ${isDark ? "text-[#0066FF]" : "text-[#0066FF]"}`} />
+                      <span className={`font-black text-sm ${isDark ? "text-[#0066FF]" : "text-[#0066FF]"}`}>
                         X-RAY PROTOCOL
                       </span>
                     </div>
                   </div>
                   <div className="p-6 space-y-4">
                     {[
-                      { label: "PROOFS VERIFIED", value: xrayMetrics.proofsVerified, color: "#39FF14", icon: Shield },
+                      { label: "PROOFS VERIFIED", value: xrayMetrics.proofsVerified, color: "#0066FF", icon: Shield },
                       { label: "BN254 OPS", value: xrayMetrics.bn254Operations, color: "#00D4FF", icon: Cpu },
                       { label: "POSEIDON HASHES", value: xrayMetrics.poseidonHashes, color: "#FF10F0", icon: Hash },
                       {
@@ -1035,7 +1037,7 @@ export default function SDKDemo() {
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tighter mb-6">
-            READY TO <span className="text-[#39FF14]">BUILD</span>?
+            READY TO <span className="text-[#0066FF]">BUILD</span>?
           </h2>
           <p className={`text-lg mb-8 ${isDark ? "text-white/60" : "text-black/60"}`}>
             Integrate zkLogin into your dApp in minutes. Full documentation and examples available.
@@ -1043,10 +1045,10 @@ export default function SDKDemo() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/sdk" className="group relative inline-block">
               <div
-                className={`absolute inset-0 ${isDark ? "bg-[#39FF14]" : "bg-[#00AA55]"} translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform`}
+                className={`absolute inset-0 ${isDark ? "bg-[#0066FF]" : "bg-[#0066FF]"} translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform`}
               />
               <div
-                className={`relative flex items-center gap-3 px-8 py-4 ${isDark ? "bg-[#0A0A0A] border-[#39FF14]" : "bg-[#F5F5F5] border-[#00AA55]"} border-4 font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}
+                className={`relative flex items-center gap-3 px-8 py-4 ${isDark ? "bg-[#0A0A0A] border-[#0066FF]" : "bg-[#F5F5F5] border-[#0066FF]"} border-4 font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}
               >
                 <Code className="w-5 h-5" />
                 VIEW DOCUMENTATION
@@ -1067,18 +1069,20 @@ export default function SDKDemo() {
       <footer className={`py-8 px-6 lg:px-8 border-t-4 ${isDark ? "border-white/10" : "border-black/10"}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-8 h-8 ${isDark ? "bg-white text-black" : "bg-black text-white"} flex items-center justify-center font-black`}
-            >
-              S
+            <div className="w-8 h-8 bg-[#0066FF] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-5 h-5">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2"/>
+                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2"/>
+                <circle cx="12" cy="12" r="1.5" fill="white"/>
+              </svg>
             </div>
             <span className={`font-bold ${isDark ? "text-white/50" : "text-black/50"}`}>
-              Stellar zkLogin SDK Demo
+              STELLARAY SDK Demo
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-[#39FF14] animate-pulse" />
-            <span className={`text-sm font-black ${isDark ? "text-[#39FF14]" : "text-[#00AA55]"}`}>
+            <div className="w-2 h-2 bg-[#0066FF] animate-pulse" />
+            <span className={`text-sm font-black ${isDark ? "text-[#0066FF]" : "text-[#0066FF]"}`}>
               TESTNET SIMULATION
             </span>
           </div>
