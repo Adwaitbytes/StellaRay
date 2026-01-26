@@ -284,12 +284,16 @@ function WalletComponent() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white text-black flex items-center justify-center text-2xl font-black">
-                S
+              <div className="w-12 h-12 bg-[#0066FF] flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-7 h-7">
+                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="3"/>
+                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3"/>
+                  <circle cx="12" cy="12" r="2" fill="white"/>
+                </svg>
               </div>
               <div className="hidden sm:block">
                 <span className="text-2xl font-black tracking-tighter">SDK</span>
-                <span className="text-2xl font-black tracking-tighter text-[#39FF14]">LIVE</span>
+                <span className="text-2xl font-black tracking-tighter text-[#0066FF]">LIVE</span>
               </div>
             </Link>
 
@@ -305,7 +309,7 @@ function WalletComponent() {
                 <ExternalLink className="w-3 h-3" />
               </a>
 
-              <div className="px-4 py-2 border-4 border-[#39FF14] text-[#39FF14] font-black text-sm">
+              <div className="px-4 py-2 border-4 border-[#0066FF] text-[#0066FF] font-black text-sm">
                 v{sdkVersion}
               </div>
             </div>
@@ -317,8 +321,8 @@ function WalletComponent() {
       <section className="pt-32 pb-12 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-3 h-3 bg-[#39FF14] animate-pulse" />
-            <span className="font-black text-sm text-[#39FF14]">
+            <div className="w-3 h-3 bg-[#0066FF] animate-pulse" />
+            <span className="font-black text-sm text-[#0066FF]">
               PUBLISHED ON NPM
             </span>
           </div>
@@ -340,8 +344,8 @@ function WalletComponent() {
             disabled={isRunningTests}
             className="group relative inline-block mb-12"
           >
-            <div className="absolute inset-0 bg-[#39FF14] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-            <div className="relative flex items-center gap-3 px-8 py-4 bg-[#0A0A0A] border-4 border-[#39FF14] font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
+            <div className="absolute inset-0 bg-[#0066FF] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
+            <div className="relative flex items-center gap-3 px-8 py-4 bg-[#0A0A0A] border-4 border-[#0066FF] font-black transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1">
               {isRunningTests ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -429,7 +433,7 @@ function WalletComponent() {
                 {copiedCode === "install" ? "COPIED" : "COPY"}
               </button>
             </div>
-            <pre className="p-4 overflow-x-auto text-lg bg-black/30 text-[#39FF14]">
+            <pre className="p-4 overflow-x-auto text-lg bg-black/30 text-[#0066FF]">
               <code>$ {installCode}</code>
             </pre>
           </div>
@@ -443,7 +447,7 @@ function WalletComponent() {
               </p>
             </div>
             <div className="p-6 border-4 border-white/20">
-              <Shield className="w-8 h-8 text-[#39FF14] mb-4" />
+              <Shield className="w-8 h-8 text-[#0066FF] mb-4" />
               <h3 className="font-black text-lg mb-2">ZERO-KNOWLEDGE</h3>
               <p className="text-white/60 text-sm">
                 Groth16 proofs on BN254 curve with Poseidon hashing.
@@ -480,7 +484,7 @@ function WalletComponent() {
                   {copiedCode === "usage" ? "COPIED" : "COPY"}
                 </button>
               </div>
-              <pre className="p-4 overflow-x-auto text-sm bg-black/30 text-[#39FF14] max-h-[400px]">
+              <pre className="p-4 overflow-x-auto text-sm bg-black/30 text-[#0066FF] max-h-[400px]">
                 <code>{usageCode}</code>
               </pre>
             </div>
@@ -499,7 +503,7 @@ function WalletComponent() {
                   {copiedCode === "react" ? "COPIED" : "COPY"}
                 </button>
               </div>
-              <pre className="p-4 overflow-x-auto text-sm bg-black/30 text-[#39FF14] max-h-[400px]">
+              <pre className="p-4 overflow-x-auto text-sm bg-black/30 text-[#0066FF] max-h-[400px]">
                 <code>{reactCode}</code>
               </pre>
             </div>
@@ -514,7 +518,7 @@ function WalletComponent() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Shield, label: "Groth16 ZK Proofs", color: "#39FF14" },
+              { icon: Shield, label: "Groth16 ZK Proofs", color: "#0066FF" },
               { icon: Cpu, label: "BN254 Curve Support", color: "#00D4FF" },
               { icon: Hash, label: "Poseidon Hashing", color: "#FF10F0" },
               { icon: Zap, label: "X-Ray Protocol", color: "#FFD600" },
@@ -535,7 +539,7 @@ function WalletComponent() {
       <section className="py-16 px-6 lg:px-8 border-t-4 border-white/10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tighter mb-6">
-            START <span className="text-[#39FF14]">BUILDING</span> TODAY
+            START <span className="text-[#0066FF]">BUILDING</span> TODAY
           </h2>
           <p className="text-lg mb-8 text-white/60">
             The SDK is published and ready. Install it now and add zkLogin to your dApp.
@@ -570,8 +574,12 @@ function WalletComponent() {
       <footer className="py-8 px-6 lg:px-8 border-t-4 border-white/10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white text-black flex items-center justify-center font-black">
-              S
+            <div className="w-8 h-8 bg-[#0066FF] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-5 h-5">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2"/>
+                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2"/>
+                <circle cx="12" cy="12" r="1.5" fill="white"/>
+              </svg>
             </div>
             <span className="font-bold text-white/50">
               @stellar-zklogin/sdk v{sdkVersion}
