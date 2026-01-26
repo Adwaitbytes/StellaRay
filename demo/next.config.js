@@ -19,8 +19,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'randomuser.me',
+        pathname: '/**',
       },
     ],
+    // Fallback domains for compatibility
+    domains: ['randomuser.me', 'lh3.googleusercontent.com'],
   },
 
   // Vercel-specific optimizations
