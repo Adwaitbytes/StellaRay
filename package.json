@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "@stellar-zklogin/sdk": "^2.0.0"
   }
 }

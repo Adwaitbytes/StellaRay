@@ -11,8 +11,9 @@
     "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
-    "@stellar/stellar-sdk": "^12.3.0",
+    "@neondatabase/serverless": "^0.10.4",
     "@stellar-zklogin/sdk": "^2.0.0",
+    "@stellar/stellar-sdk": "^12.3.0",
     "lucide-react": "^0.300.0",
     "next": "15.3.8",
     "next-auth": "^4.24.7",
@@ -25,6 +26,7 @@
     "@types/react": "^18.3.27",
     "@types/react-dom": "^18.2.0",
     "autoprefixer": "^10.4.16",
+    "dotenv": "^17.2.3",
     "eslint": "^8.55.0",
     "eslint-config-next": "^15.1.5",
     "postcss": "^8.4.32",
