@@ -48,20 +48,85 @@ export const FEATURES = {
   SHOW_WAITLIST_COUNT: true,
 
   /**
-   * Fake waitlist count for social proof (before real data)
+   * Initial waitlist count for social proof (before real data)
+   * This is just the base - real count from DB is added on top
    */
-  INITIAL_WAITLIST_COUNT: 847,
+  INITIAL_WAITLIST_COUNT: 15,
+
+  /**
+   * Auto-increment amount (for simulation)
+   */
+  WAITLIST_INCREMENT_AMOUNT: 2,
+
+  /**
+   * Auto-increment interval in milliseconds (2 minutes = 120000)
+   */
+  WAITLIST_INCREMENT_INTERVAL: 120000,
+
+  // ========================================
+  // ✨ WAITLIST PAGE ENHANCEMENTS
+  // ========================================
+
+  /**
+   * Enable confetti animation on successful signup
+   */
+  WAITLIST_CONFETTI: true,
+
+  /**
+   * Enable floating background orbs animation
+   */
+  WAITLIST_FLOATING_ORBS: false,
+
+  /**
+   * Enable typewriter effect on headline
+   */
+  WAITLIST_TYPEWRITER: true,
+
+  /**
+   * Enable success modal popup after signup
+   */
+  WAITLIST_SUCCESS_MODAL: true,
+
+  /**
+   * Enable particle field background
+   */
+  WAITLIST_PARTICLES: false,
+
+  /**
+   * Enable animated counter for social proof
+   */
+  WAITLIST_ANIMATED_COUNTER: true,
+
+  /**
+   * Show stats row (Countries, Setup Time, etc.)
+   */
+  WAITLIST_SHOW_STATS: true,
+
+  /**
+   * Auto-increment waitlist count for social proof simulation
+   */
+  WAITLIST_AUTO_INCREMENT: true,
 } as const;
 
 // Type for feature keys
 export type FeatureKey = keyof typeof FEATURES;
 
+// Boolean feature keys
+export type BooleanFeatureKey = {
+  [K in FeatureKey]: typeof FEATURES[K] extends boolean ? K : never;
+}[FeatureKey];
+
+// Numeric feature keys
+export type NumericFeatureKey = {
+  [K in FeatureKey]: typeof FEATURES[K] extends number ? K : never;
+}[FeatureKey];
+
 // Helper to check if a boolean feature is enabled
-export function isFeatureEnabled(feature: Exclude<FeatureKey, 'INITIAL_WAITLIST_COUNT'>): boolean {
+export function isFeatureEnabled(feature: BooleanFeatureKey): boolean {
   return FEATURES[feature] as boolean;
 }
 
 // Helper to get numeric feature values
-export function getFeatureValue(feature: 'INITIAL_WAITLIST_COUNT'): number {
-  return FEATURES[feature];
+export function getFeatureValue(feature: NumericFeatureKey): number {
+  return FEATURES[feature] as number;
 }
