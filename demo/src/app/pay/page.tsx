@@ -60,7 +60,7 @@ function PaymentContent() {
           <p className="text-white/60 mb-8">No recipient address provided</p>
           <button
             onClick={() => router.push("/")}
-            className="px-8 py-4 bg-[#00FF88] text-black font-black hover:bg-[#00DD77] transition-colors"
+            className="px-8 py-4 bg-[#0066FF] text-black font-black hover:bg-[#00DD77] transition-colors"
           >
             GO HOME
           </button>
@@ -74,9 +74,9 @@ function PaymentContent() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF88]/10 border border-[#00FF88]/30 mb-4">
-            <Zap className="w-4 h-4 text-[#00FF88]" />
-            <span className="text-[#00FF88] font-bold text-sm">STELLAR ZKLOGIN</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0066FF]/10 border border-[#0066FF]/30 mb-4">
+            <Zap className="w-4 h-4 text-[#0066FF]" />
+            <span className="text-[#0066FF] font-bold text-sm">STELLARAY</span>
           </div>
           <h1 className="text-3xl font-black text-white mb-2">SEND PAYMENT</h1>
           <p className="text-white/60">Pay to this Stellar address</p>
@@ -88,7 +88,7 @@ function PaymentContent() {
           <div className="p-6 border-b-4 border-white/20">
             <p className="text-white/50 text-sm font-bold mb-2">RECIPIENT</p>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#00FF88] flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#0066FF] flex items-center justify-center">
                 <Wallet className="w-6 h-6 text-black" />
               </div>
               <div className="flex-1 min-w-0">
@@ -99,7 +99,7 @@ function PaymentContent() {
                 onClick={copyAddress}
                 className="w-10 h-10 border-2 border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors"
               >
-                {copied ? <Check className="w-4 h-4 text-[#00FF88]" /> : <Copy className="w-4 h-4 text-white" />}
+                {copied ? <Check className="w-4 h-4 text-[#0066FF]" /> : <Copy className="w-4 h-4 text-white" />}
               </button>
             </div>
           </div>
@@ -113,7 +113,7 @@ function PaymentContent() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-black border-2 border-white/30 px-4 py-4 text-white text-2xl font-black focus:outline-none focus:border-[#00FF88] placeholder:text-white/20"
+                className="w-full bg-black border-2 border-white/30 px-4 py-4 text-white text-2xl font-black focus:outline-none focus:border-[#0066FF] placeholder:text-white/20"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 font-bold">XLM</span>
             </div>
@@ -131,8 +131,8 @@ function PaymentContent() {
               onClick={openInStellarWallet}
               className="group relative w-full"
             >
-              <div className="absolute inset-0 bg-[#00FF88] translate-x-1 translate-y-1" />
-              <div className="relative flex items-center justify-center gap-2 px-6 py-4 bg-black text-white font-black border-4 border-[#00FF88] group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
+              <div className="absolute inset-0 bg-[#0066FF] translate-x-1 translate-y-1" />
+              <div className="relative flex items-center justify-center gap-2 px-6 py-4 bg-black text-white font-black border-4 border-[#0066FF] group-hover:translate-x-1 group-hover:translate-y-1 transition-transform">
                 <Wallet className="w-5 h-5" />
                 OPEN IN WALLET
                 <ArrowRight className="w-5 h-5" />
@@ -153,7 +153,7 @@ function PaymentContent() {
               onClick={copyAddress}
               className="w-full flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white/60 font-bold hover:bg-white/10 transition-colors"
             >
-              {copied ? <Check className="w-4 h-4 text-[#00FF88]" /> : <Copy className="w-4 h-4" />}
+              {copied ? <Check className="w-4 h-4 text-[#0066FF]" /> : <Copy className="w-4 h-4" />}
               {copied ? "COPIED!" : "COPY ADDRESS"}
             </button>
           </div>
@@ -164,7 +164,7 @@ function PaymentContent() {
           <p className="text-white/40 text-sm mb-3">Don't have a Stellar wallet?</p>
           <button
             onClick={() => router.push("/")}
-            className="text-[#00FF88] font-bold hover:underline"
+            className="text-[#0066FF] font-bold hover:underline"
           >
             Create one with Google Sign-In →
           </button>
