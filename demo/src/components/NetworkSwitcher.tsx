@@ -49,13 +49,13 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
       <div className="relative">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`flex items-center gap-2 px-3 py-2 text-xs font-bold transition-colors ${
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
             currentNet === "mainnet"
-              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-              : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+              ? "bg-[#00FF88]/10 text-[#00FF88]"
+              : "bg-[#0066FF]/10 text-[#0066FF]"
           }`}
         >
-          <Globe className="w-3 h-3" />
+          <div className={`w-2 h-2 rounded-full ${currentNet === "mainnet" ? "bg-[#00FF88]" : "bg-[#0066FF]"} animate-pulse`} />
           {config.name.toUpperCase()}
           <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         </button>
@@ -63,7 +63,7 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-            <div className={`absolute right-0 top-full mt-2 z-50 min-w-[180px] border-2 ${isDark ? "bg-[#0A0A0A] border-white/20" : "bg-white border-black/20"}`}>
+            <div className={`absolute right-0 top-full mt-2 z-50 min-w-[180px] rounded-lg overflow-hidden border ${isDark ? "bg-[#0A0A0A] border-white/10" : "bg-white border-black/10"} shadow-xl`}>
               {(Object.keys(NETWORKS) as NetworkType[]).map((net) => {
                 const netConfig = NETWORKS[net];
                 const isSelected = net === currentNet;
@@ -73,20 +73,20 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
                     key={net}
                     onClick={() => handleNetworkChange(net)}
                     className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors ${
-                      isDark ? "hover:bg-white/10" : "hover:bg-black/10"
-                    } ${isSelected ? (isDark ? "bg-white/10" : "bg-black/10") : ""}`}
+                      isDark ? "hover:bg-white/5" : "hover:bg-black/5"
+                    } ${isSelected ? (isDark ? "bg-white/5" : "bg-black/5") : ""}`}
                   >
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-2 h-2 rounded-full ${
-                          net === "mainnet" ? "bg-green-500" : "bg-yellow-500"
+                          net === "mainnet" ? "bg-[#00FF88]" : "bg-[#0066FF]"
                         }`}
                       />
                       <span className={`font-bold ${isDark ? "text-white" : "text-black"}`}>
                         {netConfig.name}
                       </span>
                     </div>
-                    {isSelected && <Check className="w-4 h-4 text-[#00FF88]" />}
+                    {isSelected && <Check className="w-4 h-4 text-[#0066FF]" />}
                   </button>
                 );
               })}
@@ -99,7 +99,7 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
   }
 
   return (
-    <div className={`border-2 ${isDark ? "border-white/20 bg-black/30" : "border-black/20 bg-white/50"} p-4`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5"} p-4`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className={`font-bold text-sm ${isDark ? "text-white/60" : "text-black/60"}`}>NETWORK</h3>
         <Globe className={`w-4 h-4 ${isDark ? "text-white/40" : "text-black/40"}`} />
@@ -114,20 +114,20 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
             <button
               key={net}
               onClick={() => handleNetworkChange(net)}
-              className={`w-full flex items-center justify-between p-3 border-2 transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
                 isSelected
                   ? net === "mainnet"
-                    ? "border-green-500 bg-green-500/10"
-                    : "border-yellow-500 bg-yellow-500/10"
+                    ? "border-[#00FF88]/50 bg-[#00FF88]/10"
+                    : "border-[#0066FF]/50 bg-[#0066FF]/10"
                   : isDark
-                  ? "border-white/20 hover:border-white/40"
-                  : "border-black/20 hover:border-black/40"
+                  ? "border-white/10 hover:border-white/20 hover:bg-white/5"
+                  : "border-black/10 hover:border-black/20 hover:bg-black/5"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`w-3 h-3 rounded-full ${
-                    net === "mainnet" ? "bg-green-500" : "bg-yellow-500"
+                    net === "mainnet" ? "bg-[#00FF88]" : "bg-[#0066FF]"
                   }`}
                 />
                 <div className="text-left">
@@ -139,14 +139,14 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
                   </p>
                 </div>
               </div>
-              {isSelected && <Check className="w-5 h-5 text-[#00FF88]" />}
+              {isSelected && <Check className="w-5 h-5 text-[#0066FF]" />}
             </button>
           );
         })}
       </div>
 
       {currentNet === "mainnet" && (
-        <div className="mt-3 p-2 bg-green-500/10 border border-green-500/30 text-green-400 text-xs">
+        <div className="mt-3 p-2 rounded-lg bg-[#00FF88]/10 border border-[#00FF88]/30 text-[#00FF88] text-xs">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <span>You are on mainnet. Transactions use real XLM.</span>
@@ -168,15 +168,15 @@ export function NetworkBadge({ isDark = true }: { isDark?: boolean }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-bold ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full ${
         network === "mainnet"
-          ? "bg-green-500/20 text-green-400 border border-green-500/30"
-          : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+          ? "bg-[#00FF88]/10 text-[#00FF88]"
+          : "bg-[#0066FF]/10 text-[#0066FF]"
       }`}
     >
       <span
-        className={`w-1.5 h-1.5 rounded-full ${
-          network === "mainnet" ? "bg-green-500" : "bg-yellow-500"
+        className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+          network === "mainnet" ? "bg-[#00FF88]" : "bg-[#0066FF]"
         }`}
       />
       {network.toUpperCase()}
