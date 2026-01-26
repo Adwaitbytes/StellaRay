@@ -144,7 +144,7 @@ export default function ExplorerPage() {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'}`}>
         <div className="flex flex-col items-center gap-4">
-          <RefreshCw className="w-8 h-8 animate-spin text-[#39FF14]" />
+          <RefreshCw className="w-8 h-8 animate-spin text-[#0066FF]" />
           <span className={`font-black ${isDark ? 'text-white' : 'text-black'}`}>Loading X-Ray Data...</span>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function ExplorerPage() {
     <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'}`}>
       {/* Selection Notification */}
       {selectedNotification && (
-        <div className="fixed top-24 right-6 z-50 px-6 py-4 bg-[#39FF14] text-black font-black animate-pulse">
+        <div className="fixed top-24 right-6 z-50 px-6 py-4 bg-[#0066FF] text-black font-black animate-pulse">
           {selectedNotification}
         </div>
       )}
@@ -172,12 +172,12 @@ export default function ExplorerPage() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="hidden sm:flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#39FF14] flex items-center justify-center">
+                <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center">
                   <Zap className="w-5 h-5 text-black" />
                 </div>
                 <div>
                   <span className="text-xl font-black tracking-tighter">PROOF</span>
-                  <span className="text-xl font-black tracking-tighter text-[#39FF14]">EXPLORER</span>
+                  <span className="text-xl font-black tracking-tighter text-[#0066FF]">EXPLORER</span>
                 </div>
               </div>
             </div>
@@ -196,8 +196,8 @@ export default function ExplorerPage() {
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <div className={`px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14]' : 'border-[#00AA55] text-[#00AA55]'} font-black text-sm flex items-center gap-2`}>
-                <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
+              <div className={`px-4 py-2 border-4 ${isDark ? 'border-[#0066FF] text-[#0066FF]' : 'border-[#0066FF] text-[#0066FF]'} font-black text-sm flex items-center gap-2`}>
+                <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse" />
                 X-RAY PROTOCOL {protocolStatus?.protocolVersion || 25}
               </div>
             </div>
@@ -209,12 +209,12 @@ export default function ExplorerPage() {
         {/* Page Title */}
         <div className="mb-8">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tighter mb-2">
-            ZK PROOF <span className="text-[#39FF14]">EXPLORER</span>
+            ZK PROOF <span className="text-[#0066FF]">EXPLORER</span>
           </h1>
           <p className={`${isDark ? 'text-white/60' : 'text-black/60'}`}>
             Live zero-knowledge proof data from Stellar X-Ray Protocol.
             {protocolStatus && (
-              <span className="ml-2 text-[#39FF14]">
+              <span className="ml-2 text-[#0066FF]">
                 • {protocolStatus.status.toUpperCase()} on {protocolStatus.network.toUpperCase()}
               </span>
             )}
@@ -239,7 +239,7 @@ export default function ExplorerPage() {
             <div className="flex items-center justify-between mb-3">
               <p className={`text-xs font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>RECENT PROOFS (Click to view details)</p>
               {proof && (
-                <span className="text-xs text-[#39FF14] font-mono">
+                <span className="text-xs text-[#0066FF] font-mono">
                   Selected: {proof.id.slice(0, 10)}...
                 </span>
               )}
@@ -251,14 +251,14 @@ export default function ExplorerPage() {
                   onClick={() => selectProof(p)}
                   className={`px-4 py-3 border-2 text-xs font-mono transition-all cursor-pointer ${
                     proof?.id === p.id
-                      ? 'border-[#39FF14] bg-[#39FF14]/20 text-[#39FF14] scale-105 shadow-lg shadow-[#39FF14]/20'
-                      : `${isDark ? 'border-white/30 hover:border-[#39FF14] hover:bg-[#39FF14]/10 hover:text-[#39FF14]' : 'border-black/30 hover:border-[#00AA55] hover:bg-[#00AA55]/10'}`
+                      ? 'border-[#0066FF] bg-[#0066FF]/20 text-[#0066FF] scale-105 shadow-lg shadow-[#0066FF]/20'
+                      : `${isDark ? 'border-white/30 hover:border-[#0066FF] hover:bg-[#0066FF]/10 hover:text-[#0066FF]' : 'border-black/30 hover:border-[#0066FF] hover:bg-[#0066FF]/10'}`
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    {proof?.id === p.id && <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />}
+                    {proof?.id === p.id && <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse" />}
                     <span>{p.id.slice(0, 10)}...</span>
-                    {idx === 0 && <span className="text-[10px] text-[#39FF14] font-black">LATEST</span>}
+                    {idx === 0 && <span className="text-[10px] text-[#0066FF] font-black">LATEST</span>}
                   </div>
                 </button>
               ))}
@@ -283,7 +283,7 @@ export default function ExplorerPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-3 border-4 font-black text-xs transition-all ${
                   activeTab === tab.id
-                    ? 'border-[#39FF14] bg-[#39FF14] text-black'
+                    ? 'border-[#0066FF] bg-[#0066FF] text-black'
                     : `${isDark ? 'border-white/30 hover:border-white' : 'border-black/30 hover:border-black'}`
                 }`}
               >
@@ -344,15 +344,15 @@ export default function ExplorerPage() {
             <div id="proof-details" className={`border-4 ${isDark ? 'border-white' : 'border-black'} h-fit`}>
               <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'} flex items-center justify-between`}>
                 <span className="font-black text-sm">PROOF_DATA.JSON</span>
-                <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-[#0066FF] rounded-full animate-pulse" />
               </div>
               <div className="p-6 space-y-6">
                 {/* Status */}
                 <div>
                   <p className={`text-xs font-black mb-2 ${isDark ? 'text-white/50' : 'text-black/50'}`}>STATUS</p>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-[#39FF14]" />
-                    <span className="font-black text-[#39FF14]">{proof.status}</span>
+                    <div className="w-3 h-3 bg-[#0066FF]" />
+                    <span className="font-black text-[#0066FF]">{proof.status}</span>
                   </div>
                 </div>
 
@@ -367,7 +367,7 @@ export default function ExplorerPage() {
                       onClick={() => copyToClipboard(proof.id, 'proof-id')}
                       className={`w-6 h-6 flex items-center justify-center ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}
                     >
-                      {copied === 'proof-id' ? <Check className="w-3 h-3 text-[#39FF14]" /> : <Copy className="w-3 h-3" />}
+                      {copied === 'proof-id' ? <Check className="w-3 h-3 text-[#0066FF]" /> : <Copy className="w-3 h-3" />}
                     </button>
                   </div>
                 </div>
@@ -421,12 +421,12 @@ export default function ExplorerPage() {
                       >
                         <span className={`text-xs ${isDark ? 'text-white/60' : 'text-black/60'}`}>{input.name}</span>
                         <div className="flex items-center gap-2">
-                          <code className="text-xs font-mono text-[#39FF14]">{input.value}</code>
+                          <code className="text-xs font-mono text-[#0066FF]">{input.value}</code>
                           <button
                             onClick={() => copyToClipboard(input.fullValue || input.value, input.name)}
                             className={`w-6 h-6 flex items-center justify-center ${isDark ? 'hover:bg-white/10' : 'hover:bg-black/10'}`}
                           >
-                            {copied === input.name ? <Check className="w-3 h-3 text-[#39FF14]" /> : <Copy className="w-3 h-3" />}
+                            {copied === input.name ? <Check className="w-3 h-3 text-[#0066FF]" /> : <Copy className="w-3 h-3" />}
                           </button>
                         </div>
                       </div>
@@ -445,7 +445,7 @@ export default function ExplorerPage() {
                   </button>
                   <button
                     onClick={() => copyToClipboard(JSON.stringify(proof, null, 2), 'full-proof')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black' : 'border-[#00AA55] text-[#00AA55] hover:bg-[#00AA55] hover:text-white'} font-black text-xs transition-all`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 border-4 ${isDark ? 'border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-black' : 'border-[#0066FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white'} font-black text-xs transition-all`}
                   >
                     {copied === 'full-proof' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                     {copied === 'full-proof' ? 'COPIED!' : 'COPY ALL'}
@@ -458,7 +458,7 @@ export default function ExplorerPage() {
 
         {/* Technical Info Section */}
         <div className={`mt-8 border-4 ${isDark ? 'border-white' : 'border-black'}`}>
-          <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#39FF14]' : 'border-black bg-[#00AA55]'}`}>
+          <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#0066FF]' : 'border-black bg-[#0066FF]'}`}>
             <span className="font-black text-black">X-RAY_PROTOCOL_INFO.MD</span>
           </div>
           <div className="p-6">
@@ -470,15 +470,15 @@ export default function ExplorerPage() {
                 </h3>
                 <ul className={`space-y-2 text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span><code className="text-[#00D4FF]">bn254_g1_add()</code> - G1 point addition</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span><code className="text-[#00D4FF]">bn254_g1_mul()</code> - G1 scalar multiplication</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span><code className="text-[#00D4FF]">bn254_multi_pairing_check()</code> - Multi-pairing verification</span>
                   </li>
                 </ul>
@@ -490,15 +490,15 @@ export default function ExplorerPage() {
                 </h3>
                 <ul className={`space-y-2 text-sm ${isDark ? 'text-white/60' : 'text-black/60'}`}>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span>ZK-friendly hash function optimized for circuits</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span>State sizes: t=2, 3, 4, 5 supported</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-[#39FF14]">•</span>
+                    <span className="text-[#0066FF]">•</span>
                     <span>BN254 Fr field (scalar field)</span>
                   </li>
                 </ul>
