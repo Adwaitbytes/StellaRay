@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <b>The first production-ready zero-knowledge authentication system for Stellar.</b><br>
+  <b>The first production ready zero-knowledge authentication system for Stellar.</b><br>
   Sign in with Google or Apple - no seed phrases, no extensions, no complexity.
 </p>
 

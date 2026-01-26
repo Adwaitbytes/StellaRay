@@ -9,9 +9,6 @@ const nextConfig = {
     NEXT_PUBLIC_FRIENDBOT_URL: process.env.NEXT_PUBLIC_FRIENDBOT_URL || 'https://friendbot.stellar.org',
   },
 
-  // Output standalone for Vercel
-  output: 'standalone',
-
   // Image optimization
   images: {
     remotePatterns: [
