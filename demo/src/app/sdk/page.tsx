@@ -219,10 +219,14 @@ export default function SDKPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#39FF14] flex items-center justify-center">
-                <span className="font-black text-black text-xl">Z</span>
+              <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-6 h-6">
+                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
+                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
+                  <circle cx="12" cy="12" r="1.5" fill="white"/>
+                </svg>
               </div>
-              <span className="font-black text-xl">ZKLOGIN_SDK</span>
+              <span className="font-black text-xl">STELLARAY_SDK</span>
             </Link>
             <div className="flex items-center gap-4">
               <a
@@ -236,7 +240,7 @@ export default function SDKPage() {
               </a>
               <Link
                 href="/sdk-demo"
-                className="flex items-center gap-2 px-4 py-2 bg-[#39FF14] text-black font-bold hover:bg-[#32E612] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[#0066FF] text-black font-bold hover:bg-[#0055DD] transition-colors"
               >
                 <Play className="w-4 h-4" />
                 <span className="text-sm">LIVE DEMO</span>
@@ -250,12 +254,12 @@ export default function SDKPage() {
       <section className="border-b-4 border-white bg-gradient-to-br from-black via-black to-[#0a1a0a]">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#39FF14]/10 border border-[#39FF14]/30 mb-6">
-              <Zap className="w-4 h-4 text-[#39FF14]" />
-              <span className="text-[#39FF14] font-bold text-sm">POWERED BY X-RAY PROTOCOL 25</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0066FF]/10 border border-[#0066FF]/30 mb-6">
+              <Zap className="w-4 h-4 text-[#0066FF]" />
+              <span className="text-[#0066FF] font-bold text-sm">POWERED BY X-RAY PROTOCOL 25</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black mb-6">
-              SDK <span className="text-[#39FF14]">JOURNEY</span>
+              SDK <span className="text-[#0066FF]">JOURNEY</span>
             </h1>
             <p className="text-xl text-white/60 max-w-2xl mx-auto mb-8">
               Integrate zkLogin into your Stellar dApp in 6 simple steps.
@@ -270,9 +274,9 @@ export default function SDKPage() {
                   onClick={() => setCurrentStep(idx)}
                   className={`w-12 h-12 flex items-center justify-center border-2 transition-all ${
                     idx === currentStep
-                      ? "bg-[#39FF14] border-[#39FF14] text-black"
+                      ? "bg-[#0066FF] border-[#0066FF] text-black"
                       : idx < currentStep
-                      ? "bg-[#39FF14]/20 border-[#39FF14] text-[#39FF14]"
+                      ? "bg-[#0066FF]/20 border-[#0066FF] text-[#0066FF]"
                       : "border-white/20 text-white/40 hover:border-white/40"
                   }`}
                 >
@@ -299,11 +303,11 @@ export default function SDKPage() {
             {/* Left: Info */}
             <div className="p-8 lg:p-12 border-r-0 lg:border-r-4 border-white">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 bg-[#39FF14] flex items-center justify-center text-black">
+                <div className="w-14 h-14 bg-[#0066FF] flex items-center justify-center text-black">
                   {step.icon}
                 </div>
                 <div>
-                  <p className="text-[#39FF14] font-bold text-sm">STEP {step.id}</p>
+                  <p className="text-[#0066FF] font-bold text-sm">STEP {step.id}</p>
                   <h2 className="text-3xl font-black">{step.title}</h2>
                 </div>
               </div>
@@ -313,8 +317,8 @@ export default function SDKPage() {
               <div className="space-y-4 mb-8">
                 {step.explanation.map((point, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-[#39FF14]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <ChevronRight className="w-4 h-4 text-[#39FF14]" />
+                    <div className="w-6 h-6 bg-[#0066FF]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <ChevronRight className="w-4 h-4 text-[#0066FF]" />
                     </div>
                     <p className="text-white/80">{point}</p>
                   </div>
@@ -341,7 +345,7 @@ export default function SDKPage() {
                   className={`flex items-center gap-2 px-6 py-3 font-bold transition-all ${
                     currentStep === steps.length - 1
                       ? "bg-white/30 text-white/50 cursor-not-allowed"
-                      : "bg-[#39FF14] text-black hover:bg-[#32E612]"
+                      : "bg-[#0066FF] text-black hover:bg-[#0055DD]"
                   }`}
                 >
                   NEXT STEP
@@ -354,7 +358,7 @@ export default function SDKPage() {
             <div className="bg-[#0a0a0a]">
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
                 <div className="flex items-center gap-3">
-                  <Terminal className="w-4 h-4 text-[#39FF14]" />
+                  <Terminal className="w-4 h-4 text-[#0066FF]" />
                   <span className="font-mono text-sm text-white/60">{step.language}</span>
                 </div>
                 <button
@@ -363,8 +367,8 @@ export default function SDKPage() {
                 >
                   {copiedStep === step.id ? (
                     <>
-                      <Check className="w-4 h-4 text-[#39FF14]" />
-                      <span className="text-[#39FF14]">Copied!</span>
+                      <Check className="w-4 h-4 text-[#0066FF]" />
+                      <span className="text-[#0066FF]">Copied!</span>
                     </>
                   ) : (
                     <>
@@ -398,10 +402,10 @@ export default function SDKPage() {
             {/* Install */}
             <div className="border-4 border-white p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Package className="w-5 h-5 text-[#39FF14]" />
+                <Package className="w-5 h-5 text-[#0066FF]" />
                 <h3 className="font-black">INSTALL</h3>
               </div>
-              <code className="text-sm text-[#39FF14] font-mono">
+              <code className="text-sm text-[#0066FF] font-mono">
                 npm i @stellar-zklogin/sdk
               </code>
             </div>
@@ -409,10 +413,10 @@ export default function SDKPage() {
             {/* Initialize */}
             <div className="border-4 border-white p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Code className="w-5 h-5 text-[#39FF14]" />
+                <Code className="w-5 h-5 text-[#0066FF]" />
                 <h3 className="font-black">INITIALIZE</h3>
               </div>
-              <code className="text-sm text-[#39FF14] font-mono">
+              <code className="text-sm text-[#0066FF] font-mono">
                 new StellarZkLogin(config)
               </code>
             </div>
@@ -420,10 +424,10 @@ export default function SDKPage() {
             {/* Login */}
             <div className="border-4 border-white p-6">
               <div className="flex items-center gap-3 mb-4">
-                <Shield className="w-5 h-5 text-[#39FF14]" />
+                <Shield className="w-5 h-5 text-[#0066FF]" />
                 <h3 className="font-black">LOGIN</h3>
               </div>
-              <code className="text-sm text-[#39FF14] font-mono">
+              <code className="text-sm text-[#0066FF] font-mono">
                 zkLogin.login('google')
               </code>
             </div>
@@ -438,7 +442,7 @@ export default function SDKPage() {
           <p className="text-white/60 text-center mb-8">Copy this to get started immediately</p>
 
           <div className="border-4 border-white">
-            <div className="flex items-center justify-between px-6 py-4 border-b-4 border-white bg-[#39FF14]">
+            <div className="flex items-center justify-between px-6 py-4 border-b-4 border-white bg-[#0066FF]">
               <span className="font-black text-black">app.tsx</span>
               <button
                 onClick={() => copyCode(fullExample, 999)}
@@ -467,7 +471,7 @@ export default function SDKPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#39FF14]">
+      <section className="bg-[#0066FF]">
         <div className="max-w-7xl mx-auto px-6 py-16 text-center">
           <h2 className="text-4xl font-black text-black mb-4">
             READY TO BUILD?
@@ -500,7 +504,7 @@ export default function SDKPage() {
       {/* Footer */}
       <footer className="border-t-4 border-white py-8">
         <div className="max-w-7xl mx-auto px-6 text-center text-white/40 text-sm">
-          <p>Stellar zkLogin Gateway SDK • Powered by X-Ray Protocol 25</p>
+          <p>STELLARAY SDK • Powered by X-Ray Protocol 25</p>
         </div>
       </footer>
     </div>
