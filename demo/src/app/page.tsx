@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code } from "lucide-react";
 import LoadingScreen, { ButtonLoader } from "@/components/LoadingScreen";
+import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 import Link from "next/link";
 import { getCurrentNetwork, type NetworkType } from "@/lib/stellar";
 
@@ -51,13 +52,13 @@ export default function Home() {
       icon: Zap,
       title: "2 Second Setup",
       description: "No seed phrases. No extensions. Just your Google account.",
-      accent: "#FF3366",
+      accent: "#0066FF",
     },
     {
       icon: Shield,
       title: "Zero-Knowledge",
       description: "Your identity stays private. Cryptographic proof, not trust.",
-      accent: "#00FF88",
+      accent: "#00D4FF",
     },
     {
       icon: Globe,
@@ -69,7 +70,7 @@ export default function Home() {
       icon: Lock,
       title: "Self-Custodial",
       description: "You control your keys. We never have access to your funds.",
-      accent: "#FFD600",
+      accent: "#0066FF",
     },
   ];
 
@@ -86,46 +87,49 @@ export default function Home() {
   return (
     <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'}`}>
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-b-4 ${isDark ? 'border-white' : 'border-black'}`}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+      <nav className={`fixed top-0 left-0 right-0 z-50 ${isDark ? 'bg-[#0A0A0A]/95 backdrop-blur-sm' : 'bg-[#F5F5F5]/95 backdrop-blur-sm'} border-b-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 ${isDark ? 'bg-white text-black' : 'bg-black text-white'} flex items-center justify-center text-2xl font-black`}>
-                S
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6">
+                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
+                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
+                  <circle cx="12" cy="12" r="1.5" fill="white"/>
+                </svg>
               </div>
-              <div className="hidden sm:block">
-                <span className="text-2xl font-black tracking-tighter">STELLAR</span>
-                <span className="text-2xl font-black tracking-tighter text-[#FF3366]">GATEWAY</span>
+              <div className="hidden sm:flex items-baseline gap-0.5">
+                <span className="text-lg font-black tracking-tight">STELLA</span>
+                <span className="text-lg font-black tracking-tight text-[#0066FF]">RAY</span>
               </div>
-            </div>
+            </Link>
 
             {/* Right */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {/* SDK Link */}
               <Link
                 href="/sdk"
-                className={`hidden sm:flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black' : 'border-[#00AA55] text-[#00AA55] hover:bg-[#00AA55] hover:text-white'} font-black text-sm transition-all`}
+                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${isDark ? 'bg-[#0066FF]/10 text-[#0066FF] hover:bg-[#0066FF]/20' : 'bg-[#0066FF]/10 text-[#0066FF] hover:bg-[#0066FF]/20'} font-bold text-sm transition-all`}
               >
-                <Code className="w-4 h-4" />
+                <Code className="w-3.5 h-3.5" />
                 SDK
               </Link>
 
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark(!isDark)}
-                className={`w-12 h-12 border-4 ${isDark ? 'border-white bg-transparent hover:bg-white hover:text-black' : 'border-black bg-transparent hover:bg-black hover:text-white'} flex items-center justify-center transition-all duration-200`}
+                className={`w-9 h-9 rounded-lg ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'} flex items-center justify-center transition-all`}
               >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
 
-              {/* Network Badge */}
-              <div className={`hidden sm:block px-4 py-2 border-4 font-black text-sm ${
-                network === 'mainnet'
-                  ? 'border-green-500 text-green-400'
-                  : isDark ? 'border-[#00FF88] text-[#00FF88]' : 'border-[#00AA55] text-[#00AA55]'
-              }`}>
-                {network.toUpperCase()}
+              {/* Divider */}
+              <div className={`hidden sm:block w-px h-6 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
+
+              {/* Network Switcher */}
+              <div className="hidden sm:block">
+                <NetworkSwitcher compact isDark={isDark} onNetworkChange={setNetwork} />
               </div>
             </div>
           </div>
@@ -140,23 +144,23 @@ export default function Home() {
             <div>
               {/* X-Ray Protocol Badge */}
               <div className="flex flex-wrap gap-3 mb-6">
-                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] bg-[#39FF14]/10' : 'border-[#00AA55] bg-[#00AA55]/10'}`}>
-                  <Zap className={`w-4 h-4 ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`} />
-                  <span className={`font-black text-sm ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`}>X-RAY PROTOCOL 25</span>
-                  <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
+                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#00D4FF] bg-[#00D4FF]/10' : 'border-[#0066FF] bg-[#0066FF]/10'}`}>
+                  <Zap className={`w-4 h-4 ${isDark ? 'text-[#00D4FF]' : 'text-[#0066FF]'}`} />
+                  <span className={`font-black text-sm ${isDark ? 'text-[#00D4FF]' : 'text-[#0066FF]'}`}>X-RAY PROTOCOL 25</span>
+                  <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse" />
                 </div>
-                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#FF3366] text-[#FF3366]' : 'border-[#CC0033] text-[#CC0033]'}`}>
+                <div className={`inline-flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#0066FF] text-[#0066FF]' : 'border-[#0066FF] text-[#0066FF]'}`}>
                   <span className="font-black text-sm">STELLAR + ZKLOGIN</span>
                 </div>
               </div>
 
               {/* Headline */}
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tighter mb-8">
-                CRYPTO
+                PROVE
                 <br />
-                <span className="text-[#FF3366]">WITHOUT</span>
+                <span className="text-[#0066FF]">EVERYTHING</span>
                 <br />
-                THE BULLSHIT
+                REVEAL NOTHING
               </h1>
 
               {/* Description */}
@@ -170,7 +174,7 @@ export default function Home() {
                 disabled={isLoading}
                 className="group relative w-full sm:w-auto"
               >
-                <div className={`absolute inset-0 ${isDark ? 'bg-[#FF3366]' : 'bg-[#CC0033]'} translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3`} />
+                <div className={`absolute inset-0 bg-[#0066FF] translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3`} />
                 <div className={`relative flex items-center justify-center gap-4 px-10 py-5 ${isDark ? 'bg-white text-black' : 'bg-black text-white'} font-black text-lg border-4 ${isDark ? 'border-white' : 'border-black'} transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}>
                   {isLoading ? (
                     <ButtonLoader text="CONNECTING" />
@@ -206,8 +210,8 @@ export default function Home() {
               <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`}>
                 <div className="flex items-center gap-3">
                   <div className="flex gap-2">
-                    <div className="w-4 h-4 bg-[#FF3366]" />
-                    <div className="w-4 h-4 bg-[#FFD600]" />
+                    <div className="w-4 h-4 bg-[#0066FF]" />
+                    <div className="w-4 h-4 bg-[#00D4FF]" />
                     <div className="w-4 h-4 bg-[#00FF88]" />
                   </div>
                   <span className="font-black text-sm">WALLET_PREVIEW.EXE</span>
@@ -230,7 +234,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   {stats.map((stat, i) => (
                     <div key={i} className={`p-4 border-4 ${isDark ? 'border-white/20' : 'border-black/20'} text-center`}>
-                      <p className={`text-2xl font-black ${i === 0 ? 'text-[#FF3366]' : i === 1 ? 'text-[#00D4FF]' : 'text-[#00FF88]'}`}>
+                      <p className={`text-2xl font-black ${i === 0 ? 'text-[#0066FF]' : i === 1 ? 'text-[#00D4FF]' : 'text-[#00FF88]'}`}>
                         {stat.value}
                       </p>
                       <p className={`text-xs font-bold mt-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>{stat.label}</p>
@@ -257,7 +261,7 @@ export default function Home() {
       <section className={`py-20 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
         <div className="max-w-7xl mx-auto">
           <h2 className="text-4xl sm:text-5xl font-black tracking-tighter mb-16">
-            WHY <span className="text-[#FF3366]">STELLAR</span>GATEWAY?
+            WHY <span className="text-[#0066FF]">STELLA</span>RAY?
           </h2>
 
           <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
@@ -299,16 +303,16 @@ export default function Home() {
       {/* X-Ray Protocol Section */}
       <section className={`py-20 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'} relative overflow-hidden`}>
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#39FF14]/5 via-transparent to-[#00D4FF]/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0066FF]/5 via-transparent to-[#00D4FF]/5" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-[#39FF14] flex items-center justify-center">
-              <Zap className="w-6 h-6 text-black" />
+            <div className="w-12 h-12 bg-[#0066FF] flex items-center justify-center">
+              <Zap className="w-6 h-6 text-white" />
             </div>
             <div>
               <h2 className="text-4xl sm:text-5xl font-black tracking-tighter">
-                <span className="text-[#39FF14]">X-RAY</span> PROTOCOL
+                <span className="text-[#00D4FF]">X-RAY</span> PROTOCOL
               </h2>
               <p className={`text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>Stellar Protocol 25 - Native ZK Cryptography</p>
             </div>
@@ -326,7 +330,7 @@ export default function Home() {
                   icon: Cpu,
                   title: "BN254 Native",
                   description: "Hardware-accelerated elliptic curve operations for Groth16 proofs.",
-                  accent: "#39FF14",
+                  accent: "#00D4FF",
                   stat: "94%",
                   statLabel: "Gas Savings"
                 },
@@ -334,7 +338,7 @@ export default function Home() {
                   icon: Hash,
                   title: "Poseidon Hash",
                   description: "ZK-optimized hash function built into the protocol.",
-                  accent: "#00D4FF",
+                  accent: "#0066FF",
                   stat: "10x",
                   statLabel: "Faster"
                 },
@@ -342,7 +346,7 @@ export default function Home() {
                   icon: Shield,
                   title: "Groth16 Proofs",
                   description: "Succinct non-interactive zero-knowledge proofs.",
-                  accent: "#FF10F0",
+                  accent: "#00D4FF",
                   stat: "12ms",
                   statLabel: "Verify Time"
                 },
@@ -350,7 +354,7 @@ export default function Home() {
                   icon: Lock,
                   title: "Privacy First",
                   description: "Prove identity without revealing personal data.",
-                  accent: "#FFD600",
+                  accent: "#0066FF",
                   stat: "100%",
                   statLabel: "Private"
                 },
@@ -396,7 +400,7 @@ export default function Home() {
                 { step: "03", title: "START USING", desc: "Send, receive, and manage crypto instantly. It's that simple." },
               ].map((item, i) => (
                 <div key={i} className={`p-8 ${i < 2 ? `border-r-4 ${isDark ? 'border-white' : 'border-black'}` : ''} ${i < 2 ? `border-b-4 sm:border-b-0 ${isDark ? 'border-white' : 'border-black'}` : ''}`}>
-                  <span className={`text-6xl font-black ${i === 0 ? 'text-[#FF3366]' : i === 1 ? 'text-[#00FF88]' : 'text-[#00D4FF]'}`}>
+                  <span className={`text-6xl font-black ${i === 0 ? 'text-[#0066FF]' : i === 1 ? 'text-[#00D4FF]' : 'text-[#00FF88]'}`}>
                     {item.step}
                   </span>
                   <h3 className="text-2xl font-black mt-4 mb-3">{item.title}</h3>
@@ -411,13 +415,13 @@ export default function Home() {
       {/* CTA */}
       <section className={`py-24 px-6 lg:px-8 relative overflow-hidden ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'}`}>
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#FF3366]/10 via-transparent to-[#00FF88]/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0066FF]/10 via-transparent to-[#00D4FF]/10" />
 
         {/* Corner accents */}
-        <div className="absolute top-0 left-0 w-32 h-32 border-l-4 border-t-4 border-[#FF3366]/30" />
-        <div className="absolute top-0 right-0 w-32 h-32 border-r-4 border-t-4 border-[#00FF88]/30" />
+        <div className="absolute top-0 left-0 w-32 h-32 border-l-4 border-t-4 border-[#0066FF]/30" />
+        <div className="absolute top-0 right-0 w-32 h-32 border-r-4 border-t-4 border-[#00D4FF]/30" />
         <div className="absolute bottom-0 left-0 w-32 h-32 border-l-4 border-b-4 border-[#00D4FF]/30" />
-        <div className="absolute bottom-0 right-0 w-32 h-32 border-r-4 border-b-4 border-[#FFD600]/30" />
+        <div className="absolute bottom-0 right-0 w-32 h-32 border-r-4 border-b-4 border-[#0066FF]/30" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className={`inline-block px-4 py-2 mb-6 border-2 ${isDark ? 'border-[#00FF88]/50 text-[#00FF88]' : 'border-[#00AA55]/50 text-[#00AA55]'} font-bold text-sm`}>
@@ -425,7 +429,7 @@ export default function Home() {
           </div>
 
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter mb-6">
-            READY TO <span className="text-[#FF3366]">START</span>?
+            READY TO <span className="text-[#0066FF]">START</span>?
           </h2>
           <p className={`text-xl mb-10 max-w-2xl mx-auto ${isDark ? 'text-white/60' : 'text-black/60'}`}>
             Get 10,000 free testnet XLM and experience the future of crypto wallets.
@@ -436,10 +440,10 @@ export default function Home() {
             disabled={isLoading}
             className="group relative inline-block"
           >
-            <div className="absolute inset-0 bg-[#FF3366] translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3" />
-            <div className={`relative flex items-center justify-center gap-4 px-12 py-6 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'} font-black text-xl border-4 border-[#FF3366] transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}>
+            <div className="absolute inset-0 bg-[#0066FF] translate-x-2 translate-y-2 transition-transform group-hover:translate-x-3 group-hover:translate-y-3" />
+            <div className={`relative flex items-center justify-center gap-4 px-12 py-6 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'} font-black text-xl border-4 border-[#0066FF] transition-transform group-hover:-translate-x-1 group-hover:-translate-y-1`}>
               {isLoading ? (
-                <ButtonLoader color="#FF3366" text="CREATING" />
+                <ButtonLoader color="#0066FF" text="CREATING" />
               ) : (
                 <>
                   CREATE FREE WALLET
@@ -455,24 +459,28 @@ export default function Home() {
       <footer className={`py-8 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 ${isDark ? 'bg-white text-black' : 'bg-black text-white'} flex items-center justify-center font-black`}>
-              S
+            <div className="w-8 h-8 bg-[#0066FF] flex items-center justify-center">
+              <svg viewBox="0 0 24 24" className="w-5 h-5">
+                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2"/>
+                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2"/>
+                <circle cx="12" cy="12" r="1.5" fill="white"/>
+              </svg>
             </div>
             <span className={`font-bold ${isDark ? 'text-white/50' : 'text-black/50'}`}>
-              Built on Stellar. Secured by zkLogin.
+              STELLARAY — Prove Everything. Reveal Nothing.
             </span>
           </div>
           <div className="flex gap-8">
-            <Link href="/sdk" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+            <Link href="/sdk" className={`font-bold text-sm hover:text-[#0066FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               DOCS
             </Link>
-            <Link href="/sdk-demo" className={`font-bold text-sm hover:text-[#39FF14] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+            <Link href="/sdk-demo" className={`font-bold text-sm hover:text-[#00D4FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               SDK DEMO
             </Link>
-            <Link href="/sdk-live" className={`font-bold text-sm hover:text-[#CB3837] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+            <Link href="/sdk-live" className={`font-bold text-sm hover:text-[#0066FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               NPM LIVE
             </Link>
-            <a href="https://github.com/stellar-zklogin/sdk" target="_blank" rel="noopener noreferrer" className={`font-bold text-sm hover:text-[#FF3366] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+            <a href="https://github.com/stellar-zklogin/sdk" target="_blank" rel="noopener noreferrer" className={`font-bold text-sm hover:text-[#00D4FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               GITHUB
             </a>
           </div>
