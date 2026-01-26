@@ -7,7 +7,6 @@ import {
   getCurrentNetwork,
   setCurrentNetwork,
   getNetworkConfig,
-  isMainnetReady,
   NETWORKS,
 } from "@/lib/stellar";
 
@@ -20,23 +19,16 @@ interface NetworkSwitcherProps {
 export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = true }: NetworkSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentNet, setCurrentNet] = useState<NetworkType>("testnet");
-  const [showMainnetWarning, setShowMainnetWarning] = useState(false);
 
   useEffect(() => {
     setCurrentNet(getCurrentNetwork());
   }, []);
 
   const handleNetworkChange = (network: NetworkType) => {
-    if (network === "mainnet" && !isMainnetReady()) {
-      setShowMainnetWarning(true);
-      setTimeout(() => setShowMainnetWarning(false), 3000);
-      return;
-    }
-
     if (network === "mainnet") {
       // Show confirmation for mainnet
       const confirmed = window.confirm(
-        "You are switching to MAINNET. Transactions on mainnet use real XLM and cannot be reversed. Are you sure?"
+        "⚠️ MAINNET WARNING ⚠️\n\nYou are switching to MAINNET.\n\n• Transactions use REAL XLM\n• Transactions CANNOT be reversed\n• Make sure you understand the risks\n\nAre you sure you want to continue?"
       );
       if (!confirmed) return;
     }
@@ -74,20 +66,14 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
             <div className={`absolute right-0 top-full mt-2 z-50 min-w-[180px] border-2 ${isDark ? "bg-[#0A0A0A] border-white/20" : "bg-white border-black/20"}`}>
               {(Object.keys(NETWORKS) as NetworkType[]).map((net) => {
                 const netConfig = NETWORKS[net];
-                const isDisabled = net === "mainnet" && !isMainnetReady();
                 const isSelected = net === currentNet;
 
                 return (
                   <button
                     key={net}
-                    onClick={() => !isDisabled && handleNetworkChange(net)}
-                    disabled={isDisabled}
+                    onClick={() => handleNetworkChange(net)}
                     className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors ${
-                      isDisabled
-                        ? "opacity-50 cursor-not-allowed"
-                        : isDark
-                        ? "hover:bg-white/10"
-                        : "hover:bg-black/10"
+                      isDark ? "hover:bg-white/10" : "hover:bg-black/10"
                     } ${isSelected ? (isDark ? "bg-white/10" : "bg-black/10") : ""}`}
                   >
                     <div className="flex items-center gap-2">
@@ -101,9 +87,6 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
                       </span>
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-[#00FF88]" />}
-                    {isDisabled && (
-                      <span className="text-xs text-white/40">Coming Soon</span>
-                    )}
                   </button>
                 );
               })}
@@ -111,14 +94,6 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
           </>
         )}
 
-        {showMainnetWarning && (
-          <div className="absolute right-0 top-full mt-2 z-50 p-3 bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 text-xs max-w-[200px]">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>Mainnet contracts not deployed yet. Coming soon!</span>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -133,15 +108,13 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
       <div className="space-y-2">
         {(Object.keys(NETWORKS) as NetworkType[]).map((net) => {
           const netConfig = NETWORKS[net];
-          const isDisabled = net === "mainnet" && !isMainnetReady();
           const isSelected = net === currentNet;
 
           return (
             <button
               key={net}
-              onClick={() => !isDisabled && handleNetworkChange(net)}
-              disabled={isDisabled}
-              className={`w-full flex items-center justify-between p-3 border-2 transition-all ${
+              onClick={() => handleNetworkChange(net)}
+              className={`w-full flex items-center justify-between p-3 border-2 transition-all cursor-pointer ${
                 isSelected
                   ? net === "mainnet"
                     ? "border-green-500 bg-green-500/10"
@@ -149,7 +122,7 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
                   : isDark
                   ? "border-white/20 hover:border-white/40"
                   : "border-black/20 hover:border-black/40"
-              } ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              }`}
             >
               <div className="flex items-center gap-3">
                 <div
@@ -167,9 +140,6 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
                 </div>
               </div>
               {isSelected && <Check className="w-5 h-5 text-[#00FF88]" />}
-              {isDisabled && (
-                <span className={`text-xs ${isDark ? "text-white/40" : "text-black/40"}`}>Soon</span>
-              )}
             </button>
           );
         })}
@@ -184,14 +154,6 @@ export function NetworkSwitcher({ onNetworkChange, compact = false, isDark = tru
         </div>
       )}
 
-      {showMainnetWarning && (
-        <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-            <span>Mainnet contracts not deployed yet.</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -206,27 +206,35 @@ export default function Dashboard() {
 
   const initializeWallet = useCallback(async () => {
     if (!session?.user?.email) return;
+    const currentNet = getCurrentNetwork();
     try {
       setIsLoading(true);
       setError(null);
       const sub = (session as any).sub || session.user.email;
-      const wallet = generateWalletFromSub(sub);
+      const wallet = generateWalletFromSub(sub, currentNet);
       setPublicKey(wallet.publicKey);
       setSecretKey(wallet.secretKey);
-      const exists = await accountExists(wallet.publicKey);
-      if (!exists) {
-        await fundAccount(wallet.publicKey);
+      const exists = await accountExists(wallet.publicKey, currentNet);
+      if (!exists && hasFriendbot(currentNet)) {
+        // Only fund on testnet where friendbot is available
+        await fundAccount(wallet.publicKey, currentNet);
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
       const [bal, txs] = await Promise.all([
-        getBalances(wallet.publicKey),
-        getTransactions(wallet.publicKey),
+        getBalances(wallet.publicKey, currentNet),
+        getTransactions(wallet.publicKey, currentNet),
       ]);
       setBalances(bal);
       setTransactions(txs);
     } catch (err: any) {
       console.error("Wallet init error:", err);
-      setError(err.message || "Failed to initialize wallet");
+      // On mainnet, if account doesn't exist, that's expected - not an error
+      if (currentNet === 'mainnet' && err.message?.includes('404')) {
+        setBalances([{ asset: 'XLM', balance: '0' }]);
+        setTransactions([]);
+      } else {
+        setError(err.message || "Failed to initialize wallet");
+      }
     } finally {
       setIsLoading(false);
       setHasInitialized(true);
@@ -425,9 +433,9 @@ export default function Dashboard() {
 
           {/* Status badges */}
           <div className="flex gap-3 mt-6">
-            <div className="flex items-center gap-2 px-3 py-1 border border-[#39FF14]/30 bg-[#39FF14]/5">
-              <div className="w-1.5 h-1.5 bg-[#39FF14] animate-pulse" />
-              <span className="text-[10px] font-black text-[#39FF14]/70">TESTNET</span>
+            <div className={`flex items-center gap-2 px-3 py-1 border ${network === 'mainnet' ? 'border-green-500/30 bg-green-500/5' : 'border-[#39FF14]/30 bg-[#39FF14]/5'}`}>
+              <div className={`w-1.5 h-1.5 animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#39FF14]'}`} />
+              <span className={`text-[10px] font-black ${network === 'mainnet' ? 'text-green-500/70' : 'text-[#39FF14]/70'}`}>{network.toUpperCase()}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 border border-[#00D4FF]/30 bg-[#00D4FF]/5">
               <Shield className="w-3 h-3 text-[#00D4FF]/70" />
@@ -668,7 +676,7 @@ export default function Dashboard() {
             <div className="p-6">
               <div className="space-y-4">
                 {[
-                  { label: 'NETWORK', value: 'TESTNET', color: 'text-[#00FF88]' },
+                  { label: 'NETWORK', value: network.toUpperCase(), color: network === 'mainnet' ? 'text-green-400' : 'text-[#00FF88]' },
                   { label: 'STATUS', value: 'ACTIVE', color: 'text-[#00FF88]', dot: true },
                   { label: 'ASSETS', value: balances.length.toString() },
                   { label: 'TXS', value: transactions.length.toString() },
@@ -752,8 +760,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#39FF14] rounded-full animate-pulse" />
-                <span className="text-[#39FF14] font-black text-xs">LIVE ON TESTNET</span>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#39FF14]'}`} />
+                <span className={`font-black text-xs ${network === 'mainnet' ? 'text-green-400' : 'text-[#39FF14]'}`}>LIVE ON {network.toUpperCase()}</span>
               </div>
             </div>
           </div>
@@ -974,7 +982,7 @@ export default function Dashboard() {
             <div className="p-6 flex flex-col items-center">
               <div className={`p-4 border-4 ${isDark ? 'border-white' : 'border-black'} mb-6 bg-white`}>
                 <QRCodeSVG
-                  value={`${baseUrl}/pay?to=${publicKey}&network=testnet`}
+                  value={`${baseUrl}/pay?to=${publicKey}&network=${network}`}
                   size={200}
                   level="H"
                   includeMargin={true}

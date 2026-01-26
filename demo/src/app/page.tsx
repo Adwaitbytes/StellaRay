@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code } from "lucide-react";
 import LoadingScreen, { ButtonLoader } from "@/components/LoadingScreen";
 import Link from "next/link";
+import { getCurrentNetwork, type NetworkType } from "@/lib/stellar";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -14,6 +15,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [showContent, setShowContent] = useState(false);
+  const [network, setNetwork] = useState<NetworkType>("testnet");
+
+  // Get current network on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setNetwork(getCurrentNetwork());
+    }
+  }, []);
 
   // Show content after a brief delay to prevent infinite loading
   useEffect(() => {
@@ -110,9 +119,13 @@ export default function Home() {
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
 
-              {/* Testnet */}
-              <div className={`hidden sm:block px-4 py-2 border-4 ${isDark ? 'border-[#00FF88] text-[#00FF88]' : 'border-[#00AA55] text-[#00AA55]'} font-black text-sm`}>
-                TESTNET
+              {/* Network Badge */}
+              <div className={`hidden sm:block px-4 py-2 border-4 font-black text-sm ${
+                network === 'mainnet'
+                  ? 'border-green-500 text-green-400'
+                  : isDark ? 'border-[#00FF88] text-[#00FF88]' : 'border-[#00AA55] text-[#00AA55]'
+              }`}>
+                {network.toUpperCase()}
               </div>
             </div>
           </div>
