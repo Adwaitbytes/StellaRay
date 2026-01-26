@@ -8,13 +8,19 @@
    ============================================ */
 
 :root {
-  /* Neon Colors */
-  --neon-green: #39FF14;
-  --neon-pink: #FF10F0;
+  /* Stellaray Brand Colors */
+  --electric-blue: #0066FF;
+  --cyan: #00D4FF;
+  --deep-blue: #003399;
+  --ice-blue: #66B3FF;
+
+  /* Legacy neon (for compatibility) */
+  --neon-green: #00D4FF;  /* Updated to cyan */
+  --neon-pink: #FF3366;   /* Keep for errors */
   --neon-blue: #00D4FF;
-  --neon-yellow: #FFFF00;
+  --neon-yellow: #FFD600;
   --neon-orange: #FF6B00;
-  --neon-purple: #BF00FF;
+  --neon-purple: #0066FF;
 
   /* Base Colors */
   --black: #000000;
@@ -23,9 +29,9 @@
   --dark-gray: #1A1A1A;
 
   /* Functional */
-  --success: #39FF14;
-  --error: #FF3131;
-  --warning: #FFFF00;
+  --success: #00FF88;
+  --error: #FF3366;
+  --warning: #FFD600;
 
   /* Shadows */
   --shadow-sm: 4px 4px 0px var(--black);
