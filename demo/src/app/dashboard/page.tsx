@@ -70,7 +70,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   const [isDark, setIsDark] = useState(true);
-  const [baseUrl, setBaseUrl] = useState("https://stellargateway.vercel.app");
+  const [baseUrl, setBaseUrl] = useState("https://stellaray.fun");
   const [network, setNetwork] = useState<NetworkType>("testnet");
   const [publicKey, setPublicKey] = useState<string>("");
   const [secretKey, setSecretKey] = useState<string>("");
@@ -342,8 +342,8 @@ export default function Dashboard() {
             className="absolute inset-0"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(57, 255, 20, 0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(57, 255, 20, 0.3) 1px, transparent 1px)
+                linear-gradient(rgba(0, 102, 255, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 102, 255, 0.3) 1px, transparent 1px)
               `,
               backgroundSize: "50px 50px",
             }}
@@ -352,20 +352,20 @@ export default function Dashboard() {
 
         {/* Corner frames - Brutalist style */}
         <div className="absolute top-0 left-0 w-32 h-32">
-          <div className="absolute top-4 left-4 w-20 h-1 bg-[#FF3366]" />
-          <div className="absolute top-4 left-4 w-1 h-20 bg-[#FF3366]" />
+          <div className="absolute top-4 left-4 w-20 h-1 bg-[#0066FF]" />
+          <div className="absolute top-4 left-4 w-1 h-20 bg-[#0066FF]" />
         </div>
         <div className="absolute top-0 right-0 w-32 h-32">
           <div className="absolute top-4 right-4 w-20 h-1 bg-[#00D4FF]" />
           <div className="absolute top-4 right-4 w-1 h-20 bg-[#00D4FF]" />
         </div>
         <div className="absolute bottom-0 left-0 w-32 h-32">
-          <div className="absolute bottom-4 left-4 w-20 h-1 bg-[#FFD600]" />
-          <div className="absolute bottom-4 left-4 w-1 h-20 bg-[#FFD600]" />
+          <div className="absolute bottom-4 left-4 w-20 h-1 bg-[#00D4FF]" />
+          <div className="absolute bottom-4 left-4 w-1 h-20 bg-[#00D4FF]" />
         </div>
         <div className="absolute bottom-0 right-0 w-32 h-32">
-          <div className="absolute bottom-4 right-4 w-20 h-1 bg-[#39FF14]" />
-          <div className="absolute bottom-4 right-4 w-1 h-20 bg-[#39FF14]" />
+          <div className="absolute bottom-4 right-4 w-20 h-1 bg-[#0066FF]" />
+          <div className="absolute bottom-4 right-4 w-1 h-20 bg-[#0066FF]" />
         </div>
 
         <div className="relative z-10 flex flex-col items-center">
@@ -373,43 +373,48 @@ export default function Dashboard() {
           <div className="relative mb-8">
             {/* Outer glowing frame */}
             <div
-              className="absolute -inset-4 border-4 border-[#39FF14]"
-              style={{ boxShadow: "0 0 30px rgba(57, 255, 20, 0.3)" }}
+              className="absolute -inset-4 border-4 border-[#0066FF]"
+              style={{ boxShadow: "0 0 30px rgba(0, 102, 255, 0.3)" }}
             />
 
             {/* Main icon box */}
             <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative">
-              <Wallet className="w-12 h-12 text-[#39FF14] animate-pulse" style={{ filter: "drop-shadow(0 0 10px rgba(57, 255, 20, 0.5))" }} />
+              {/* Ray Icon */}
+              <svg viewBox="0 0 24 24" className="w-12 h-12 animate-pulse" style={{ filter: "drop-shadow(0 0 10px rgba(0, 102, 255, 0.5))" }}>
+                <line x1="4" y1="4" x2="20" y2="20" stroke="#0066FF" strokeWidth="3"/>
+                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3"/>
+                <circle cx="12" cy="12" r="2" fill="white"/>
+              </svg>
 
               {/* Corner accents inside */}
-              <div className="absolute top-1 left-1 w-3 h-0.5 bg-[#FF3366]" />
-              <div className="absolute top-1 left-1 w-0.5 h-3 bg-[#FF3366]" />
+              <div className="absolute top-1 left-1 w-3 h-0.5 bg-[#0066FF]" />
+              <div className="absolute top-1 left-1 w-0.5 h-3 bg-[#0066FF]" />
               <div className="absolute top-1 right-1 w-3 h-0.5 bg-[#00D4FF]" />
               <div className="absolute top-1 right-1 w-0.5 h-3 bg-[#00D4FF]" />
-              <div className="absolute bottom-1 left-1 w-3 h-0.5 bg-[#FFD600]" />
-              <div className="absolute bottom-1 left-1 w-0.5 h-3 bg-[#FFD600]" />
-              <div className="absolute bottom-1 right-1 w-3 h-0.5 bg-[#39FF14]" />
-              <div className="absolute bottom-1 right-1 w-0.5 h-3 bg-[#39FF14]" />
+              <div className="absolute bottom-1 left-1 w-3 h-0.5 bg-[#00D4FF]" />
+              <div className="absolute bottom-1 left-1 w-0.5 h-3 bg-[#00D4FF]" />
+              <div className="absolute bottom-1 right-1 w-3 h-0.5 bg-[#0066FF]" />
+              <div className="absolute bottom-1 right-1 w-0.5 h-3 bg-[#0066FF]" />
             </div>
 
             {/* Floating corner squares */}
-            <div className="absolute -top-3 -left-3 w-3 h-3 bg-[#FF3366] animate-bounce" style={{ animationDelay: '0ms' }} />
+            <div className="absolute -top-3 -left-3 w-3 h-3 bg-[#0066FF] animate-bounce" style={{ animationDelay: '0ms' }} />
             <div className="absolute -top-3 -right-3 w-3 h-3 bg-[#00D4FF] animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="absolute -bottom-3 -left-3 w-3 h-3 bg-[#FFD600] animate-bounce" style={{ animationDelay: '300ms' }} />
-            <div className="absolute -bottom-3 -right-3 w-3 h-3 bg-[#39FF14] animate-bounce" style={{ animationDelay: '450ms' }} />
+            <div className="absolute -bottom-3 -left-3 w-3 h-3 bg-[#00D4FF] animate-bounce" style={{ animationDelay: '300ms' }} />
+            <div className="absolute -bottom-3 -right-3 w-3 h-3 bg-[#0066FF] animate-bounce" style={{ animationDelay: '450ms' }} />
           </div>
 
           {/* Brand */}
           <h1 className="text-3xl font-black tracking-tighter mb-6">
-            <span className="text-white">STELLAR</span>
-            <span className="text-[#FF3366]">GATEWAY</span>
+            <span className="text-white">STELLA</span>
+            <span className="text-[#0066FF]">RAY</span>
           </h1>
 
           {/* Loading bar */}
           <div className="w-64 mb-4">
             <div className="h-2 bg-white/10 border-2 border-white/30 relative overflow-hidden">
               <div
-                className="h-full bg-[#39FF14] absolute animate-pulse"
+                className="h-full bg-[#0066FF] absolute animate-pulse"
                 style={{ width: '60%' }}
               />
             </div>
@@ -422,7 +427,7 @@ export default function Dashboard() {
                 key={i}
                 className="w-2 h-2 animate-pulse"
                 style={{
-                  backgroundColor: ['#39FF14', '#FF3366', '#00D4FF', '#FFD600', '#39FF14'][i],
+                  backgroundColor: ['#0066FF', '#00D4FF', '#0066FF', '#00D4FF', '#0066FF'][i],
                   animationDelay: `${i * 100}ms`
                 }}
               />
@@ -433,9 +438,9 @@ export default function Dashboard() {
 
           {/* Status badges */}
           <div className="flex gap-3 mt-6">
-            <div className={`flex items-center gap-2 px-3 py-1 border ${network === 'mainnet' ? 'border-green-500/30 bg-green-500/5' : 'border-[#39FF14]/30 bg-[#39FF14]/5'}`}>
-              <div className={`w-1.5 h-1.5 animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#39FF14]'}`} />
-              <span className={`text-[10px] font-black ${network === 'mainnet' ? 'text-green-500/70' : 'text-[#39FF14]/70'}`}>{network.toUpperCase()}</span>
+            <div className={`flex items-center gap-2 px-3 py-1 border ${network === 'mainnet' ? 'border-green-500/30 bg-green-500/5' : 'border-[#0066FF]/30 bg-[#0066FF]/5'}`}>
+              <div className={`w-1.5 h-1.5 animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#0066FF]'}`} />
+              <span className={`text-[10px] font-black ${network === 'mainnet' ? 'text-green-500/70' : 'text-[#0066FF]/70'}`}>{network.toUpperCase()}</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 border border-[#00D4FF]/30 bg-[#00D4FF]/5">
               <Shield className="w-3 h-3 text-[#00D4FF]/70" />
@@ -480,47 +485,57 @@ export default function Dashboard() {
       )}
 
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-b-4 ${isDark ? 'border-white' : 'border-black'}`}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 ${isDark ? 'bg-white text-black' : 'bg-black text-white'} flex items-center justify-center text-2xl font-black`}>
-                S
+      <header className={`fixed top-0 left-0 right-0 z-50 ${isDark ? 'bg-[#0A0A0A]/95 backdrop-blur-sm' : 'bg-[#F5F5F5]/95 backdrop-blur-sm'} border-b-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Logo */}
+            <Link href="/" className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center rounded-lg">
+                <svg viewBox="0 0 24 24" className="w-6 h-6">
+                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
+                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
+                  <circle cx="12" cy="12" r="1.5" fill="white"/>
+                </svg>
               </div>
-              <div className="hidden sm:block">
-                <span className="text-2xl font-black tracking-tighter">STELLAR</span>
-                <span className="text-2xl font-black tracking-tighter text-[#FF3366]">GATEWAY</span>
+              <div className="hidden sm:flex items-baseline gap-0.5">
+                <span className="text-lg font-black tracking-tight">STELLA</span>
+                <span className="text-lg font-black tracking-tight text-[#0066FF]">RAY</span>
               </div>
-            </div>
+            </Link>
 
-            <div className="flex items-center gap-4">
-              {/* Price */}
-              {xlmPrice && (
-                <div className={`hidden sm:flex items-center gap-3 px-4 py-2 border-4 ${isDark ? 'border-white/30' : 'border-black/30'}`}>
-                  <Activity className="w-4 h-4 text-[#00D4FF]" />
-                  <span className="font-black">${xlmPrice.toFixed(4)}</span>
-                  <span className={`font-black text-sm ${priceChange >= 0 ? 'text-[#00FF88]' : 'text-[#FF3366]'}`}>
-                    {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
-                  </span>
-                </div>
-              )}
+            {/* Center: Price (desktop only) */}
+            {xlmPrice && (
+              <div className={`hidden lg:flex items-center gap-2 px-4 py-1.5 rounded-full ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
+                <div className="w-2 h-2 rounded-full bg-[#0066FF] animate-pulse" />
+                <span className={`font-bold text-sm ${isDark ? 'text-white/70' : 'text-black/70'}`}>XLM</span>
+                <span className="font-black text-sm">${xlmPrice.toFixed(4)}</span>
+                <span className={`font-bold text-xs px-2 py-0.5 rounded ${priceChange >= 0 ? 'bg-[#00FF88]/20 text-[#00FF88]' : 'bg-[#FF3366]/20 text-[#FF3366]'}`}>
+                  {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
+                </span>
+              </div>
+            )}
 
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2">
               {/* SDK Link */}
               <Link
                 href="/sdk"
-                className={`hidden sm:flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-black' : 'border-[#00AA55] text-[#00AA55] hover:bg-[#00AA55] hover:text-white'} font-black text-sm transition-all`}
+                className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${isDark ? 'bg-[#0066FF]/10 text-[#0066FF] hover:bg-[#0066FF]/20' : 'bg-[#0066FF]/10 text-[#0066FF] hover:bg-[#0066FF]/20'} font-bold text-sm transition-all`}
               >
-                <Code className="w-4 h-4" />
+                <Code className="w-3.5 h-3.5" />
                 SDK
               </Link>
 
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark(!isDark)}
-                className={`w-12 h-12 border-4 ${isDark ? 'border-white hover:bg-white hover:text-black' : 'border-black hover:bg-black hover:text-white'} flex items-center justify-center transition-all`}
+                className={`w-9 h-9 rounded-lg ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'} flex items-center justify-center transition-all`}
               >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </button>
+
+              {/* Divider */}
+              <div className={`hidden sm:block w-px h-6 ${isDark ? 'bg-white/10' : 'bg-black/10'}`} />
 
               {/* Network Switcher */}
               <div className="hidden sm:block">
@@ -530,10 +545,10 @@ export default function Dashboard() {
               {/* Sign Out */}
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className={`flex items-center gap-2 px-4 py-2 border-4 ${isDark ? 'border-white/30 hover:border-[#FF3366] hover:text-[#FF3366]' : 'border-black/30 hover:border-[#CC0033] hover:text-[#CC0033]'} font-black text-sm transition-all`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${isDark ? 'bg-white/5 hover:bg-[#FF3366]/20 hover:text-[#FF3366]' : 'bg-black/5 hover:bg-[#FF3366]/20 hover:text-[#FF3366]'} font-bold text-sm transition-all`}
               >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">EXIT</span>
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Exit</span>
               </button>
             </div>
           </div>
@@ -574,8 +589,8 @@ export default function Dashboard() {
               <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`}>
                 <div className="flex items-center gap-3">
                   <div className="flex gap-2">
-                    <div className="w-4 h-4 bg-[#FF3366]" />
-                    <div className="w-4 h-4 bg-[#FFD600]" />
+                    <div className="w-4 h-4 bg-[#0066FF]" />
+                    <div className="w-4 h-4 bg-[#00D4FF]" />
                     <div className="w-4 h-4 bg-[#00FF88]" />
                   </div>
                   <span className="font-black text-sm">WALLET.EXE</span>
@@ -713,17 +728,17 @@ export default function Dashboard() {
           <div className={`mt-6 border-4 ${isDark ? 'border-white' : 'border-black'}`}>
             <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`}>
               <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-[#FF3366]" />
+                <Zap className="w-5 h-5 text-[#0066FF]" />
                 <span className="font-black text-sm">SOROBAN_CONTRACTS.SYS</span>
               </div>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { name: 'ZK_VERIFIER', id: CONTRACT_IDS.ZK_VERIFIER, color: '#00D4FF' },
-                  { name: 'FACTORY', id: CONTRACT_IDS.GATEWAY_FACTORY, color: '#FF3366' },
+                  { name: 'ZK_VERIFIER', id: CONTRACT_IDS.ZK_VERIFIER, color: '#0066FF' },
+                  { name: 'FACTORY', id: CONTRACT_IDS.GATEWAY_FACTORY, color: '#00D4FF' },
                   { name: 'JWK_REGISTRY', id: CONTRACT_IDS.JWK_REGISTRY, color: '#00FF88' },
-                  { name: 'X402_PAYMENTS', id: CONTRACT_IDS.X402_FACILITATOR, color: '#FFD600' },
+                  { name: 'X402_PAYMENTS', id: CONTRACT_IDS.X402_FACILITATOR, color: '#0066FF' },
                 ].map((contract, i) => (
                   <div key={i} className={`p-4 border-4 ${isDark ? 'border-white/20' : 'border-black/20'}`}>
                     <div className="flex items-center gap-2 mb-2">
@@ -747,12 +762,12 @@ export default function Dashboard() {
         )}
 
         {/* X-Ray Protocol Section */}
-        <div className={`mt-6 border-4 ${isDark ? 'border-[#39FF14]/30 bg-gradient-to-r from-[#39FF14]/5 to-transparent' : 'border-[#00AA55]/30 bg-gradient-to-r from-[#00AA55]/5 to-transparent'}`}>
-          <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-[#39FF14]/30' : 'border-[#00AA55]/30'}`}>
+        <div className={`mt-6 border-4 ${isDark ? 'border-[#0066FF]/30 bg-gradient-to-r from-[#0066FF]/5 to-transparent' : 'border-[#0066FF]/30 bg-gradient-to-r from-[#0066FF]/5 to-transparent'}`}>
+          <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-[#0066FF]/30' : 'border-[#0066FF]/30'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#39FF14] flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-black" />
+                <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className={`font-black text-lg ${isDark ? 'text-white' : 'text-black'}`}>X-RAY PROTOCOL</h2>
@@ -760,8 +775,8 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#39FF14]'}`} />
-                <span className={`font-black text-xs ${network === 'mainnet' ? 'text-green-400' : 'text-[#39FF14]'}`}>LIVE ON {network.toUpperCase()}</span>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${network === 'mainnet' ? 'bg-green-500' : 'bg-[#0066FF]'}`} />
+                <span className={`font-black text-xs ${network === 'mainnet' ? 'text-green-400' : 'text-[#0066FF]'}`}>LIVE ON {network.toUpperCase()}</span>
               </div>
             </div>
           </div>
@@ -771,7 +786,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
                 <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>BN254 OPS</p>
-                <p className="text-2xl font-black text-[#39FF14]">
+                <p className="text-2xl font-black text-[#0066FF]">
                   {xrayMetrics ? formatNumber(xrayMetrics.bn254Operations) : '---'}
                 </p>
                 <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>Curve operations</p>
@@ -785,14 +800,14 @@ export default function Dashboard() {
               </div>
               <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
                 <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>GAS SAVED</p>
-                <p className="text-2xl font-black text-[#FF10F0]">
+                <p className="text-2xl font-black text-[#0066FF]">
                   {xrayMetrics ? `${xrayMetrics.gasSavingsPercent}%` : '---'}
                 </p>
                 <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>vs WASM impl</p>
               </div>
               <div className={`p-4 border-2 ${isDark ? 'border-white/10 bg-black/30' : 'border-black/10 bg-white/30'} ${xrayLoading ? 'animate-pulse' : ''}`}>
                 <p className={`text-xs font-black mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>AVG VERIFY</p>
-                <p className="text-2xl font-black text-[#FFD600]">
+                <p className="text-2xl font-black text-[#00D4FF]">
                   {xrayMetrics ? `${xrayMetrics.avgVerificationMs}ms` : '---'}
                 </p>
                 <p className={`text-[10px] ${isDark ? 'text-white/30' : 'text-black/30'}`}>Per proof</p>
@@ -801,22 +816,22 @@ export default function Dashboard() {
 
             {/* Feature badges */}
             <div className="flex flex-wrap gap-3">
-              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#39FF14]/30 bg-[#39FF14]/10' : 'border-[#00AA55]/30 bg-[#00AA55]/10'}`}>
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#0066FF]/30 bg-[#0066FF]/10' : 'border-[#0066FF]/30 bg-[#0066FF]/10'}`}>
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-[#39FF14]" />
-                  <span className={`text-xs font-black ${isDark ? 'text-[#39FF14]' : 'text-[#00AA55]'}`}>GROTH16 VERIFIED</span>
+                  <Shield className="w-4 h-4 text-[#0066FF]" />
+                  <span className={`text-xs font-black ${isDark ? 'text-[#0066FF]' : 'text-[#0066FF]'}`}>GROTH16 VERIFIED</span>
                 </div>
               </div>
-              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#00D4FF]/30 bg-[#00D4FF]/10' : 'border-[#0099CC]/30 bg-[#0099CC]/10'}`}>
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#00D4FF]/30 bg-[#00D4FF]/10' : 'border-[#00D4FF]/30 bg-[#00D4FF]/10'}`}>
                 <div className="flex items-center gap-2">
                   <Radio className="w-4 h-4 text-[#00D4FF]" />
-                  <span className={`text-xs font-black ${isDark ? 'text-[#00D4FF]' : 'text-[#0099CC]'}`}>BN254 NATIVE</span>
+                  <span className={`text-xs font-black ${isDark ? 'text-[#00D4FF]' : 'text-[#00D4FF]'}`}>BN254 NATIVE</span>
                 </div>
               </div>
-              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#FF10F0]/30 bg-[#FF10F0]/10' : 'border-[#CC0088]/30 bg-[#CC0088]/10'}`}>
+              <div className={`px-4 py-2 border-2 ${isDark ? 'border-[#0066FF]/30 bg-[#0066FF]/10' : 'border-[#0066FF]/30 bg-[#0066FF]/10'}`}>
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-[#FF10F0]" />
-                  <span className={`text-xs font-black ${isDark ? 'text-[#FF10F0]' : 'text-[#CC0088]'}`}>POSEIDON HASH</span>
+                  <Zap className="w-4 h-4 text-[#0066FF]" />
+                  <span className={`text-xs font-black ${isDark ? 'text-[#0066FF]' : 'text-[#0066FF]'}`}>POSEIDON HASH</span>
                 </div>
               </div>
               <a

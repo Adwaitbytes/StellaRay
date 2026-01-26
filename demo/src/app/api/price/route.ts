@@ -47,7 +47,7 @@ export async function GET() {
         signal: controller.signal,
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'StellarGateway/1.0',
+          'User-Agent': 'Stellaray/1.0',
         },
       });
       clearTimeout(timeoutId);

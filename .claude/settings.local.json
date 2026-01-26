@@ -28,7 +28,8 @@
       "Bash(cargo search:*)",
       "Bash(git -C /c/Users/adwai/Stellar-new-project log --oneline)",
       "Bash(find:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)"
     ]
   }
 }
