@@ -8,6 +8,7 @@ import LoadingScreen, { ButtonLoader } from "@/components/LoadingScreen";
 import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 import Link from "next/link";
 import { getCurrentNetwork, type NetworkType } from "@/lib/stellar";
+import { FEATURES } from "@/config/features";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -43,6 +44,12 @@ export default function Home() {
   }, [status, router]);
 
   const handleSignIn = async () => {
+    // If waitlist mode is enabled, redirect to waitlist page
+    if (FEATURES.WAITLIST_MODE) {
+      router.push("/waitlist");
+      return;
+    }
+
     setIsLoading(true);
     await signIn("google");
   };
