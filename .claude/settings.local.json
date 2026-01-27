@@ -32,7 +32,8 @@
       "Bash(npm run lint:*)",
       "Bash(tree:*)",
       "Bash(node scripts/init-db.js:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "WebFetch(domain:soltasks.fun)"
     ]
   }
 }
