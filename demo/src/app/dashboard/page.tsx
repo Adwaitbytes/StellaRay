@@ -29,6 +29,8 @@ import {
   Shield,
   Radio,
   Code,
+  Lock,
+  Fingerprint,
 } from "lucide-react";
 import Link from "next/link";
 import { XRayStatusBadge } from "@/components/XRayStatusBadge";
@@ -37,16 +39,11 @@ import { ProofTimeline } from "@/components/ProofTimeline";
 import { GasSavingsComparison } from "@/components/GasSavingsComparison";
 import { ZKProofVisualizer } from "@/components/ZKProofVisualizer";
 import { TransactionXRayBadge } from "@/components/TransactionXRayBadge";
+import { useZkWallet } from "@/hooks/useZkWallet";
 import {
-  generateWalletFromSub,
-  fundAccount,
-  getBalances,
-  getTransactions,
-  sendPayment,
   isValidAddress,
   formatBalance,
   shortenAddress,
-  accountExists,
   getCurrentNetwork,
   getNetworkConfig,
   hasFriendbot,
@@ -69,19 +66,23 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  // Use ZK Wallet hook for real ZK proof-based wallet
+  const zkWallet = useZkWallet();
+
   const [isDark, setIsDark] = useState(true);
   const [baseUrl, setBaseUrl] = useState("https://stellaray.fun");
-  const [network, setNetwork] = useState<NetworkType>("testnet");
-  const [publicKey, setPublicKey] = useState<string>("");
-  const [secretKey, setSecretKey] = useState<string>("");
-  const [balances, setBalances] = useState<AccountBalance[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Map ZK wallet state to local state for compatibility
+  const publicKey = zkWallet.address || "";
+  const balances = zkWallet.balances;
+  const transactions = zkWallet.transactions;
+  const network = zkWallet.network;
+  const isLoading = zkWallet.isLoading;
+  const hasInitialized = zkWallet.isAuthenticated;
+  const error = zkWallet.error;
 
   const [showSendModal, setShowSendModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
@@ -107,11 +108,10 @@ export default function Dashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Set base URL for QR codes and network on client side
+  // Set base URL for QR codes on client side
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setBaseUrl(window.location.origin);
-      setNetwork(getCurrentNetwork());
     }
   }, []);
 
@@ -204,61 +204,19 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const initializeWallet = useCallback(async () => {
-    if (!session?.user?.email) return;
-    const currentNet = getCurrentNetwork();
-    try {
-      setIsLoading(true);
-      setError(null);
-      const sub = (session as any).sub || session.user.email;
-      const wallet = generateWalletFromSub(sub, currentNet);
-      setPublicKey(wallet.publicKey);
-      setSecretKey(wallet.secretKey);
-      const exists = await accountExists(wallet.publicKey, currentNet);
-      if (!exists && hasFriendbot(currentNet)) {
-        // Only fund on testnet where friendbot is available
-        await fundAccount(wallet.publicKey, currentNet);
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-      const [bal, txs] = await Promise.all([
-        getBalances(wallet.publicKey, currentNet),
-        getTransactions(wallet.publicKey, currentNet),
-      ]);
-      setBalances(bal);
-      setTransactions(txs);
-    } catch (err: any) {
-      console.error("Wallet init error:", err);
-      // On mainnet, if account doesn't exist, that's expected - not an error
-      if (currentNet === 'mainnet' && err.message?.includes('404')) {
-        setBalances([{ asset: 'XLM', balance: '0' }]);
-        setTransactions([]);
-      } else {
-        setError(err.message || "Failed to initialize wallet");
-      }
-    } finally {
-      setIsLoading(false);
-      setHasInitialized(true);
-    }
-  }, [session]);
-
+  // ZK wallet is initialized automatically via the useZkWallet hook
+  // Redirect to home if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
-    } else if (status === "authenticated" && session) {
-      initializeWallet();
     }
-  }, [status, session, router, initializeWallet]);
+  }, [status, router]);
 
   const refreshData = async () => {
     if (!publicKey) return;
     setIsRefreshing(true);
     try {
-      const [bal, txs] = await Promise.all([
-        getBalances(publicKey),
-        getTransactions(publicKey),
-      ]);
-      setBalances(bal);
-      setTransactions(txs);
+      await zkWallet.refreshData();
       showToast("Data refreshed", "success");
     } catch (err) {
       showToast("Failed to refresh", "error");
@@ -316,7 +274,8 @@ export default function Dashboard() {
     }
     setIsSending(true);
     try {
-      const result = await sendPayment(secretKey, sendTo, sendAmount, sendMemo);
+      // Use ZK wallet's send method with proof-authenticated transactions
+      const result = await zkWallet.send(sendTo, sendAmount, sendMemo || undefined);
       setSendSuccess(`Success! Hash: ${result.hash.slice(0, 12)}...`);
       setSendTo("");
       setSendAmount("");
@@ -461,7 +420,7 @@ export default function Dashboard() {
         <p className={`font-black text-xl mb-4 ${isDark ? 'text-white' : 'text-black'}`}>ERROR</p>
         <p className={`text-center max-w-md mb-8 ${isDark ? 'text-white/60' : 'text-black/60'}`}>{error}</p>
         <button
-          onClick={initializeWallet}
+          onClick={() => zkWallet.initializeWallet()}
           className={`px-8 py-4 font-black border-4 ${isDark ? 'border-white text-white hover:bg-white hover:text-black' : 'border-black text-black hover:bg-black hover:text-white'} transition-all`}
         >
           TRY AGAIN
@@ -689,10 +648,23 @@ export default function Dashboard() {
               <span className="font-black text-sm">ACCOUNT_INFO.DAT</span>
             </div>
             <div className="p-6">
+              {/* ZK Proof Status */}
+              {zkWallet.proof && (
+                <div className={`mb-4 p-3 border-2 ${isDark ? 'border-[#00FF88]/30 bg-[#00FF88]/5' : 'border-[#00AA55]/30 bg-[#00AA55]/5'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Fingerprint className="w-4 h-4 text-[#00FF88]" />
+                    <span className="font-black text-xs text-[#00FF88]">ZK PROOF ACTIVE</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <Lock className="w-3 h-3 text-[#00FF88]/70" />
+                    <span className={isDark ? 'text-white/50' : 'text-black/50'}>Groth16 verified</span>
+                  </div>
+                </div>
+              )}
               <div className="space-y-4">
                 {[
                   { label: 'NETWORK', value: network.toUpperCase(), color: network === 'mainnet' ? 'text-green-400' : 'text-[#00FF88]' },
-                  { label: 'STATUS', value: 'ACTIVE', color: 'text-[#00FF88]', dot: true },
+                  { label: 'STATUS', value: zkWallet.proof ? 'ZK ACTIVE' : 'ACTIVE', color: 'text-[#00FF88]', dot: true },
                   { label: 'ASSETS', value: balances.length.toString() },
                   { label: 'TXS', value: transactions.length.toString() },
                 ].map((item, i) => (
@@ -1063,11 +1035,11 @@ export default function Dashboard() {
                 ))}
                 <div className="pt-2">
                   <span className={`font-bold text-sm ${isDark ? 'text-white/50' : 'text-black/50'}`}>HASH</span>
-                  <code className={`font-mono text-xs break-all block mt-1 ${isDark ? 'text-white/70' : 'text-black/70'}`}>{showTxModal.id}</code>
+                  <code className={`font-mono text-xs break-all block mt-1 ${isDark ? 'text-white/70' : 'text-black/70'}`}>{showTxModal.hash}</code>
                 </div>
               </div>
               <a
-                href={`${getNetworkConfig(network).explorerUrl}/tx/${showTxModal.id}`}
+                href={`${getNetworkConfig(network).explorerUrl}/tx/${showTxModal.hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative w-full block mt-6"

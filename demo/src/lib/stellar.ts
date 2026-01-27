@@ -109,6 +109,7 @@ export interface AccountBalance {
 
 export interface Transaction {
   id: string;
+  hash: string; // Transaction hash for explorer URLs
   type: string;
   amount: string;
   asset: string;
@@ -212,6 +213,7 @@ export async function getTransactions(publicKey: string, network?: NetworkType):
       .filter((p: any) => p.type === "payment" || p.type === "create_account")
       .map((p: any) => ({
         id: p.id,
+        hash: p.transaction_hash, // Use transaction hash for explorer URLs
         type: p.type === "create_account" ? "receive" : p.from === publicKey ? "send" : "receive",
         amount: p.amount || p.starting_balance || "0",
         asset: p.asset_type === "native" || !p.asset_type ? "XLM" : p.asset_code,
