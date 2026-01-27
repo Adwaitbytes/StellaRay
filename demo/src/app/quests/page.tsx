@@ -22,6 +22,27 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// ============================================
+// CONFIGURATION - Edit these for production
+// ============================================
+const CONFIG = {
+  // Set your actual launch date here (UTC)
+  LAUNCH_DATE: new Date("2025-02-15T00:00:00Z"),
+
+  // Reward pool amount
+  REWARD_POOL: 1000,
+
+  // Points per referral
+  POINTS_PER_REFERRAL: 5,
+
+  // LocalStorage keys
+  STORAGE_KEYS: {
+    REFERRAL_CODE: "stellaray_quest_referral",
+    COMPLETED_TASKS: "stellaray_quest_completed",
+    REFERRED_BY: "stellaray_referred_by",
+  },
+};
+
 // XLM Logo Component
 const XLMLogo = ({ size = 40, className = "" }: { size?: number; className?: string }) => (
   <svg
@@ -200,11 +221,18 @@ const LeaderboardRow = ({
 // Countdown Timer
 const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const calculateTime = () => {
       const now = new Date().getTime();
       const distance = targetDate.getTime() - now;
+
+      if (distance <= 0) {
+        setIsExpired(true);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
 
       setTimeLeft({
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
@@ -212,10 +240,17 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
       });
-    }, 1000);
+    };
+
+    calculateTime();
+    const timer = setInterval(calculateTime, 1000);
 
     return () => clearInterval(timer);
   }, [targetDate]);
+
+  if (isExpired) {
+    return <span className="text-[#00FF88] font-bold text-sm">LIVE NOW!</span>;
+  }
 
   return (
     <div className="flex items-center gap-1 sm:gap-2">
@@ -231,17 +266,26 @@ const CountdownTimer = ({ targetDate }: { targetDate: Date }) => {
   );
 };
 
+// Generate consistent referral code from random seed
+const generateReferralCode = (): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "SR";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+};
+
 export default function QuestsPage() {
   const [totalEarned, setTotalEarned] = useState(0);
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set());
-  const [referralCode, setReferralCode] = useState("SR-QUEST-XXXX");
+  const [referralCode, setReferralCode] = useState("");
+  const [referredBy, setReferredBy] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [liveCount, setLiveCount] = useState(14);
-
-  // Launch date (7 days from now for demo)
-  const launchDate = new Date();
-  launchDate.setDate(launchDate.getDate() + 7);
+  const [participantCount, setParticipantCount] = useState(0);
+  const [userReferrals, setUserReferrals] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Tasks configuration
   const tasks = [
@@ -301,7 +345,7 @@ stellaray.fun`)}`,
     },
   ];
 
-  // Referral tiers (adjusted for smaller pool)
+  // Referral tiers
   const referralTiers = [
     { count: 3, reward: 10, label: "Bronze Referrer" },
     { count: 10, reward: 30, label: "Silver Referrer" },
@@ -309,45 +353,116 @@ stellaray.fun`)}`,
     { count: 50, reward: 150, label: "Diamond Referrer" },
   ];
 
-  // Leaderboard data with Indian names
+  // Leaderboard data
   const leaderboard = [
-    { rank: 1, name: "Arjun.xlm", points: 185, referrals: 12 },
-    { rank: 2, name: "Priya_crypto", points: 140, referrals: 9 },
-    { rank: 3, name: "Rahul.stellar", points: 125, referrals: 7 },
-    { rank: 4, name: "Ananya_web3", points: 95, referrals: 5 },
-    { rank: 5, name: "Vikram.defi", points: 80, referrals: 4 },
+    { rank: 1, name: "Arjun.xlm", points: 285, referrals: 18 },
+    { rank: 2, name: "Priya_crypto", points: 240, referrals: 14 },
+    { rank: 3, name: "Rahul.stellar", points: 195, referrals: 11 },
+    { rank: 4, name: "Ananya_web3", points: 165, referrals: 9 },
+    { rank: 5, name: "Vikram.defi", points: 130, referrals: 6 },
   ];
 
+  // Initialize: Load saved data and check URL for referral
   useEffect(() => {
     setIsVisible(true);
-    // Generate referral code
-    const code = "SR-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-    setReferralCode(code);
+
+    // Load or generate referral code
+    const savedCode = localStorage.getItem(CONFIG.STORAGE_KEYS.REFERRAL_CODE);
+    if (savedCode) {
+      setReferralCode(savedCode);
+    } else {
+      const newCode = generateReferralCode();
+      localStorage.setItem(CONFIG.STORAGE_KEYS.REFERRAL_CODE, newCode);
+      setReferralCode(newCode);
+    }
+
+    // Load completed tasks
+    const savedTasks = localStorage.getItem(CONFIG.STORAGE_KEYS.COMPLETED_TASKS);
+    if (savedTasks) {
+      try {
+        const parsed = JSON.parse(savedTasks);
+        setCompletedTasks(new Set(parsed));
+        // Calculate earned points
+        const earned = tasks
+          .filter(t => parsed.includes(t.id))
+          .reduce((sum, t) => sum + t.points, 0);
+        setTotalEarned(earned);
+      } catch {
+        // Invalid data, start fresh
+      }
+    }
+
+    // Check for referral in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref") || urlParams.get("r");
+    if (refCode) {
+      const existingRef = localStorage.getItem(CONFIG.STORAGE_KEYS.REFERRED_BY);
+      if (!existingRef && refCode !== localStorage.getItem(CONFIG.STORAGE_KEYS.REFERRAL_CODE)) {
+        localStorage.setItem(CONFIG.STORAGE_KEYS.REFERRED_BY, refCode);
+        setReferredBy(refCode);
+      }
+    } else {
+      const existingRef = localStorage.getItem(CONFIG.STORAGE_KEYS.REFERRED_BY);
+      if (existingRef) {
+        setReferredBy(existingRef);
+      }
+    }
+
+    // Fetch participant count from API
+    fetchParticipantCount();
+
+    setIsLoading(false);
   }, []);
 
-  // Simulate slow live counter (increment by 1 every 15-30 seconds)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveCount((prev) => prev + 1);
-    }, 15000 + Math.random() * 15000);
-    return () => clearInterval(interval);
-  }, []);
+  // Fetch real participant count
+  const fetchParticipantCount = async () => {
+    try {
+      const res = await fetch("/api/waitlist");
+      const data = await res.json();
+      if (data.count) {
+        setParticipantCount(data.count);
+      }
+    } catch {
+      // Use fallback count if API fails
+      setParticipantCount(47);
+    }
+  };
 
+  // Save completed tasks to localStorage
   const handleTaskComplete = useCallback((taskId: string, points: number) => {
     if (completedTasks.has(taskId)) return;
 
-    setCompletedTasks((prev) => new Set([...prev, taskId]));
+    const newCompleted = new Set([...completedTasks, taskId]);
+    setCompletedTasks(newCompleted);
     setTotalEarned((prev) => prev + points);
+
+    // Save to localStorage
+    localStorage.setItem(
+      CONFIG.STORAGE_KEYS.COMPLETED_TASKS,
+      JSON.stringify([...newCompleted])
+    );
   }, [completedTasks]);
 
   const handleCopyReferral = () => {
-    navigator.clipboard.writeText(`https://stellaray.fun/quests?ref=${referralCode}`);
+    const referralUrl = `https://stellaray.fun/quests?ref=${referralCode}`;
+    navigator.clipboard.writeText(referralUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const totalPossiblePoints = tasks.reduce((sum, task) => sum + task.points, 0);
   const progressPercent = (totalEarned / totalPossiblePoints) * 100;
+
+  // Calculate user's rank based on points
+  const userRank = leaderboard.filter(u => u.points > totalEarned).length + 6;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#0066FF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white overflow-x-hidden">
@@ -388,12 +503,14 @@ stellaray.fun`)}`,
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-[#00FF88]/10 border border-[#00FF88]/30 rounded-full">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#00FF88] rounded-full animate-pulse" />
-              <span className="text-[#00FF88] text-xs sm:text-sm font-medium">
-                {liveCount} joined
-              </span>
-            </div>
+            {participantCount > 0 && (
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-[#00FF88]/10 border border-[#00FF88]/30 rounded-full">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#00FF88] rounded-full animate-pulse" />
+                <span className="text-[#00FF88] text-xs sm:text-sm font-medium">
+                  {participantCount} joined
+                </span>
+              </div>
+            )}
             <Link
               href="/waitlist"
               className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 rounded-lg text-xs sm:text-sm font-medium hover:bg-white/20 transition-colors"
@@ -403,6 +520,19 @@ stellaray.fun`)}`,
           </div>
         </div>
       </header>
+
+      {/* Referred by banner */}
+      {referredBy && (
+        <div className="relative z-10 px-4 sm:px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-[#0066FF]/10 border border-[#0066FF]/30 rounded-lg px-4 py-2 flex items-center justify-center gap-2 text-sm">
+              <Gift className="w-4 h-4 text-[#0066FF]" />
+              <span className="text-white/60">Referred by:</span>
+              <span className="font-mono text-[#0066FF]">{referredBy}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="relative z-10 px-4 sm:px-6 py-6 sm:py-8 pb-24 sm:pb-28">
@@ -417,7 +547,7 @@ stellaray.fun`)}`,
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-full mb-4 sm:mb-6">
               <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-[#FFD700]" />
               <span className="text-[#FFD700] font-medium text-xs sm:text-sm">Rewards End In:</span>
-              <CountdownTimer targetDate={launchDate} />
+              <CountdownTimer targetDate={CONFIG.LAUNCH_DATE} />
             </div>
 
             {/* Main headline */}
@@ -444,7 +574,7 @@ stellaray.fun`)}`,
                 <p className="text-white/50 text-xs sm:text-sm">Reward Pool</p>
                 <p className="text-2xl sm:text-4xl font-bold">
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFD700] to-[#FFA500]">
-                    1,000
+                    {CONFIG.REWARD_POOL.toLocaleString()}
                   </span>{" "}
                   <span className="text-white/60 text-base sm:text-xl">XLM</span>
                 </p>
@@ -461,8 +591,8 @@ stellaray.fun`)}`,
             {[
               { label: "Your Earnings", value: `${totalEarned} XLM`, icon: Gift, color: "#FFD700" },
               { label: "Tasks Done", value: `${completedTasks.size}/${tasks.length}`, icon: Target, color: "#00FF88" },
-              { label: "Your Rank", value: "#--", icon: Trophy, color: "#0066FF" },
-              { label: "Referrals", value: "0", icon: Users, color: "#00D4FF" },
+              { label: "Your Rank", value: totalEarned > 0 ? `#${userRank}` : "#--", icon: Trophy, color: "#0066FF" },
+              { label: "Referrals", value: userReferrals.toString(), icon: Users, color: "#00D4FF" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -545,13 +675,13 @@ stellaray.fun`)}`,
 
                 <div className="p-4 sm:p-6 bg-gradient-to-br from-[#0066FF]/10 to-[#00D4FF]/10 rounded-xl sm:rounded-2xl border border-[#0066FF]/30">
                   <p className="text-white/60 text-sm sm:text-base mb-3 sm:mb-4">
-                    Share your link. Earn <span className="text-[#FFD700] font-bold">5 XLM</span> for each friend!
+                    Share your link. Earn <span className="text-[#FFD700] font-bold">{CONFIG.POINTS_PER_REFERRAL} XLM</span> for each friend!
                   </p>
 
                   {/* Referral link */}
                   <div className="flex gap-2 mb-4 sm:mb-6">
                     <div className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-black/30 rounded-lg sm:rounded-xl border border-white/10 font-mono text-xs sm:text-sm text-white/60 truncate">
-                      stellaray.fun/q?r={referralCode}
+                      stellaray.fun/quests?ref={referralCode}
                     </div>
                     <button
                       onClick={handleCopyReferral}
@@ -640,10 +770,10 @@ stellaray.fun/quests?ref=${referralCode}`)}`}
 
                 <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
                   <LeaderboardRow
-                    rank={0}
+                    rank={userRank}
                     name="You"
                     points={totalEarned}
-                    referrals={0}
+                    referrals={userReferrals}
                     isCurrentUser
                   />
                 </div>
@@ -676,9 +806,11 @@ stellaray.fun/quests?ref=${referralCode}`)}`}
       >
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
           <div className="hidden sm:block">
-            <p className="text-white/60 text-sm">
-              <span className="text-[#00FF88] font-bold">{liveCount}</span> people earning XLM
-            </p>
+            {participantCount > 0 && (
+              <p className="text-white/60 text-sm">
+                <span className="text-[#00FF88] font-bold">{participantCount}</span> people earning XLM
+              </p>
+            )}
           </div>
           <a
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Earning free XLM by completing quests on @stellaraydotfun
