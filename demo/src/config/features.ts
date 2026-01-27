@@ -29,6 +29,12 @@ export const FEATURES = {
    */
   MAINNET_ENABLED: true,
 
+  /**
+   * Enable quests/rewards page
+   * Set to false to hide quest links and CTAs
+   */
+  QUESTS_ENABLED: true,
+
   // ========================================
   // 📊 ANALYTICS & TRACKING
   // ========================================
@@ -51,7 +57,7 @@ export const FEATURES = {
    * Initial waitlist count for social proof (before real data)
    * This is just the base - real count from DB is added on top
    */
-  INITIAL_WAITLIST_COUNT: 15,
+  INITIAL_WAITLIST_COUNT: 20,
 
   /**
    * Auto-increment amount (for simulation)
