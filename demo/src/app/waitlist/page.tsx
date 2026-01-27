@@ -451,7 +451,16 @@ export default function WaitlistPage() {
               </span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {FEATURES.QUESTS_ENABLED && (
+                <a
+                  href="/quests"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFD700]/10 border border-[#FFD700]/30 hover:bg-[#FFD700]/20 transition-colors group"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#FFD700]" />
+                  <span className="text-[#FFD700] text-sm font-medium hidden sm:inline">Earn XLM</span>
+                </a>
+              )}
               <a
                 href="https://twitter.com/stellaraydotfun"
                 target="_blank"
@@ -461,7 +470,7 @@ export default function WaitlistPage() {
                 <Twitter className="w-4 h-4 text-white/60" />
               </a>
               <a
-                href="https://github.com/AdwaitBytes"
+                href="https://github.com/AdeeshW"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
@@ -588,6 +597,18 @@ export default function WaitlistPage() {
                     View details →
                   </button>
                 </div>
+              )}
+
+              {/* Quest CTA */}
+              {FEATURES.QUESTS_ENABLED && (
+                <a
+                  href="/quests"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/20 hover:bg-[#FFD700]/20 hover:border-[#FFD700]/40 transition-all group"
+                >
+                  <Sparkles className="w-4 h-4 text-[#FFD700]" />
+                  <span className="text-white/80 text-sm">Earn free XLM while you wait</span>
+                  <ChevronRight className="w-4 h-4 text-[#FFD700] group-hover:translate-x-0.5 transition-transform" />
+                </a>
               )}
             </div>
 
