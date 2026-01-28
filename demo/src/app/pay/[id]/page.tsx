@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useZkWallet } from '@/hooks/useZkWallet';
-import { formatAmount, getTimeUntilExpiration } from '@/lib/paymentLinks';
+import { formatAmount, getTimeUntilExpiration } from '@/lib/paymentLinkUtils';
 
 interface PaymentLinkData {
   id: string;
