@@ -17,7 +17,7 @@ export const FEATURES = {
    * Enable waitlist mode before public launch
    * Set to false when ready to go live
    */
-  WAITLIST_MODE: false,
+  WAITLIST_MODE: true,
 
   /**
    * Show "Coming Soon" badges on features
