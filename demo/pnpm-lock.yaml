@@ -17,6 +17,9 @@ importers:
       '@stellar/stellar-sdk':
         specifier: ^12.3.0
         version: 12.3.0
+      html5-qrcode:
+        specifier: ^2.3.8
+        version: 2.3.8
       lucide-react:
         specifier: ^0.300.0
         version: 0.300.0(react@18.3.1)
@@ -1248,6 +1251,9 @@ packages:
   hoopy@0.1.4:
     resolution: {integrity: sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==}
     engines: {node: '>= 6.0.0'}
+
+  html5-qrcode@2.3.8:
+    resolution: {integrity: sha512-jsr4vafJhwoLVEDW3n1KvPnCCXWaQfRng0/EEYk1vNcQGcG/htAdhJX0be8YyqMoSz7+hZvOZSTAepsabiuhiQ==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -3537,6 +3543,8 @@ snapshots:
       function-bind: 1.1.2
 
   hoopy@0.1.4: {}
+
+  html5-qrcode@2.3.8: {}
 
   ieee754@1.2.1: {}
 
