@@ -6,9 +6,8 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeScanner } from 'html5-qrcode';
-import { Camera, X, Flashlight, SwitchCamera, AlertCircle } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { Camera, X, AlertCircle } from 'lucide-react';
 
 export interface ParsedPaymentData {
   type: 'stellar_uri' | 'payment_link' | 'address' | 'unknown';
@@ -85,88 +84,134 @@ export function parseQRData(rawValue: string): ParsedPaymentData {
 export function QRScanner({ onScan, onClose, isOpen = true }: QRScannerProps) {
   const [error, setError] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const scannerRef = useRef<any>(null);
+  const hasScannedRef = useRef(false);
+
+  const handleScanSuccess = useCallback((decodedText: string) => {
+    // Prevent multiple scans
+    if (hasScannedRef.current) return;
+    hasScannedRef.current = true;
+
+    // Parse the scanned data
+    const parsed = parseQRData(decodedText);
+
+    // Stop scanner
+    if (scannerRef.current) {
+      try {
+        scannerRef.current.stop().catch(() => {});
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    onScan(parsed);
+  }, [onScan]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     let mounted = true;
+    let html5QrCode: any = null;
 
-    const startScanner = async () => {
+    const initScanner = async () => {
       try {
-        // Check camera permission
-        const devices = await Html5Qrcode.getCameras();
-        if (devices && devices.length > 0) {
-          setHasPermission(true);
-        } else {
-          setHasPermission(false);
-          setError('No cameras found on this device');
+        // Dynamic import to avoid SSR issues
+        const { Html5Qrcode } = await import('html5-qrcode');
+
+        if (!mounted) return;
+
+        // Check for camera support
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setError('Camera not supported on this device/browser');
+          setIsInitializing(false);
           return;
+        }
+
+        // Get cameras
+        let cameras: any[] = [];
+        try {
+          cameras = await Html5Qrcode.getCameras();
+        } catch (e) {
+          console.error('Failed to get cameras:', e);
         }
 
         if (!mounted) return;
 
-        // Create scanner instance
-        const html5QrCode = new Html5Qrcode('qr-reader');
+        if (!cameras || cameras.length === 0) {
+          setError('No cameras found. Please ensure camera permission is granted.');
+          setIsInitializing(false);
+          return;
+        }
+
+        // Create scanner
+        html5QrCode = new Html5Qrcode('qr-reader', { verbose: false });
         scannerRef.current = html5QrCode;
 
-        setIsScanning(true);
-        setError(null);
+        // Configure scanner
+        const config = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+        };
 
-        // Start scanning with back camera preferred
+        setIsInitializing(false);
+        setIsScanning(true);
+
+        // Start scanning - prefer back camera
         await html5QrCode.start(
           { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-          },
-          (decodedText) => {
-            // Parse the scanned data
-            const parsed = parseQRData(decodedText);
-            onScan(parsed);
-
-            // Stop scanning after successful scan
-            if (scannerRef.current) {
-              scannerRef.current.stop().catch(console.error);
-            }
-          },
-          () => {
-            // Ignore QR code not found errors during continuous scanning
-          }
+          config,
+          handleScanSuccess,
+          () => {} // Ignore scan errors
         );
+
       } catch (err: any) {
-        console.error('Scanner error:', err);
+        console.error('Scanner init error:', err);
         if (mounted) {
-          if (err.message?.includes('Permission')) {
-            setHasPermission(false);
-            setError('Camera permission denied. Please allow camera access to scan QR codes.');
+          setIsInitializing(false);
+          if (err.name === 'NotAllowedError' || err.message?.includes('Permission')) {
+            setError('Camera permission denied. Please allow camera access in your browser settings.');
+          } else if (err.name === 'NotFoundError') {
+            setError('No camera found on this device.');
+          } else if (err.name === 'NotReadableError') {
+            setError('Camera is in use by another application.');
           } else {
-            setError(err.message || 'Failed to start camera');
+            setError(err.message || 'Failed to start camera. Please try again.');
           }
         }
       }
     };
 
-    startScanner();
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(initScanner, 100);
 
     return () => {
       mounted = false;
+      clearTimeout(timer);
+      hasScannedRef.current = false;
+
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(console.error);
+        try {
+          scannerRef.current.stop().catch(() => {});
+        } catch (e) {
+          // Ignore cleanup errors
+        }
         scannerRef.current = null;
       }
     };
-  }, [isOpen, onScan]);
+  }, [isOpen, handleScanSuccess]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (scannerRef.current) {
-      scannerRef.current.stop().catch(console.error);
+      try {
+        scannerRef.current.stop().catch(() => {});
+      } catch (e) {
+        // Ignore
+      }
     }
     onClose?.();
-  };
+  }, [onClose]);
 
   if (!isOpen) return null;
 
@@ -189,9 +234,13 @@ export function QRScanner({ onScan, onClose, isOpen = true }: QRScannerProps) {
       </div>
 
       {/* Scanner View */}
-      <div className="w-full h-full flex items-center justify-center" ref={containerRef}>
-        {/* QR Reader Container */}
-        <div id="qr-reader" className="w-full max-w-md" />
+      <div className="w-full h-full flex items-center justify-center">
+        {/* QR Reader Container - must be in DOM before scanner init */}
+        <div
+          id="qr-reader"
+          className="w-full max-w-md"
+          style={{ minHeight: '300px' }}
+        />
 
         {/* Scanning overlay frame */}
         {isScanning && !error && (
@@ -202,9 +251,6 @@ export function QRScanner({ onScan, onClose, isOpen = true }: QRScannerProps) {
               <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#0066FF]" />
               <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#0066FF]" />
               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#0066FF]" />
-
-              {/* Scanning line animation */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-[#0066FF] animate-scan-line" />
             </div>
           </div>
         )}
@@ -229,11 +275,12 @@ export function QRScanner({ onScan, onClose, isOpen = true }: QRScannerProps) {
         )}
 
         {/* Loading State */}
-        {!isScanning && !error && (
+        {isInitializing && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <div className="text-center">
               <Camera className="w-12 h-12 text-[#0066FF] mx-auto mb-4 animate-pulse" />
               <p className="text-white font-bold">Starting camera...</p>
+              <p className="text-white/50 text-sm mt-2">Please allow camera access</p>
             </div>
           </div>
         )}
@@ -263,23 +310,6 @@ export function QRScanner({ onScan, onClose, isOpen = true }: QRScannerProps) {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes scan-line {
-          0% {
-            top: 0;
-          }
-          50% {
-            top: calc(100% - 4px);
-          }
-          100% {
-            top: 0;
-          }
-        }
-        .animate-scan-line {
-          animation: scan-line 2s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }
