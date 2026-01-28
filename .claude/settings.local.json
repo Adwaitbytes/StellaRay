@@ -33,7 +33,9 @@
       "Bash(tree:*)",
       "Bash(node scripts/init-db.js:*)",
       "Bash(timeout:*)",
-      "WebFetch(domain:soltasks.fun)"
+      "WebFetch(domain:soltasks.fun)",
+      "WebFetch(domain:blog.sablier.com)",
+      "WebFetch(domain:docs.superfluid.org)"
     ]
   }
 }

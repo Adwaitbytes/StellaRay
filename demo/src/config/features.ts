@@ -112,6 +112,16 @@ export const FEATURES = {
    * Auto-increment waitlist count for social proof simulation
    */
   WAITLIST_AUTO_INCREMENT: true,
+
+  // ========================================
+  // 🤖 AI FEATURES
+  // ========================================
+
+  /**
+   * Enable Claude Haiku 4.5 for all clients
+   * This provides faster, more cost-effective AI responses
+   */
+  CLAUDE_HAIKU_4_5_ENABLED: true,
 } as const;
 
 // Type for feature keys
