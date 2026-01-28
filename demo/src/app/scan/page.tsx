@@ -126,9 +126,13 @@ export default function ScanPage() {
 
     // Validate the scanned data
     if (data.type === 'unknown') {
-      setError('Unrecognized QR code format');
+      // Show what was scanned to help debugging
+      const preview = data.rawValue.length > 100
+        ? data.rawValue.substring(0, 100) + '...'
+        : data.rawValue;
+      setError(`Unrecognized QR format. Scanned: "${preview}". Expected: Stellar address (G...), payment link URL, or Stellar URI.`);
     } else if (data.type === 'address' && !isValidAddress(data.destination!)) {
-      setError('Invalid Stellar address');
+      setError('Invalid Stellar address format');
     }
   };
 

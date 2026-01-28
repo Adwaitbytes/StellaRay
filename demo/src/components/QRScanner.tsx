@@ -33,9 +33,9 @@ export function parseQRData(rawValue: string): ParsedPaymentData {
   const trimmed = rawValue.trim();
 
   // Check for Stellar URI (web+stellar:pay?destination=...)
-  if (trimmed.startsWith('web+stellar:pay')) {
+  if (trimmed.toLowerCase().startsWith('web+stellar:pay')) {
     try {
-      const url = new URL(trimmed.replace('web+stellar:', 'https://stellar.org/'));
+      const url = new URL(trimmed.replace(/web\+stellar:/i, 'https://stellar.org/'));
       const params = url.searchParams;
 
       return {
@@ -48,30 +48,58 @@ export function parseQRData(rawValue: string): ParsedPaymentData {
         rawValue: trimmed,
       };
     } catch {
-      // Fall through to unknown
+      // Fall through to other checks
     }
   }
 
-  // Check for Stellaray payment link URL
-  const paymentLinkMatch = trimmed.match(/\/pay\/([a-zA-Z0-9]+)$/);
-  if (paymentLinkMatch || trimmed.includes('stellaray.fun/pay/') || trimmed.includes('localhost:3000/pay/')) {
-    const idMatch = trimmed.match(/\/pay\/([a-zA-Z0-9]+)/);
-    if (idMatch) {
+  // Check for Stellaray payment link URL - more flexible matching
+  // Matches: /pay/ABC123, stellaray.fun/pay/ABC123, https://stellaray.fun/pay/ABC123?foo=bar
+  const paymentLinkPatterns = [
+    /\/pay\/([a-zA-Z0-9]{6,12})(?:\?|$|\/)/,  // /pay/ID with optional query params
+    /stellaray\.fun\/pay\/([a-zA-Z0-9]{6,12})/i,
+    /localhost:\d+\/pay\/([a-zA-Z0-9]{6,12})/i,
+    /\/pay\/([a-zA-Z0-9]{6,12})$/,  // Ending with /pay/ID
+  ];
+
+  for (const pattern of paymentLinkPatterns) {
+    const match = trimmed.match(pattern);
+    if (match && match[1]) {
       return {
         type: 'payment_link',
-        paymentLinkId: idMatch[1],
+        paymentLinkId: match[1],
         rawValue: trimmed,
       };
     }
   }
 
-  // Check for raw Stellar address (G...)
-  if (/^G[A-Z2-7]{55}$/.test(trimmed)) {
+  // Check for raw Stellar address (G...) - can be anywhere in the string
+  const addressMatch = trimmed.match(/\b(G[A-Z2-7]{55})\b/);
+  if (addressMatch) {
     return {
       type: 'address',
-      destination: trimmed,
+      destination: addressMatch[1],
       rawValue: trimmed,
     };
+  }
+
+  // Check if it's a URL that might contain payment info
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      const url = new URL(trimmed);
+      // Check for destination in query params
+      const destination = url.searchParams.get('destination') || url.searchParams.get('to');
+      if (destination && /^G[A-Z2-7]{55}$/.test(destination)) {
+        return {
+          type: 'address',
+          destination,
+          amount: url.searchParams.get('amount') || undefined,
+          memo: url.searchParams.get('memo') || undefined,
+          rawValue: trimmed,
+        };
+      }
+    } catch {
+      // Not a valid URL
+    }
   }
 
   // Unknown format

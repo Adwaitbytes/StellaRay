@@ -36,15 +36,18 @@ function deriveSalt(issuer: string, subject: string): string {
 }
 
 /**
- * Parse and verify JWT token (basic verification)
+ * Parse JWT token (extract claims without strict expiration check)
+ * For salt derivation, we need the sub claim even if token is expired
+ * since the salt is deterministic based on identity, not session validity
  */
-function parseJwt(token: string): {
+function parseJwt(token: string, checkExpiration: boolean = false): {
   iss: string;
   sub: string;
   aud: string;
   email?: string;
   nonce?: string;
   exp: number;
+  expired?: boolean;
 } | null {
   try {
     const parts = token.split('.');
@@ -54,15 +57,17 @@ function parseJwt(token: string): {
       Buffer.from(parts[1], 'base64url').toString('utf-8')
     );
 
-    // Basic validation
+    // Basic validation - we need iss and sub for salt derivation
     if (!payload.iss || !payload.sub) return null;
 
-    // Check expiration
-    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+    // Check expiration only if requested
+    const isExpired = payload.exp && payload.exp < Math.floor(Date.now() / 1000);
+
+    if (checkExpiration && isExpired) {
       return null;
     }
 
-    return payload;
+    return { ...payload, expired: isExpired };
   } catch (error) {
     console.error('JWT parse error:', error);
     return null;
@@ -81,11 +86,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse the JWT
-    const claims = parseJwt(jwt);
+    // Parse the JWT (don't check expiration - salt is based on identity, not session)
+    // We need to derive the same salt even for expired tokens to maintain wallet consistency
+    const claims = parseJwt(jwt, false);
     if (!claims) {
       return NextResponse.json(
-        { error: 'Invalid or expired JWT token' },
+        { error: 'Invalid JWT token - could not parse claims' },
         { status: 401 }
       );
     }
@@ -111,6 +117,7 @@ export async function POST(request: NextRequest) {
       salt,
       issuer: claims.iss,
       subject: claims.sub,
+      tokenExpired: claims.expired || false,
     });
   } catch (error) {
     console.error('Salt service error:', error);
