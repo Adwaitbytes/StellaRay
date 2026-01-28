@@ -139,6 +139,61 @@ export async function initializeDatabase() {
       )
     `;
 
+    // Create payment_streams table for streaming payments
+    await sql`
+      CREATE TABLE IF NOT EXISTS payment_streams (
+        id VARCHAR(16) PRIMARY KEY,
+
+        -- Parties
+        sender_address VARCHAR(56) NOT NULL,
+        sender_email VARCHAR(255),
+        recipient_address VARCHAR(56) NOT NULL,
+        recipient_email VARCHAR(255),
+
+        -- Stream parameters
+        total_amount DECIMAL(20, 7) NOT NULL,
+        asset VARCHAR(20) DEFAULT 'XLM',
+        start_time TIMESTAMP WITH TIME ZONE NOT NULL,
+        end_time TIMESTAMP WITH TIME ZONE NOT NULL,
+        cliff_time TIMESTAMP WITH TIME ZONE,
+
+        -- Calculated rate (amount per second)
+        flow_rate DECIMAL(30, 15) NOT NULL,
+
+        -- Streaming curve type
+        curve_type VARCHAR(20) DEFAULT 'linear',
+
+        -- State tracking
+        status VARCHAR(20) DEFAULT 'pending',
+        withdrawn_amount DECIMAL(20, 7) DEFAULT 0,
+        last_withdrawal_at TIMESTAMP WITH TIME ZONE,
+        cancelled_at TIMESTAMP WITH TIME ZONE,
+        completed_at TIMESTAMP WITH TIME ZONE,
+
+        -- Transaction hashes
+        deposit_tx_hash VARCHAR(64),
+        last_withdrawal_tx_hash VARCHAR(64),
+        cancel_tx_hash VARCHAR(64),
+
+        -- Metadata
+        title VARCHAR(100),
+        description TEXT,
+        memo VARCHAR(28),
+
+        -- Network
+        network VARCHAR(20) DEFAULT 'testnet',
+
+        -- Timestamps
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_streams_sender ON payment_streams(sender_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_streams_recipient ON payment_streams(recipient_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_streams_status ON payment_streams(status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_streams_created_at ON payment_streams(created_at)`;
+
     console.log("Database schema initialized successfully");
     return { success: true };
   } catch (error) {
