@@ -230,7 +230,7 @@ export async function getTransactions(publicKey: string, network?: NetworkType):
   }
 }
 
-// Send payment
+// Send payment (auto-creates account if destination doesn't exist)
 export async function sendPayment(
   secretKey: string,
   destination: string,
@@ -244,18 +244,41 @@ export async function sendPayment(
     const sourceKeypair = StellarSdk.Keypair.fromSecret(secretKey);
     const sourceAccount = await server.loadAccount(sourceKeypair.publicKey());
 
+    // Check if destination account exists
+    let destinationExists = true;
+    try {
+      await server.loadAccount(destination);
+    } catch (e: any) {
+      if (e.response?.status === 404) {
+        destinationExists = false;
+      } else {
+        throw e;
+      }
+    }
+
     const transactionBuilder = new StellarSdk.TransactionBuilder(sourceAccount, {
       fee: StellarSdk.BASE_FEE,
       networkPassphrase: config.passphrase,
     });
 
-    transactionBuilder.addOperation(
-      StellarSdk.Operation.payment({
-        destination,
-        asset: StellarSdk.Asset.native(),
-        amount,
-      })
-    );
+    if (destinationExists) {
+      // Regular payment to existing account
+      transactionBuilder.addOperation(
+        StellarSdk.Operation.payment({
+          destination,
+          asset: StellarSdk.Asset.native(),
+          amount,
+        })
+      );
+    } else {
+      // Create account operation for new destination
+      transactionBuilder.addOperation(
+        StellarSdk.Operation.createAccount({
+          destination,
+          startingBalance: amount,
+        })
+      );
+    }
 
     if (memo) {
       transactionBuilder.addMemo(StellarSdk.Memo.text(memo));
