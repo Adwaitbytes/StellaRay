@@ -27,6 +27,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { getCurrentNetwork } from '@/lib/stellar';
+import { useZkWallet } from '@/hooks/useZkWallet';
 
 interface PaymentLink {
   id: string;
@@ -58,6 +59,7 @@ interface Stats {
 export default function PaymentHistoryPage() {
   const { status } = useSession();
   const router = useRouter();
+  const zkWallet = useZkWallet();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -76,12 +78,18 @@ export default function PaymentHistoryPage() {
 
   // Fetch payment links
   const fetchLinks = async () => {
+    if (!zkWallet.address) {
+      setError('Wallet not loaded yet');
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const network = getCurrentNetwork();
-      const response = await fetch(`/api/pay/history?network=${network}`);
+      const response = await fetch(`/api/pay/history?network=${network}&address=${zkWallet.address}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -98,10 +106,10 @@ export default function PaymentHistoryPage() {
   };
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && zkWallet.address) {
       fetchLinks();
     }
-  }, [status]);
+  }, [status, zkWallet.address]);
 
   const copyLink = async (url: string, id: string) => {
     try {
@@ -217,7 +225,7 @@ export default function PaymentHistoryPage() {
     return link.status === filter;
   });
 
-  if (status === 'loading') {
+  if (status === 'loading' || zkWallet.isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader className="w-8 h-8 text-[#0066FF] animate-spin" />

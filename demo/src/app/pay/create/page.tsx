@@ -263,18 +263,27 @@ export default function CreatePaymentLinkPage() {
     <div className="min-h-screen bg-black text-white p-4">
       <div className="max-w-md mx-auto pt-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <button
             onClick={() => router.push('/dashboard')}
             className="w-10 h-10 border-2 border-white/30 flex items-center justify-center hover:border-white/60 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl font-black">CREATE PAYMENT LINK</h1>
             <p className="text-white/60 text-sm">Generate a shareable link to receive payments</p>
           </div>
         </div>
+
+        {/* View My Links Button */}
+        <button
+          onClick={() => router.push('/pay/history')}
+          className="w-full mb-6 flex items-center justify-center gap-2 py-3 border-2 border-[#0066FF]/50 text-[#0066FF] font-bold hover:bg-[#0066FF]/10 transition-colors"
+        >
+          <Link2 className="w-4 h-4" />
+          VIEW MY PAYMENT LINKS
+        </button>
 
         {/* Form */}
         <div className="space-y-6">

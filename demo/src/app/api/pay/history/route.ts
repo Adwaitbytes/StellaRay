@@ -11,25 +11,6 @@ import {
   getPaymentLinkStats,
   getPaymentLinkUrl,
 } from '@/lib/paymentLinks';
-import { generateWalletFromSub } from '@/lib/stellar';
-
-// Helper to parse JWT and get sub
-function parseJwt(token: string): any {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      Buffer.from(base64, 'base64')
-        .toString('utf-8')
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch {
-    return null;
-  }
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,29 +23,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user's wallet address from session
-    // We need to derive it the same way as in useZkWallet
-    let creatorAddress = '';
-
-    // Try to get from session if available
-    if (session.idToken) {
-      const claims = parseJwt(session.idToken);
-      if (claims?.sub) {
-        const network = request.nextUrl.searchParams.get('network') || 'testnet';
-        const wallet = generateWalletFromSub(claims.sub, network as any);
-        creatorAddress = wallet.publicKey;
-      }
-    }
-
-    // If we couldn't get the address, try the email-based lookup
-    if (!creatorAddress && session.user.email) {
-      // For now, we'll search by email instead
-      // This is a fallback - in production, store the address in the session
-    }
+    // Get wallet address from query parameter (passed from client)
+    const creatorAddress = request.nextUrl.searchParams.get('address');
 
     if (!creatorAddress) {
       return NextResponse.json(
-        { error: 'Could not determine wallet address' },
+        { error: 'Wallet address required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate Stellar address format
+    if (!creatorAddress.startsWith('G') || creatorAddress.length !== 56) {
+      return NextResponse.json(
+        { error: 'Invalid wallet address format' },
         { status: 400 }
       );
     }

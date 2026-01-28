@@ -31,6 +31,7 @@ import {
   Code,
   Lock,
   Fingerprint,
+  Link2,
 } from "lucide-react";
 import Link from "next/link";
 import { XRayStatusBadge } from "@/components/XRayStatusBadge";
@@ -605,7 +606,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <button
                     onClick={() => setShowSendModal(true)}
                     className="group relative"
@@ -624,6 +625,16 @@ export default function Dashboard() {
                     <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#00FF88] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
                       <QrCode className="w-6 h-6 text-[#00FF88]" />
                       <span className="text-sm">RECEIVE</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => router.push('/pay/create')}
+                    className="group relative"
+                  >
+                    <div className="absolute inset-0 bg-[#0066FF] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
+                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#0066FF] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
+                      <Link2 className="w-6 h-6 text-[#0066FF]" />
+                      <span className="text-sm">PAY LINK</span>
                     </div>
                   </button>
                   <button

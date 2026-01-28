@@ -81,6 +81,49 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_analytics_event_type ON waitlist_analytics(event_type)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON waitlist_analytics(created_at)`;
 
+    // Create payment_links table for payment link feature
+    await sql`
+      CREATE TABLE IF NOT EXISTS payment_links (
+        id VARCHAR(12) PRIMARY KEY,
+
+        -- Creator info
+        creator_address VARCHAR(56) NOT NULL,
+        creator_email VARCHAR(255),
+
+        -- Payment details
+        recipient_address VARCHAR(56) NOT NULL,
+        amount VARCHAR(50),
+        asset VARCHAR(20) DEFAULT 'XLM',
+        memo VARCHAR(28),
+        description TEXT,
+
+        -- Expiration
+        expires_at TIMESTAMP WITH TIME ZONE,
+
+        -- Status tracking
+        status VARCHAR(20) DEFAULT 'active',
+        payment_tx_hash VARCHAR(64),
+        paid_at TIMESTAMP WITH TIME ZONE,
+        paid_amount VARCHAR(50),
+        paid_by VARCHAR(56),
+
+        -- Network
+        network VARCHAR(20) DEFAULT 'testnet',
+
+        -- Metadata
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+        -- Access tracking
+        view_count INTEGER DEFAULT 0,
+        last_viewed_at TIMESTAMP WITH TIME ZONE
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_payment_links_creator ON payment_links(creator_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_payment_links_status ON payment_links(status)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_payment_links_created_at ON payment_links(created_at)`;
+
     // Create daily stats table for quick investor dashboards
     await sql`
       CREATE TABLE IF NOT EXISTS waitlist_daily_stats (
