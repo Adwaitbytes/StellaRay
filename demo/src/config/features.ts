@@ -17,7 +17,7 @@ export const FEATURES = {
    * Enable waitlist mode before public launch
    * Set to false when ready to go live
    */
-  WAITLIST_MODE: true,
+  WAITLIST_MODE: false,
 
   /**
    * Show "Coming Soon" badges on features
@@ -111,17 +111,7 @@ export const FEATURES = {
   /**
    * Auto-increment waitlist count for social proof simulation
    */
-  WAITLIST_AUTO_INCREMENT: true,
-
-  // ========================================
-  // 🤖 AI FEATURES
-  // ========================================
-
-  /**
-   * Enable Claude Haiku 4.5 for all clients
-   * This provides faster, more cost-effective AI responses
-   */
-  CLAUDE_HAIKU_4_5_ENABLED: true,
+  WAITLIST_AUTO_INCREMENT: true
 } as const;
 
 // Type for feature keys
