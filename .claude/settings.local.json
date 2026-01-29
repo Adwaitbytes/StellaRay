@@ -35,7 +35,9 @@
       "Bash(timeout:*)",
       "WebFetch(domain:soltasks.fun)",
       "WebFetch(domain:blog.sablier.com)",
-      "WebFetch(domain:docs.superfluid.org)"
+      "WebFetch(domain:docs.superfluid.org)",
+      "WebFetch(domain:stellar.org)",
+      "Bash(npx next build:*)"
     ]
   }
 }
