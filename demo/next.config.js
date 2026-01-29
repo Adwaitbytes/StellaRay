@@ -26,6 +26,32 @@ const nextConfig = {
     domains: ['randomuser.me', 'lh3.googleusercontent.com'],
   },
 
+  // Redirect old SDK routes to unified playground
+  async redirects() {
+    return [
+      {
+        source: '/sdk-demo',
+        destination: '/playground',
+        permanent: true,
+      },
+      {
+        source: '/sdk-demo/tutorial',
+        destination: '/playground',
+        permanent: true,
+      },
+      {
+        source: '/sdk-live',
+        destination: '/playground',
+        permanent: true,
+      },
+      {
+        source: '/sdk',
+        destination: '/playground',
+        permanent: true,
+      },
+    ];
+  },
+
   // Vercel-specific optimizations
   compress: true,
   poweredByHeader: false,
