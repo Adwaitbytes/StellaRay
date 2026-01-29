@@ -78,7 +78,7 @@ export const FEATURES = {
    */
   WAITLIST_CONFETTI: true,
 
-  /**
+  /** 
    * Enable floating background orbs animation
    */
   WAITLIST_FLOATING_ORBS: false,
