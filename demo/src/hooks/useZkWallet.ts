@@ -264,6 +264,17 @@ export function useZkWallet(): ZkWalletState {
         }
       })();
 
+      // Track authenticated user in database for VC analytics
+      fetch('/api/auth/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sub: claims.sub,
+          walletAddress: wallet.publicKey,
+          network: currentNetwork,
+        }),
+      }).catch(() => {}); // Fire-and-forget, don't block UI
+
       setInitialized(true);
 
     } catch (err: any) {

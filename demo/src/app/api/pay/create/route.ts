@@ -12,6 +12,7 @@ import {
   isValidAmount,
   getPaymentLinkUrl,
 } from '@/lib/paymentLinks';
+import { calculateFee } from '@/config/pricing';
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,6 +102,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Calculate platform fee
+    const numericAmount = amount ? parseFloat(amount) : 0;
+    const platformFee = numericAmount > 0 ? calculateFee(numericAmount, 'payment_link') : 0;
+
     // Create the payment link
     const paymentLink = await createPaymentLink({
       creatorAddress: recipientAddress, // Creator is also the recipient
@@ -125,6 +130,8 @@ export async function POST(request: NextRequest) {
       paymentLink: {
         ...paymentLink,
         url: linkUrl,
+        platformFee: platformFee > 0 ? platformFee.toFixed(7) : undefined,
+        feePercentage: '0.3%',
       },
     });
   } catch (error) {

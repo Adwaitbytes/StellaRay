@@ -194,6 +194,29 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_streams_status ON payment_streams(status)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_streams_created_at ON payment_streams(created_at)`;
 
+    // Create authenticated_users table for tracking Google login users + wallet addresses (VC metrics)
+    await sql`
+      CREATE TABLE IF NOT EXISTS authenticated_users (
+        id SERIAL PRIMARY KEY,
+        google_sub VARCHAR(255) UNIQUE NOT NULL,
+        google_email VARCHAR(255) NOT NULL,
+        google_name VARCHAR(255),
+        google_picture TEXT,
+        wallet_address VARCHAR(56) NOT NULL,
+        network VARCHAR(20) DEFAULT 'testnet',
+        first_login_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        last_login_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        login_count INTEGER DEFAULT 1,
+        user_agent TEXT,
+        country VARCHAR(100),
+        device_type VARCHAR(50)
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_auth_users_email ON authenticated_users(google_email)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_auth_users_wallet ON authenticated_users(wallet_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_auth_users_first_login ON authenticated_users(first_login_at)`;
+
     console.log("Database schema initialized successfully");
     return { success: true };
   } catch (error) {

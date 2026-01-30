@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Shield,
@@ -25,6 +25,8 @@ import {
   Sparkles,
   Binary,
   Waves,
+  ArrowRight,
+  Clock,
 } from 'lucide-react';
 import { useZkWallet } from '@/hooks/useZkWallet';
 import { getCurrentNetwork } from '@/lib/stellar';
@@ -37,7 +39,7 @@ import {
 } from '@/lib/zkEligibility';
 
 // ============================================================================
-// Types
+// Types & Config
 // ============================================================================
 
 interface ProofTypeConfig {
@@ -57,8 +59,8 @@ const PROOF_TYPES: ProofTypeConfig[] = [
     shortLabel: 'Solvency',
     description: 'Prove your balance meets a threshold without revealing the exact amount',
     icon: DollarSign,
-    color: '#00FF88',
-    gradient: 'from-[#00FF88] to-[#00CC6A]',
+    color: '#39FF14',
+    gradient: 'from-[#39FF14] to-[#00E500]',
   },
   {
     type: 'identity',
@@ -66,8 +68,8 @@ const PROOF_TYPES: ProofTypeConfig[] = [
     shortLabel: 'Identity',
     description: 'Prove you are a verified user without revealing personal details',
     icon: Fingerprint,
-    color: '#00D4FF',
-    gradient: 'from-[#00D4FF] to-[#0099CC]',
+    color: '#00FFFF',
+    gradient: 'from-[#00FFFF] to-[#00BBFF]',
   },
   {
     type: 'eligibility',
@@ -75,8 +77,8 @@ const PROOF_TYPES: ProofTypeConfig[] = [
     shortLabel: 'Eligibility',
     description: 'Prove you meet specific criteria without revealing private data',
     icon: FileCheck,
-    color: '#7B61FF',
-    gradient: 'from-[#7B61FF] to-[#5B41DF]',
+    color: '#BF00FF',
+    gradient: 'from-[#BF00FF] to-[#8B00FF]',
   },
   {
     type: 'history',
@@ -84,29 +86,24 @@ const PROOF_TYPES: ProofTypeConfig[] = [
     shortLabel: 'History',
     description: 'Prove transaction history properties without exposing transactions',
     icon: History,
-    color: '#FF6B35',
-    gradient: 'from-[#FF6B35] to-[#E04500]',
+    color: '#FF003C',
+    gradient: 'from-[#FF003C] to-[#FF0066]',
   },
 ];
 
 // ============================================================================
-// Animated Background Component
+// Background Grid (static, no glow)
 // ============================================================================
 
-function GridBackground() {
+function GridBg() {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      {/* Gradient orbs */}
-      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#00D4FF]/5 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#7B61FF]/5 blur-[120px]" />
-      <div className="absolute top-[40%] left-[50%] w-[400px] h-[400px] rounded-full bg-[#00FF88]/3 blur-[100px]" />
-      {/* Grid lines */}
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+            'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
         }}
       />
     </div>
@@ -114,57 +111,113 @@ function GridBackground() {
 }
 
 // ============================================================================
-// Animated Proof Visual
+// Step Flow
+// ============================================================================
+
+function StepFlow({ step }: { step: 'select' | 'configure' | 'generate' | 'verify' }) {
+  const steps = [
+    { id: 'select', label: 'SELECT', num: '01' },
+    { id: 'configure', label: 'CONFIGURE', num: '02' },
+    { id: 'generate', label: 'GENERATE', num: '03' },
+    { id: 'verify', label: 'VERIFY', num: '04' },
+  ];
+  const currentIdx = steps.findIndex(s => s.id === step);
+
+  return (
+    <div className="flex items-center justify-center gap-2 mb-10">
+      {steps.map((s, i) => {
+        const isActive = i === currentIdx;
+        const isDone = i < currentIdx;
+        return (
+          <div key={s.id} className="flex items-center gap-2">
+            <div
+              className={`
+                w-12 h-12 flex items-center justify-center font-black text-sm transition-all duration-300
+                ${isActive
+                  ? 'bg-[#39FF14] text-black border-4 border-[#39FF14]'
+                  : isDone
+                  ? 'bg-[#39FF14]/20 text-[#39FF14] border-4 border-[#39FF14]/60'
+                  : 'bg-transparent text-white/20 border-4 border-white/10'
+                }
+              `}
+            >
+              {isDone ? <Check className="w-5 h-5" /> : s.num}
+            </div>
+            <span
+              className={`text-[10px] font-black tracking-[0.3em] mr-3 hidden sm:block ${
+                isActive ? 'text-[#39FF14]' : isDone ? 'text-[#39FF14]/50' : 'text-white/15'
+              }`}
+            >
+              {s.label}
+            </span>
+            {i < steps.length - 1 && (
+              <div
+                className="w-8 h-1 mr-2"
+                style={{ background: isDone ? '#39FF14' : 'rgba(255,255,255,0.06)' }}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============================================================================
+// Proof Visual (no glow)
 // ============================================================================
 
 function ProofVisual({ type, isGenerating }: { type: ProofType; isGenerating: boolean }) {
   const config = PROOF_TYPES.find(p => p.type === type)!;
+  const Icon = config.icon;
 
   return (
-    <div className="relative w-full h-32 flex items-center justify-center overflow-hidden rounded-xl">
-      {/* Background pulse */}
-      <div
-        className={`absolute inset-0 opacity-20 ${isGenerating ? 'animate-pulse' : ''}`}
-        style={{
-          background: `radial-gradient(ellipse at center, ${config.color}30 0%, transparent 70%)`,
-        }}
-      />
-      {/* Rotating ring */}
+    <div className="relative w-full h-48 flex items-center justify-center overflow-hidden">
       <div className="relative">
         <div
-          className={`w-20 h-20 rounded-full border-2 border-dashed ${isGenerating ? 'animate-spin' : ''}`}
+          className="w-32 h-32 border-4 transition-all duration-500"
           style={{
-            borderColor: `${config.color}40`,
-            animationDuration: '3s',
+            borderColor: config.color,
+            animation: isGenerating ? 'spin 2s linear infinite' : 'none',
+            transform: isGenerating ? undefined : 'rotate(45deg)',
           }}
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <config.icon className="w-8 h-8" style={{ color: config.color }} />
+          <div
+            className="w-16 h-16 border-4 flex items-center justify-center"
+            style={{
+              borderColor: `${config.color}80`,
+              backgroundColor: `${config.color}15`,
+              transform: 'rotate(-45deg)',
+            }}
+          >
+            <Icon
+              className="w-8 h-8"
+              style={{
+                color: config.color,
+                transform: isGenerating ? undefined : 'rotate(45deg)',
+              }}
+            />
+          </div>
         </div>
       </div>
-      {/* Floating particles */}
-      {isGenerating && (
-        <>
-          <div
-            className="absolute w-1.5 h-1.5 rounded-full animate-ping"
-            style={{ backgroundColor: config.color, top: '20%', left: '25%', animationDelay: '0s' }}
-          />
-          <div
-            className="absolute w-1 h-1 rounded-full animate-ping"
-            style={{ backgroundColor: config.color, top: '60%', right: '20%', animationDelay: '0.5s' }}
-          />
-          <div
-            className="absolute w-1.5 h-1.5 rounded-full animate-ping"
-            style={{ backgroundColor: config.color, bottom: '25%', left: '35%', animationDelay: '1s' }}
-          />
-        </>
-      )}
+      {['-top-1 -left-1', '-top-1 -right-1', '-bottom-1 -left-1', '-bottom-1 -right-1'].map((pos, i) => (
+        <div
+          key={i}
+          className={`absolute w-3 h-3 ${pos}`}
+          style={{
+            backgroundColor: config.color,
+            opacity: isGenerating ? 1 : 0.3,
+            animation: isGenerating ? `pulse 1s infinite ${i * 0.25}s` : 'none',
+          }}
+        />
+      ))}
     </div>
   );
 }
 
 // ============================================================================
-// Main Page Component
+// Main Page
 // ============================================================================
 
 export default function ZkProofsPage() {
@@ -184,11 +237,18 @@ export default function ZkProofsPage() {
 
   const xrayInfo = getXRayProtocolInfo();
 
-  // Form state
   const [solvencyThreshold, setSolvencyThreshold] = useState('100');
   const [historyMinTx, setHistoryMinTx] = useState('5');
   const [historyMinVolume, setHistoryMinVolume] = useState('50');
   const [eligibilityCriteria, setEligibilityCriteria] = useState('kyc_verified');
+
+  const currentStep: 'select' | 'configure' | 'generate' | 'verify' = !selectedType
+    ? 'select'
+    : !generatedProof
+    ? 'configure'
+    : verificationResult
+    ? 'verify'
+    : 'generate';
 
   const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -198,45 +258,45 @@ export default function ZkProofsPage() {
 
   const activeConfig = selectedType ? PROOF_TYPES.find(p => p.type === selectedType) : null;
 
-  // Loading state
+  // ── Loading ──
   if (sessionStatus === 'loading') {
     return (
-      <div className="min-h-screen bg-[#08080D] flex items-center justify-center">
-        <GridBackground />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <GridBg />
         <div className="text-center relative z-10">
-          <div className="relative mx-auto w-16 h-16 mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-[#00D4FF]/30 animate-spin" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-2 rounded-full border-2 border-[#7B61FF]/30 animate-spin" style={{ animationDuration: '3s', animationDirection: 'reverse' }} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Shield className="w-6 h-6 text-[#00D4FF]" />
-            </div>
+          <div
+            className="w-20 h-20 border-4 border-[#39FF14] mx-auto mb-6 flex items-center justify-center"
+            style={{ animation: 'spin 2s linear infinite' }}
+          >
+            <Shield className="w-8 h-8 text-[#39FF14]" style={{ animation: 'spin 2s linear infinite reverse' }} />
           </div>
-          <p className="text-white/60 font-black tracking-widest text-sm">LOADING ZK PROOFS</p>
+          <p className="text-[#39FF14] font-black tracking-[0.5em] text-sm">LOADING</p>
         </div>
       </div>
     );
   }
 
-  // Not authenticated
+  // ── Not authenticated ──
   if (!session) {
     return (
-      <div className="min-h-screen bg-[#08080D] flex items-center justify-center p-4">
-        <GridBackground />
-        <div className="max-w-md w-full relative z-10">
-          <div className="border border-white/10 rounded-2xl bg-white/[0.02] backdrop-blur-sm p-10 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#00D4FF]/20 to-[#7B61FF]/20 border border-white/10 flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-10 h-10 text-[#00D4FF]" />
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <GridBg />
+        <div className="max-w-lg w-full relative z-10">
+          <div className="border-4 border-[#00FFFF] p-10 text-center">
+            <div className="w-24 h-24 border-4 border-[#00FFFF] mx-auto mb-8 flex items-center justify-center">
+              <Shield className="w-12 h-12 text-[#00FFFF]" />
             </div>
-            <h1 className="text-2xl font-black text-white mb-2">ZK ELIGIBILITY PROOFS</h1>
-            <p className="text-white/40 text-sm mb-8 leading-relaxed">
-              Generate zero-knowledge proofs powered by Stellar X-Ray Protocol
+            <h1 className="text-4xl font-black text-white mb-2 tracking-tight">ZK PROOFS</h1>
+            <div className="w-16 h-1 bg-[#00FFFF] mx-auto my-4" />
+            <p className="text-white/40 text-sm mb-10">
+              Zero-knowledge proofs on Stellar. Sign in to generate.
             </p>
             <a
               href="/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#0066FF] to-[#0050DD] text-white font-black rounded-xl hover:shadow-lg hover:shadow-[#0066FF]/25 transition-all"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[#00FFFF] text-black font-black text-sm hover:bg-[#00FFFF]/90 transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
-              GO TO DASHBOARD
+              DASHBOARD
             </a>
           </div>
         </div>
@@ -244,30 +304,28 @@ export default function ZkProofsPage() {
     );
   }
 
-  // Wallet still loading
+  // ── Wallet loading ──
   if (zkWallet.isLoading || !zkWallet.address) {
     return (
-      <div className="min-h-screen bg-[#08080D] flex items-center justify-center">
-        <GridBackground />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <GridBg />
         <div className="text-center relative z-10">
-          <div className="relative mx-auto w-16 h-16 mb-6">
-            <div className="absolute inset-0 rounded-full border-2 border-[#00FF88]/30 animate-spin" style={{ animationDuration: '2s' }} />
-            <div className="absolute inset-2 rounded-full border-2 border-[#00D4FF]/30 animate-spin" style={{ animationDuration: '3s', animationDirection: 'reverse' }} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-[#00FF88]" />
-            </div>
+          <div
+            className="w-20 h-20 border-4 border-[#39FF14] mx-auto mb-6 flex items-center justify-center"
+            style={{ animation: 'spin 2s linear infinite' }}
+          >
+            <Zap className="w-8 h-8 text-[#39FF14]" style={{ animation: 'spin 2s linear infinite reverse' }} />
           </div>
-          <p className="text-white/60 font-black tracking-widest text-sm">INITIALIZING WALLET</p>
-          <p className="text-white/20 text-xs mt-2 font-mono">Deriving keys & fetching balances...</p>
+          <p className="text-[#39FF14] font-black tracking-[0.5em] text-sm">INITIALIZING</p>
+          <p className="text-white/20 text-xs mt-3 font-mono tracking-widest">DERIVING KEYS...</p>
         </div>
       </div>
     );
   }
 
-  // Generate proof handler
+  // ── Handlers ──
   const handleGenerateProof = async () => {
     if (!selectedType || !zkWallet.address) return;
-
     setIsGenerating(true);
     setError(null);
     setGeneratedProof(null);
@@ -283,18 +341,15 @@ export default function ZkProofsPage() {
       switch (selectedType) {
         case 'solvency': {
           const xlmBalance = zkWallet.balances?.find(b => b.asset === 'XLM');
-          const balance = xlmBalance?.balance || '0';
-          body = { ...body, threshold: solvencyThreshold, actualBalance: balance, asset: 'XLM' };
+          body = { ...body, threshold: solvencyThreshold, actualBalance: xlmBalance?.balance || '0', asset: 'XLM' };
           break;
         }
-        case 'identity': {
+        case 'identity':
           body = { ...body, email: session.user?.email || '', provider: 'google', subject: session.user?.email || '' };
           break;
-        }
-        case 'eligibility': {
+        case 'eligibility':
           body = { ...body, criteria: eligibilityCriteria, privateData: { verified: 'true', level: 'standard', provider: 'google' } };
           break;
-        }
         case 'history': {
           const txCount = zkWallet.transactions?.length || 0;
           const totalVolume = zkWallet.transactions?.reduce((sum, tx) => sum + parseFloat(tx.amount || '0'), 0) || 0;
@@ -315,7 +370,6 @@ export default function ZkProofsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to generate proof');
 
@@ -329,7 +383,6 @@ export default function ZkProofsPage() {
     }
   };
 
-  // Verify proof handler
   const handleVerifyProof = async () => {
     if (!generatedProof) return;
     setIsVerifying(true);
@@ -341,7 +394,6 @@ export default function ZkProofsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ proof: generatedProof }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to verify proof');
       setVerificationResult(data.verification);
@@ -352,79 +404,80 @@ export default function ZkProofsPage() {
     }
   };
 
+  // ── Main Render ──
   return (
-    <div className="min-h-screen bg-[#08080D] text-white">
-      <GridBackground />
+    <div className="min-h-screen bg-black text-white selection:bg-[#39FF14] selection:text-black">
+      <GridBg />
 
-      {/* Header */}
-      <div className="relative z-10 border-b border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+      {/* HEADER */}
+      <div className="relative z-10 border-b-4 border-[#39FF14]/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               <a
                 href="/dashboard"
-                className="p-2.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all"
+                className="w-12 h-12 border-4 border-white/20 hover:border-[#39FF14] flex items-center justify-center transition-all group"
               >
-                <ArrowLeft className="w-4 h-4 text-white/60" />
+                <ArrowLeft className="w-5 h-5 text-white/40 group-hover:text-[#39FF14] transition-colors" />
               </a>
               <div>
-                <h1 className="text-lg sm:text-xl font-black flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#00D4FF]/20 to-[#7B61FF]/20">
-                    <Shield className="w-5 h-5 text-[#00D4FF]" />
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3">
+                  <div className="w-10 h-10 border-4 border-[#00FFFF] flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-[#00FFFF]" />
                   </div>
                   ZK ELIGIBILITY PROOFS
                 </h1>
-                <p className="text-[11px] text-white/30 font-mono mt-0.5 ml-10">
-                  Stellar X-Ray Protocol 25 // BN254 + Poseidon
+                <p className="text-[11px] text-white/20 font-mono mt-1 ml-[52px] tracking-widest">
+                  STELLAR X-RAY PROTOCOL // GROTH16 ON BN254
                 </p>
               </div>
             </div>
             <div className="hidden sm:flex items-center gap-2">
-              {['BN254', 'POSEIDON', 'GROTH16'].map((tag, i) => {
-                const colors = ['#00FF88', '#00D4FF', '#7B61FF'];
-                return (
-                  <div
-                    key={tag}
-                    className="px-3 py-1.5 rounded-lg border"
-                    style={{
-                      borderColor: `${colors[i]}30`,
-                      backgroundColor: `${colors[i]}08`,
-                    }}
-                  >
-                    <span className="text-[10px] font-black tracking-wider" style={{ color: colors[i] }}>
-                      {tag}
-                    </span>
-                  </div>
-                );
-              })}
+              {[
+                { tag: 'BN254', color: '#39FF14' },
+                { tag: 'POSEIDON', color: '#00FFFF' },
+                { tag: 'GROTH16', color: '#BF00FF' },
+              ].map(({ tag, color }) => (
+                <div
+                  key={tag}
+                  className="px-4 py-2 border-4 text-[10px] font-black tracking-[0.2em]"
+                  style={{ borderColor: color, color }}
+                >
+                  {tag}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* X-Ray Protocol Banner */}
-        <div className="rounded-2xl border border-[#00D4FF]/15 bg-gradient-to-r from-[#00D4FF]/[0.04] to-[#7B61FF]/[0.04] p-5 mb-8">
-          <div className="flex items-start gap-4">
-            <div className="p-2.5 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-[#00D4FF]" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <StepFlow step={currentStep} />
+
+        {/* X-RAY PROTOCOL BANNER */}
+        <div className="border-4 border-[#00FFFF]/40 p-6 mb-10">
+          <div className="flex items-start gap-5">
+            <div className="w-14 h-14 border-4 border-[#00FFFF] flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-6 h-6 text-[#00FFFF]" />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <p className="font-black text-sm text-[#00D4FF]">X-RAY PROTOCOL</p>
-                <span className="px-2 py-0.5 rounded-full bg-[#00FF88]/10 border border-[#00FF88]/20 text-[9px] font-black text-[#00FF88]">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h2 className="font-black text-[#00FFFF] text-sm tracking-wider">
+                  STELLAR X-RAY PROTOCOL
+                </h2>
+                <div className="px-3 py-1 bg-[#39FF14] text-black text-[9px] font-black tracking-widest">
                   LIVE ON MAINNET
-                </span>
+                </div>
               </div>
-              <p className="text-xs text-white/40 leading-relaxed max-w-2xl">
-                Native BN254 curve ops (CAP-0074) and Poseidon hashes (CAP-0075) as Soroban host functions.
+              <p className="text-xs text-white/30 leading-relaxed max-w-2xl">
+                Native BN254 curve operations (CAP-0074) and Poseidon hashes (CAP-0075) as Soroban host functions.
                 On-chain zk-SNARK verification with ~30% gas savings vs WASM.
               </p>
-              <div className="flex flex-wrap gap-1.5 mt-3">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {[...xrayInfo.hostFunctions.bn254, ...xrayInfo.hostFunctions.poseidon].map(fn => (
                   <span
                     key={fn}
-                    className="px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.06] text-[10px] font-mono text-white/35"
+                    className="px-3 py-1.5 border-2 border-white/10 text-[10px] font-mono text-white/30 hover:border-[#00FFFF]/40 hover:text-[#00FFFF]/60 transition-all"
                   >
                     {fn}()
                   </span>
@@ -434,10 +487,11 @@ export default function ZkProofsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column - Proof Type Cards */}
-          <div className="lg:col-span-4 space-y-3">
-            <p className="text-[11px] font-black text-white/30 tracking-widest mb-1 px-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* LEFT: PROOF TYPE CARDS */}
+          <div className="lg:col-span-4 space-y-4">
+            <p className="text-[10px] font-black text-white/25 tracking-[0.3em] mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 bg-[#39FF14] inline-block" />
               SELECT PROOF TYPE
             </p>
 
@@ -454,217 +508,203 @@ export default function ZkProofsPage() {
                     setVerificationResult(null);
                     setError(null);
                   }}
-                  className={`w-full text-left p-4 rounded-xl border transition-all duration-200 group ${
-                    isSelected
-                      ? 'bg-white/[0.06] shadow-lg'
-                      : 'bg-white/[0.02] hover:bg-white/[0.04] border-white/[0.06] hover:border-white/10'
-                  }`}
-                  style={
-                    isSelected
-                      ? { borderColor: `${pt.color}40`, boxShadow: `0 0 30px ${pt.color}10` }
-                      : undefined
-                  }
+                  className={`w-full text-left transition-all duration-200 group ${isSelected ? '' : 'hover:translate-x-1'}`}
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div
-                      className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
-                        isSelected ? '' : 'bg-white/[0.04]'
-                      }`}
-                      style={
-                        isSelected
-                          ? { backgroundColor: `${pt.color}18`, border: `1px solid ${pt.color}30` }
-                          : undefined
-                      }
-                    >
-                      <Icon
-                        className="w-5 h-5 transition-colors"
-                        style={{ color: isSelected ? pt.color : 'rgba(255,255,255,0.35)' }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className="text-xs font-black tracking-wide transition-colors"
-                        style={{ color: isSelected ? pt.color : 'rgba(255,255,255,0.8)' }}
+                  <div
+                    className="p-5 border-4 transition-all duration-200"
+                    style={{
+                      borderColor: isSelected ? pt.color : 'rgba(255,255,255,0.08)',
+                      backgroundColor: isSelected ? `${pt.color}08` : 'transparent',
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-14 h-14 border-4 flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                        style={{
+                          borderColor: isSelected ? pt.color : 'rgba(255,255,255,0.1)',
+                          backgroundColor: isSelected ? `${pt.color}15` : 'transparent',
+                        }}
                       >
-                        {pt.label}
-                      </p>
-                      <p className="text-[10px] text-white/30 leading-snug mt-0.5 line-clamp-2">
-                        {pt.description}
-                      </p>
+                        <Icon
+                          className="w-6 h-6 transition-all"
+                          style={{ color: isSelected ? pt.color : 'rgba(255,255,255,0.25)' }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="text-xs font-black tracking-wider transition-colors"
+                          style={{ color: isSelected ? pt.color : 'rgba(255,255,255,0.7)' }}
+                        >
+                          {pt.label}
+                        </p>
+                        <p className="text-[10px] text-white/20 mt-1 leading-snug">{pt.description}</p>
+                      </div>
+                      {isSelected && (
+                        <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: pt.color }} />
+                      )}
                     </div>
-                    {isSelected && (
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: pt.color }} />
-                    )}
                   </div>
                 </button>
               );
             })}
 
-            {/* Proof History */}
             {proofHistory.length > 0 && (
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 mt-4">
-                <p className="text-[10px] font-black text-white/30 tracking-widest mb-3">RECENT PROOFS</p>
-                <div className="space-y-1.5">
-                  {proofHistory.map(p => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.03] cursor-pointer hover:bg-white/[0.06] transition-all"
-                      onClick={() => {
-                        setSelectedType(p.type);
-                        setGeneratedProof(p);
-                        setVerificationResult(null);
-                      }}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: PROOF_TYPES.find(pt => pt.type === p.type)?.color }}
-                        />
-                        <span className="text-[11px] font-mono text-white/50">{p.id.slice(0, 14)}...</span>
+              <div className="border-4 border-white/[0.06] p-4 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Clock className="w-3.5 h-3.5 text-white/20" />
+                  <p className="text-[10px] font-black text-white/20 tracking-[0.3em]">RECENT</p>
+                </div>
+                <div className="space-y-2">
+                  {proofHistory.map(p => {
+                    const c = PROOF_TYPES.find(pt => pt.type === p.type)?.color || '#fff';
+                    return (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-3 border-2 border-white/[0.04] hover:border-white/10 cursor-pointer transition-all"
+                        onClick={() => { setSelectedType(p.type); setGeneratedProof(p); setVerificationResult(null); }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-2 h-2" style={{ backgroundColor: c }} />
+                          <span className="text-[11px] font-mono text-white/30">{p.id.slice(0, 14)}...</span>
+                        </div>
+                        <span className="text-[9px] font-black tracking-wider" style={{ color: c }}>{p.type.toUpperCase()}</span>
                       </div>
-                      <span className="text-[9px] font-black text-white/25 uppercase tracking-wider">
-                        {p.type}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Right Column - Main Content */}
-          <div className="lg:col-span-8 space-y-5">
+          {/* RIGHT: MAIN CONTENT */}
+          <div className="lg:col-span-8 space-y-6">
             {/* Empty State */}
             {!selectedType && (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-16 text-center">
-                <div className="relative mx-auto w-24 h-24 mb-6">
-                  <div className="absolute inset-0 rounded-2xl border border-dashed border-white/10 rotate-6" />
-                  <div className="absolute inset-0 rounded-2xl border border-dashed border-white/10 -rotate-6" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Binary className="w-10 h-10 text-white/15" />
-                  </div>
+              <div className="border-4 border-white/[0.06] p-16 text-center">
+                <div
+                  className="w-24 h-24 border-4 border-dashed border-white/10 mx-auto mb-8 flex items-center justify-center"
+                  style={{ animation: 'spin 20s linear infinite' }}
+                >
+                  <Binary className="w-10 h-10 text-white/10" style={{ animation: 'spin 20s linear infinite reverse' }} />
                 </div>
-                <p className="text-white/30 font-black text-lg">SELECT A PROOF TYPE</p>
-                <p className="text-xs text-white/15 mt-2 max-w-sm mx-auto">
-                  Choose from solvency, identity, eligibility, or history proofs to generate a zero-knowledge proof
+                <p className="text-white/25 font-black text-2xl tracking-tight">SELECT A PROOF TYPE</p>
+                <p className="text-xs text-white/10 mt-3 max-w-sm mx-auto">
+                  Choose from solvency, identity, eligibility, or history proofs
                 </p>
+                <div className="flex items-center justify-center gap-4 mt-8">
+                  {PROOF_TYPES.map(pt => (
+                    <button
+                      key={pt.type}
+                      onClick={() => { setSelectedType(pt.type); setGeneratedProof(null); setVerificationResult(null); setError(null); }}
+                      className="w-4 h-4 transition-all hover:scale-150"
+                      style={{ backgroundColor: pt.color }}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Proof Form */}
+            {/* PROOF FORM */}
             {selectedType && !generatedProof && activeConfig && (
-              <div className="rounded-2xl border overflow-hidden" style={{ borderColor: `${activeConfig.color}25` }}>
-                {/* Form Header with Visual */}
-                <div className="relative overflow-hidden">
-                  <div
-                    className="absolute inset-0 opacity-10"
-                    style={{
-                      background: `linear-gradient(135deg, ${activeConfig.color}40 0%, transparent 60%)`,
-                    }}
-                  />
-                  <div className="relative px-6 pt-6 pb-4">
-                    <ProofVisual type={selectedType} isGenerating={isGenerating} />
-                    <div className="text-center mt-2">
-                      <p className="font-black text-lg" style={{ color: activeConfig.color }}>
-                        {activeConfig.label}
-                      </p>
-                      <p className="text-xs text-white/30 mt-1">{activeConfig.description}</p>
-                    </div>
+              <div
+                className="border-4 overflow-hidden"
+                style={{ borderColor: activeConfig.color }}
+              >
+                <div style={{ background: `linear-gradient(180deg, ${activeConfig.color}08 0%, transparent 100%)` }}>
+                  <ProofVisual type={selectedType} isGenerating={isGenerating} />
+                  <div className="text-center pb-6 px-6">
+                    <p className="font-black text-2xl tracking-tight" style={{ color: activeConfig.color }}>
+                      {activeConfig.label}
+                    </p>
+                    <p className="text-xs text-white/25 mt-2">{activeConfig.description}</p>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-5 bg-white/[0.01]">
-                  {/* Wallet */}
+                <div className="p-6 space-y-5">
                   <div>
-                    <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
-                      WALLET ADDRESS
-                    </label>
-                    <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] font-mono text-xs text-[#00FF88] break-all">
+                    <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">WALLET ADDRESS</label>
+                    <div className="p-4 border-4 border-white/[0.06] font-mono text-xs text-[#39FF14] break-all flex items-center gap-3">
+                      <div className="w-10 h-10 border-4 border-[#39FF14]/30 flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-4 h-4 text-[#39FF14]" />
+                      </div>
                       {zkWallet.address}
                     </div>
                   </div>
 
-                  {/* Solvency Form */}
                   {selectedType === 'solvency' && (
                     <>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           CURRENT BALANCE
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/60 text-[8px]">PRIVATE</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#FF003C]/20 text-[#FF003C] text-[8px] border-2 border-[#FF003C]/30">PRIVATE</span>
                         </label>
-                        <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3">
-                          <Eye className="w-4 h-4 text-white/20" />
-                          <span className="font-mono text-sm text-white/70">
+                        <div className="p-4 border-4 border-white/[0.06] flex items-center gap-3">
+                          <Eye className="w-4 h-4 text-white/15" />
+                          <span className="font-mono text-sm text-white/50">
                             {zkWallet.balances?.find(b => b.asset === 'XLM')?.balance || '0'} XLM
                           </span>
-                          <Lock className="w-3.5 h-3.5 text-[#00FF88]/50 ml-auto" />
+                          <Lock className="w-4 h-4 text-[#39FF14]/40 ml-auto" />
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           THRESHOLD TO PROVE
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-[#00FF88]/10 text-[#00FF88]/60 text-[8px]">PUBLIC</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#39FF14]/10 text-[#39FF14] text-[8px] border-2 border-[#39FF14]/30">PUBLIC</span>
                         </label>
-                        <div className="flex items-center rounded-xl border border-white/[0.08] bg-white/[0.03] overflow-hidden focus-within:border-[#00FF88]/30 transition-colors">
+                        <div className="flex items-center border-4 border-white/[0.08] focus-within:border-[#39FF14] transition-all">
                           <input
                             type="number"
                             value={solvencyThreshold}
                             onChange={e => setSolvencyThreshold(e.target.value)}
-                            className="flex-1 bg-transparent p-3.5 font-mono text-sm outline-none text-white"
-                            min="0"
-                            step="1"
+                            className="flex-1 bg-transparent p-4 font-mono text-sm outline-none text-white"
+                            min="0" step="1"
                           />
-                          <span className="px-4 text-white/25 font-black text-xs">XLM</span>
+                          <span className="px-5 text-white/15 font-black text-xs border-l-4 border-white/[0.06]">XLM</span>
                         </div>
-                        <p className="text-[10px] text-white/20 mt-1.5 ml-1">
-                          Verifier learns: balance &ge; {solvencyThreshold} XLM. Nothing more.
+                        <p className="text-[10px] text-white/15 mt-2 font-mono">
+                          → Verifier learns: balance ≥ {solvencyThreshold} XLM
                         </p>
                       </div>
                     </>
                   )}
 
-                  {/* Identity Form */}
                   {selectedType === 'identity' && (
                     <>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           IDENTITY PROVIDER
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-[#00D4FF]/10 text-[#00D4FF]/60 text-[8px]">PUBLIC</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#00FFFF]/10 text-[#00FFFF] text-[8px] border-2 border-[#00FFFF]/30">PUBLIC</span>
                         </label>
-                        <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-white/70 flex items-center gap-2">
-                          <div className="w-5 h-5 rounded bg-white/10 flex items-center justify-center text-[10px] font-black">G</div>
-                          Google OAuth
+                        <div className="p-4 border-4 border-white/[0.06] text-sm text-white/50 flex items-center gap-3">
+                          <div className="w-8 h-8 border-2 border-white/10 flex items-center justify-center text-[11px] font-black text-white/40">G</div>
+                          Google OAuth 2.0
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           EMAIL
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/60 text-[8px]">PRIVATE - POSEIDON HASHED</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#FF003C]/20 text-[#FF003C] text-[8px] border-2 border-[#FF003C]/30">POSEIDON HASHED</span>
                         </label>
-                        <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-3">
-                          <EyeOff className="w-4 h-4 text-white/20" />
-                          <span className="font-mono text-sm text-white/40">{session.user?.email || 'Not available'}</span>
-                          <Lock className="w-3.5 h-3.5 text-[#00D4FF]/50 ml-auto" />
+                        <div className="p-4 border-4 border-white/[0.06] flex items-center gap-3">
+                          <EyeOff className="w-4 h-4 text-white/15" />
+                          <span className="font-mono text-sm text-white/30">{session.user?.email || 'N/A'}</span>
+                          <Lock className="w-4 h-4 text-[#00FFFF]/40 ml-auto" />
                         </div>
-                        <p className="text-[10px] text-white/20 mt-1.5 ml-1">
-                          Committed via Poseidon hash - verifier only sees the commitment
-                        </p>
                       </div>
                     </>
                   )}
 
-                  {/* Eligibility Form */}
                   {selectedType === 'eligibility' && (
                     <>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           CRITERIA
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-[#7B61FF]/10 text-[#7B61FF]/60 text-[8px]">PUBLIC</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#BF00FF]/10 text-[#BF00FF] text-[8px] border-2 border-[#BF00FF]/30">PUBLIC</span>
                         </label>
                         <select
                           value={eligibilityCriteria}
                           onChange={e => setEligibilityCriteria(e.target.value)}
-                          className="w-full p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] text-sm outline-none text-white/70 focus:border-[#7B61FF]/30 transition-colors"
+                          className="w-full p-4 bg-transparent border-4 border-white/[0.08] text-sm outline-none text-white/60 focus:border-[#BF00FF] transition-all"
                         >
                           <option value="kyc_verified">KYC Verified</option>
                           <option value="accredited_investor">Accredited Investor</option>
@@ -673,16 +713,16 @@ export default function ZkProofsPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           PRIVATE ATTRIBUTES
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/60 text-[8px]">NEVER REVEALED</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#FF003C]/20 text-[#FF003C] text-[8px] border-2 border-[#FF003C]/30">NEVER REVEALED</span>
                         </label>
-                        <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-2">
+                        <div className="p-4 border-4 border-white/[0.06] space-y-2">
                           {[{ k: 'verified', v: 'true' }, { k: 'level', v: 'standard' }, { k: 'provider', v: 'google' }].map(attr => (
-                            <div key={attr.k} className="flex items-center gap-2.5 text-xs">
-                              <Lock className="w-3 h-3 text-[#7B61FF]/40" />
-                              <span className="text-white/25 font-mono">{attr.k}:</span>
-                              <span className="font-mono text-white/50">{attr.v}</span>
+                            <div key={attr.k} className="flex items-center gap-3 text-xs font-mono">
+                              <Lock className="w-3 h-3 text-[#BF00FF]/40" />
+                              <span className="text-white/15">{attr.k}:</span>
+                              <span className="text-white/40">{attr.v}</span>
                             </div>
                           ))}
                         </div>
@@ -690,46 +730,45 @@ export default function ZkProofsPage() {
                     </>
                   )}
 
-                  {/* History Form */}
                   {selectedType === 'history' && (
                     <>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">MIN TRANSACTIONS</label>
+                          <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">MIN TRANSACTIONS</label>
                           <input
                             type="number"
                             value={historyMinTx}
                             onChange={e => setHistoryMinTx(e.target.value)}
-                            className="w-full p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] font-mono text-sm outline-none text-white focus:border-[#FF6B35]/30 transition-colors"
+                            className="w-full p-4 bg-transparent border-4 border-white/[0.08] font-mono text-sm outline-none text-white focus:border-[#FF003C] transition-all"
                             min="1"
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">MIN VOLUME (XLM)</label>
+                          <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">MIN VOLUME (XLM)</label>
                           <input
                             type="number"
                             value={historyMinVolume}
                             onChange={e => setHistoryMinVolume(e.target.value)}
-                            className="w-full p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] font-mono text-sm outline-none text-white focus:border-[#FF6B35]/30 transition-colors"
+                            className="w-full p-4 bg-transparent border-4 border-white/[0.08] font-mono text-sm outline-none text-white focus:border-[#FF003C] transition-all"
                             min="0"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-white/30 tracking-widest block mb-1.5">
+                        <label className="text-[10px] font-black text-white/20 tracking-[0.2em] block mb-2">
                           ACTUAL DATA
-                          <span className="ml-2 px-1.5 py-0.5 rounded bg-red-500/10 text-red-400/60 text-[8px]">PRIVATE</span>
+                          <span className="ml-2 px-2 py-0.5 bg-[#FF003C]/20 text-[#FF003C] text-[8px] border-2 border-[#FF003C]/30">PRIVATE</span>
                         </label>
-                        <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-6 text-xs">
-                          <div className="flex items-center gap-1.5">
-                            <Lock className="w-3 h-3 text-[#FF6B35]/40" />
-                            <span className="text-white/25">Txns:</span>
-                            <span className="font-mono text-white/50">{zkWallet.transactions?.length || 0}</span>
+                        <div className="p-4 border-4 border-white/[0.06] flex items-center gap-8 text-xs font-mono">
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-3 h-3 text-[#FF003C]/40" />
+                            <span className="text-white/15">Txns:</span>
+                            <span className="text-white/40">{zkWallet.transactions?.length || 0}</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Lock className="w-3 h-3 text-[#FF6B35]/40" />
-                            <span className="text-white/25">Volume:</span>
-                            <span className="font-mono text-white/50">
+                          <div className="flex items-center gap-2">
+                            <Lock className="w-3 h-3 text-[#FF003C]/40" />
+                            <span className="text-white/15">Vol:</span>
+                            <span className="text-white/40">
                               {(zkWallet.transactions?.reduce((sum, tx) => sum + parseFloat(tx.amount || '0'), 0) || 0).toFixed(2)} XLM
                             </span>
                           </div>
@@ -738,169 +777,129 @@ export default function ZkProofsPage() {
                     </>
                   )}
 
-                  {/* Error */}
                   {error && (
-                    <div className="p-3.5 rounded-xl border border-red-500/20 bg-red-500/[0.06] flex items-start gap-3">
-                      <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-red-400/80">{error}</p>
+                    <div className="p-4 border-4 border-[#FF003C]/40 bg-[#FF003C]/5 flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-[#FF003C] flex-shrink-0" />
+                      <p className="text-xs text-[#FF003C]/80">{error}</p>
                     </div>
                   )}
 
-                  {/* Generate Button */}
                   <button
                     onClick={handleGenerateProof}
                     disabled={isGenerating}
-                    className={`w-full py-4 font-black text-black rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2.5 text-sm bg-gradient-to-r ${activeConfig.gradient} hover:shadow-lg hover:brightness-110`}
-                    style={{ boxShadow: `0 4px 25px ${activeConfig.color}25` }}
+                    className={`w-full py-5 font-black text-black text-sm tracking-wider transition-all disabled:opacity-50 flex items-center justify-center gap-3 bg-gradient-to-r ${activeConfig.gradient} hover:brightness-110 active:scale-[0.98]`}
                   >
                     {isGenerating ? (
-                      <>
-                        <Loader className="w-5 h-5 animate-spin" />
-                        GENERATING ZK PROOF...
-                      </>
+                      <><Loader className="w-5 h-5 animate-spin" /> GENERATING ZK PROOF...</>
                     ) : (
-                      <>
-                        <Zap className="w-5 h-5" />
-                        GENERATE PROOF
-                      </>
+                      <><Zap className="w-5 h-5" /> GENERATE PROOF</>
                     )}
                   </button>
 
-                  {/* How it works */}
-                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                    <p className="text-[10px] text-white/20 leading-relaxed">
-                      <strong className="text-white/35">How it works:</strong> Private data is committed using
-                      Poseidon hash (CAP-0075), a Groth16 proof is generated on BN254 (CAP-0074), and verified
-                      on-chain via <span className="font-mono text-white/30">bn254_multi_pairing_check</span>.
-                      The verifier learns nothing about your private data.
+                  <div className="p-4 border-2 border-white/[0.04]">
+                    <p className="text-[10px] text-white/15 leading-relaxed font-mono">
+                      <span className="text-white/25">// HOW IT WORKS:</span> Private data → Poseidon hash (CAP-0075) → Groth16 proof on BN254 (CAP-0074) → On-chain verify via bn254_multi_pairing_check
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Generated Proof */}
+            {/* GENERATED PROOF */}
             {generatedProof && activeConfig && (
-              <div className="space-y-5">
-                {/* Main Proof Card */}
-                <div
-                  className="rounded-2xl border overflow-hidden"
-                  style={{ borderColor: `${activeConfig.color}30` }}
-                >
-                  {/* Header */}
+              <div className="space-y-6">
+                <div className="border-4 overflow-hidden" style={{ borderColor: activeConfig.color }}>
                   <div
-                    className="px-6 py-4 flex items-center justify-between"
-                    style={{
-                      background: `linear-gradient(135deg, ${activeConfig.color} 0%, ${activeConfig.color}CC 100%)`,
-                    }}
+                    className="px-6 py-5 flex items-center justify-between"
+                    style={{ backgroundColor: activeConfig.color }}
                   >
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-black/80" />
-                      <span className="font-black text-black/90 text-sm">{activeConfig.label}</span>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-black/20 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-black/80" />
+                      </div>
+                      <div>
+                        <p className="font-black text-black text-sm">{activeConfig.label}</p>
+                        <p className="text-[10px] text-black/40 font-mono">GROTH16 // BN254</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2.5">
-                      {verificationResult && (
-                        <div
-                          className={`px-2.5 py-1 rounded-lg ${
-                            verificationResult.valid ? 'bg-black/15' : 'bg-red-600'
-                          }`}
-                        >
-                          {verificationResult.valid ? (
-                            <span className="flex items-center gap-1 text-[10px] font-black text-black/80">
-                              <CheckCircle className="w-3 h-3" /> VERIFIED
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-[10px] font-black text-white">
-                              <XCircle className="w-3 h-3" /> INVALID
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <span className="text-[10px] font-black text-black/40 tracking-wider">
-                        GROTH16
-                      </span>
-                    </div>
+                    {verificationResult && (
+                      <div className={`px-4 py-2 ${verificationResult.valid ? 'bg-black/20' : 'bg-[#FF003C]'}`}>
+                        <span className="flex items-center gap-1.5 text-[10px] font-black text-black">
+                          {verificationResult.valid ? <><CheckCircle className="w-4 h-4" /> VERIFIED</> : <><XCircle className="w-4 h-4 text-white" /> INVALID</>}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="p-6 space-y-5 bg-white/[0.01]">
-                    {/* Metadata Grid */}
+                  <div className="p-6 space-y-6">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {[
-                        { label: 'PROOF ID', value: generatedProof.id.slice(0, 16), color: '#00D4FF' },
-                        { label: 'CURVE', value: 'BN254', color: '#00FF88' },
-                        { label: 'SIZE', value: `${generatedProof.metadata.proofSizeBytes}B`, color: '#7B61FF' },
-                        { label: 'TIME', value: `${generationTime}ms`, color: '#FF6B35' },
+                        { label: 'PROOF ID', value: generatedProof.id.slice(0, 16), color: '#00FFFF' },
+                        { label: 'CURVE', value: 'BN254', color: '#39FF14' },
+                        { label: 'SIZE', value: `${generatedProof.metadata.proofSizeBytes}B`, color: '#BF00FF' },
+                        { label: 'TIME', value: `${generationTime}ms`, color: '#FF003C' },
                       ].map(item => (
-                        <div key={item.label} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                          <p className="text-[9px] font-black text-white/25 tracking-widest">{item.label}</p>
-                          <p className="font-mono text-xs mt-1" style={{ color: item.color }}>
-                            {item.value}
-                          </p>
+                        <div key={item.label} className="p-4 border-4 border-white/[0.06] hover:border-white/10 transition-all">
+                          <p className="text-[9px] font-black text-white/15 tracking-[0.2em] mb-2">{item.label}</p>
+                          <p className="font-mono text-xs font-bold" style={{ color: item.color }}>{item.value}</p>
                         </div>
                       ))}
                     </div>
 
-                    {/* Public Inputs */}
                     <div>
-                      <p className="text-[10px] font-black text-white/30 tracking-widest mb-3">
-                        PUBLIC INPUTS ({generatedProof.publicInputs.length})
-                      </p>
-                      <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="w-2 h-2" style={{ backgroundColor: activeConfig.color }} />
+                        <p className="text-[10px] font-black text-white/20 tracking-[0.3em]">
+                          PUBLIC INPUTS ({generatedProof.publicInputs.length})
+                        </p>
+                      </div>
+                      <div className="space-y-3">
                         {generatedProof.publicInputLabels.map((input, i) => (
-                          <div key={i} className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[9px] font-black text-white/25 tracking-widest uppercase">
-                                {input.name}
-                              </span>
+                          <div key={i} className="p-4 border-4 border-white/[0.04] hover:border-white/[0.08] transition-all group">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[9px] font-black text-white/15 tracking-[0.2em] uppercase">{input.name}</span>
                               <button
                                 onClick={() => copyToClipboard(generatedProof.publicInputs[i], `pub_${i}`)}
-                                className="p-1 rounded hover:bg-white/5 transition-colors"
+                                className="p-1.5 border-2 border-white/[0.06] hover:border-[#39FF14] hover:text-[#39FF14] transition-all"
                               >
-                                {copied === `pub_${i}` ? (
-                                  <Check className="w-3 h-3 text-[#00FF88]" />
-                                ) : (
-                                  <Copy className="w-3 h-3 text-white/20" />
-                                )}
+                                {copied === `pub_${i}` ? <Check className="w-3 h-3 text-[#39FF14]" /> : <Copy className="w-3 h-3 text-white/15" />}
                               </button>
                             </div>
-                            <p className="font-mono text-[11px] break-all" style={{ color: activeConfig.color }}>
+                            <p className="font-mono text-[11px] break-all" style={{ color: `${activeConfig.color}CC` }}>
                               {shortenHex(generatedProof.publicInputs[i], 14)}
                             </p>
-                            <p className="text-[10px] text-white/20 mt-1.5">{input.description}</p>
+                            <p className="text-[10px] text-white/10 mt-2">{input.description}</p>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Expand Proof Points */}
                     <button
                       onClick={() => setShowProofDetails(!showProofDetails)}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-white/[0.08] hover:border-white/15 hover:bg-white/[0.02] transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-3 border-4 border-white/[0.06] hover:border-white/[0.12] transition-all text-[10px] font-black text-white/25 tracking-wider"
                     >
-                      <span className="text-[10px] font-black text-white/40 tracking-wider">
-                        {showProofDetails ? 'HIDE PROOF POINTS' : 'SHOW BN254 PROOF POINTS'}
-                      </span>
-                      {showProofDetails ? <ChevronUp className="w-3.5 h-3.5 text-white/30" /> : <ChevronDown className="w-3.5 h-3.5 text-white/30" />}
+                      {showProofDetails ? 'HIDE PROOF POINTS' : 'SHOW BN254 PROOF POINTS'}
+                      {showProofDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
 
                     {showProofDetails && (
                       <div className="space-y-3">
                         {[
-                          { label: 'pi_A', sub: 'G1 Point - 64 bytes', color: '#0066FF', data: [{ k: 'x', v: generatedProof.proof.a.x }, { k: 'y', v: generatedProof.proof.a.y }] },
-                          { label: 'pi_B', sub: 'G2 Point - 128 bytes', color: '#00D4FF', data: [{ k: 'x[c1]', v: generatedProof.proof.b.x[0] }, { k: 'x[c0]', v: generatedProof.proof.b.x[1] }, { k: 'y[c1]', v: generatedProof.proof.b.y[0] }, { k: 'y[c0]', v: generatedProof.proof.b.y[1] }] },
-                          { label: 'pi_C', sub: 'G1 Point - 64 bytes', color: '#00FF88', data: [{ k: 'x', v: generatedProof.proof.c.x }, { k: 'y', v: generatedProof.proof.c.y }] },
+                          { label: 'π_A', sub: 'G1 · 64B', color: '#0088FF', data: [{ k: 'x', v: generatedProof.proof.a.x }, { k: 'y', v: generatedProof.proof.a.y }] },
+                          { label: 'π_B', sub: 'G2 · 128B', color: '#00FFFF', data: [{ k: 'x₁', v: generatedProof.proof.b.x[0] }, { k: 'x₀', v: generatedProof.proof.b.x[1] }, { k: 'y₁', v: generatedProof.proof.b.y[0] }, { k: 'y₀', v: generatedProof.proof.b.y[1] }] },
+                          { label: 'π_C', sub: 'G1 · 64B', color: '#39FF14', data: [{ k: 'x', v: generatedProof.proof.c.x }, { k: 'y', v: generatedProof.proof.c.y }] },
                         ].map(point => (
-                          <div key={point.label} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                            <div className="flex items-center gap-2 mb-2.5">
-                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: point.color }} />
-                              <span className="text-xs font-black text-white/60">{point.label}</span>
-                              <span className="text-[9px] text-white/20">{point.sub}</span>
+                          <div key={point.label} className="p-4 border-4 border-white/[0.04]">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-3 h-3" style={{ backgroundColor: point.color }} />
+                              <span className="text-xs font-black" style={{ color: point.color }}>{point.label}</span>
+                              <span className="text-[9px] text-white/15 font-mono">{point.sub}</span>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                               {point.data.map(d => (
-                                <div key={d.k} className="flex gap-2 font-mono text-[10px]">
-                                  <span className="text-white/20 w-10 flex-shrink-0">{d.k}:</span>
-                                  <span className="text-white/40 break-all">{d.v}</span>
+                                <div key={d.k} className="flex gap-3 font-mono text-[10px]">
+                                  <span className="text-white/10 w-8 flex-shrink-0">{d.k}:</span>
+                                  <span className="text-white/30 break-all">{d.v}</span>
                                 </div>
                               ))}
                             </div>
@@ -909,46 +908,44 @@ export default function ZkProofsPage() {
                       </div>
                     )}
 
-                    {/* Verification Result */}
                     {verificationResult && (
                       <div
-                        className={`p-4 rounded-xl border ${
-                          verificationResult.valid
-                            ? 'border-[#00FF88]/20 bg-[#00FF88]/[0.04]'
-                            : 'border-red-500/20 bg-red-500/[0.04]'
-                        }`}
+                        className="p-5 border-4"
+                        style={{
+                          borderColor: verificationResult.valid ? '#39FF14' : '#FF003C',
+                          background: verificationResult.valid ? 'rgba(57,255,20,0.03)' : 'rgba(255,0,60,0.03)',
+                        }}
                       >
-                        <div className="flex items-center gap-2.5 mb-3">
+                        <div className="flex items-center gap-4 mb-4">
                           {verificationResult.valid ? (
-                            <CheckCircle className="w-5 h-5 text-[#00FF88]" />
+                            <div className="w-12 h-12 bg-[#39FF14]/10 border-4 border-[#39FF14]/30 flex items-center justify-center">
+                              <CheckCircle className="w-6 h-6 text-[#39FF14]" />
+                            </div>
                           ) : (
-                            <XCircle className="w-5 h-5 text-red-400" />
+                            <div className="w-12 h-12 bg-[#FF003C]/10 border-4 border-[#FF003C]/30 flex items-center justify-center">
+                              <XCircle className="w-6 h-6 text-[#FF003C]" />
+                            </div>
                           )}
-                          <span className="font-black text-sm">
-                            {verificationResult.valid ? 'PROOF VERIFIED' : 'VERIFICATION FAILED'}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-white/50">
                           <div>
-                            <span className="text-white/25">Method:</span>{' '}
-                            {verificationResult.verifiedOnChain ? 'On-chain (Soroban)' : 'Structural'}
+                            <p className="font-black text-sm" style={{ color: verificationResult.valid ? '#39FF14' : '#FF003C' }}>
+                              {verificationResult.valid ? 'PROOF VERIFIED' : 'VERIFICATION FAILED'}
+                            </p>
+                            <p className="text-[10px] text-white/25 font-mono">
+                              {verificationResult.verifiedOnChain ? 'ON-CHAIN via SOROBAN' : 'STRUCTURAL VERIFICATION'}
+                            </p>
                           </div>
-                          <div>
-                            <span className="text-white/25">Type:</span> {verificationResult.proofType}
-                          </div>
-                          {verificationResult.error && (
-                            <div className="col-span-2 text-red-400/60 text-[10px]">{verificationResult.error}</div>
-                          )}
                         </div>
+                        {verificationResult.error && (
+                          <p className="text-[#FF003C]/60 text-[10px] font-mono p-3 border-2 border-[#FF003C]/10">{verificationResult.error}</p>
+                        )}
                       </div>
                     )}
 
-                    {/* Actions */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-4">
                       <button
                         onClick={handleVerifyProof}
                         disabled={isVerifying}
-                        className="flex-1 py-3.5 bg-gradient-to-r from-[#0066FF] to-[#0050DD] hover:shadow-lg hover:shadow-[#0066FF]/20 text-white font-black rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                        className="flex-1 py-4 bg-[#00FFFF] text-black font-black text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98]"
                       >
                         {isVerifying ? (
                           <><Loader className="w-4 h-4 animate-spin" /> VERIFYING...</>
@@ -958,64 +955,56 @@ export default function ZkProofsPage() {
                       </button>
                       <button
                         onClick={() => { setGeneratedProof(null); setVerificationResult(null); setError(null); }}
-                        className="px-5 py-3.5 rounded-xl border border-white/10 hover:border-white/20 hover:bg-white/[0.03] font-black text-xs transition-all text-white/50"
+                        className="px-6 py-4 border-4 border-white/10 hover:border-white/25 font-black text-xs transition-all text-white/40 hover:text-white/70"
                       >
                         NEW
                       </button>
                     </div>
 
-                    {/* Copy JSON */}
                     <button
                       onClick={() => copyToClipboard(JSON.stringify(generatedProof, null, 2), 'full_proof')}
-                      className="w-full py-2.5 rounded-xl border border-white/[0.06] hover:border-white/10 flex items-center justify-center gap-2 text-[10px] text-white/25 transition-all hover:bg-white/[0.02]"
+                      className="w-full py-3 border-4 border-white/[0.04] hover:border-white/[0.08] flex items-center justify-center gap-2 text-[10px] text-white/15 transition-all hover:text-white/30"
                     >
-                      {copied === 'full_proof' ? (
-                        <><Check className="w-3 h-3 text-[#00FF88]" /> COPIED TO CLIPBOARD</>
-                      ) : (
-                        <><Copy className="w-3 h-3" /> EXPORT PROOF JSON</>
-                      )}
+                      {copied === 'full_proof' ? <><Check className="w-3 h-3 text-[#39FF14]" /> COPIED</> : <><Copy className="w-3 h-3" /> EXPORT PROOF JSON</>}
                     </button>
                   </div>
                 </div>
 
-                {/* Verification Equation */}
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Waves className="w-4 h-4 text-white/30" />
-                    <h3 className="text-[10px] font-black text-white/30 tracking-widest">
-                      ON-CHAIN VERIFICATION FLOW
-                    </h3>
+                {/* VERIFICATION EQUATION */}
+                <div className="border-4 border-[#BF00FF]/30 p-6">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 border-4 border-[#BF00FF]/40 flex items-center justify-center">
+                      <Waves className="w-5 h-5 text-[#BF00FF]/60" />
+                    </div>
+                    <p className="text-[10px] font-black text-white/20 tracking-[0.3em]">ON-CHAIN VERIFICATION</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-black/30 font-mono text-[11px] leading-relaxed border border-white/[0.04]">
-                    <p className="text-white/20">{'// Groth16 pairing equation'}</p>
-                    <p className="text-white/50 mt-1">
-                      e(pi_A, pi_B) == e(alpha, beta) * e(acc, gamma) * e(pi_C, delta)
+
+                  <div className="p-5 border-4 border-white/[0.04] bg-black/40 font-mono text-[11px] leading-loose">
+                    <p className="text-white/10">{'// Groth16 pairing equation'}</p>
+                    <p className="text-[#00FFFF]/50 mt-1">
+                      e(π_A, π_B) == e(α, β) · e(acc, γ) · e(π_C, δ)
                     </p>
-                    <div className="mt-3 pt-3 border-t border-white/[0.05] space-y-1.5">
-                      <p className="text-white/15">{'// Soroban host functions (X-Ray Protocol):'}</p>
-                      <p><span className="text-[#00FF88]/60">1.</span> <span className="text-[#00FF88]/40">bn254_g1_mul</span><span className="text-white/20">(IC[i], pub_input[i])</span></p>
-                      <p><span className="text-[#00D4FF]/60">2.</span> <span className="text-[#00D4FF]/40">bn254_g1_add</span><span className="text-white/20">(acc, product)</span></p>
-                      <p><span className="text-[#7B61FF]/60">3.</span> <span className="text-[#7B61FF]/40">bn254_multi_pairing_check</span><span className="text-white/20">(vp1, vp2)</span></p>
+                    <div className="mt-4 pt-4 border-t-4 border-white/[0.03] space-y-2">
+                      <p className="text-white/[0.06]">{'// Soroban host functions:'}</p>
+                      <p><span className="text-[#39FF14]/60">01</span> <span className="text-[#39FF14]/40">bn254_g1_mul</span><span className="text-white/10">(IC[i], pub[i])</span></p>
+                      <p><span className="text-[#00FFFF]/60">02</span> <span className="text-[#00FFFF]/40">bn254_g1_add</span><span className="text-white/10">(acc, product)</span></p>
+                      <p><span className="text-[#BF00FF]/60">03</span> <span className="text-[#BF00FF]/40">bn254_multi_pairing_check</span><span className="text-white/10">(vp1, vp2)</span></p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 mt-4">
+
+                  <div className="grid grid-cols-3 gap-3 mt-5">
                     {[
-                      { label: 'BN254', sub: 'CAP-0074', color: '#00FF88' },
-                      { label: 'POSEIDON', sub: 'CAP-0075', color: '#00D4FF' },
-                      { label: '~30% SAVED', sub: 'vs WASM', color: '#7B61FF' },
+                      { label: 'BN254', sub: 'CAP-0074', color: '#39FF14' },
+                      { label: 'POSEIDON', sub: 'CAP-0075', color: '#00FFFF' },
+                      { label: '~30% SAVED', sub: 'vs WASM', color: '#BF00FF' },
                     ].map(item => (
                       <div
                         key={item.label}
-                        className="p-2.5 rounded-xl text-center border"
-                        style={{
-                          borderColor: `${item.color}15`,
-                          backgroundColor: `${item.color}06`,
-                        }}
+                        className="p-3 text-center border-4 transition-all hover:scale-[1.02]"
+                        style={{ borderColor: `${item.color}30` }}
                       >
-                        <p className="text-[10px] font-black" style={{ color: `${item.color}90` }}>
-                          {item.label}
-                        </p>
-                        <p className="text-[9px] text-white/20 mt-0.5">{item.sub}</p>
+                        <p className="text-[11px] font-black" style={{ color: item.color }}>{item.label}</p>
+                        <p className="text-[9px] text-white/15 mt-0.5 font-mono">{item.sub}</p>
                       </div>
                     ))}
                   </div>
