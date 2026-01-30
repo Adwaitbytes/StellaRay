@@ -43,7 +43,8 @@
       "Bash(powershell -Command \"Start-Sleep -Seconds 15; try { Invoke-RestMethod -Method POST -Uri ''http://localhost:3099/api/db/init'' | ConvertTo-Json } catch { Write-Output $_Exception.Message }\")",
       "Bash(powershell -Command \"Invoke-RestMethod -Method GET -Uri ''http://localhost:3099/api/admin/users'' -Headers @{Authorization=''Bearer stellaray-admin-2026''} | ConvertTo-Json -Depth 5\")",
       "Bash(powershell -Command \"Start-Sleep -Seconds 15; try { Invoke-RestMethod -Method POST -Uri ''http://localhost:3099/api/admin/backfill-users'' -Headers @{Authorization=''Bearer stellaray-admin-2026''} | ConvertTo-Json -Depth 5 } catch { Write-Output $_Exception.Message; $_Exception.Response }\")",
-      "WebFetch(domain:docs.google.com)"
+      "WebFetch(domain:docs.google.com)",
+      "Bash(npx next dev --port 3000)"
     ]
   }
 }

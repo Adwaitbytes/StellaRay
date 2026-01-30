@@ -217,6 +217,29 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_auth_users_wallet ON authenticated_users(wallet_address)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_auth_users_first_login ON authenticated_users(first_login_at)`;
 
+    // Create quest_participants table for quest/referral system
+    await sql`
+      CREATE TABLE IF NOT EXISTS quest_participants (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(255),
+        referral_code VARCHAR(20) UNIQUE NOT NULL,
+        referred_by VARCHAR(20),
+        referral_count INTEGER DEFAULT 0,
+        completed_tasks TEXT DEFAULT '[]',
+        total_points INTEGER DEFAULT 0,
+        country VARCHAR(100),
+        device_type VARCHAR(50),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        last_active_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_quest_email ON quest_participants(email)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_quest_referral_code ON quest_participants(referral_code)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_quest_referred_by ON quest_participants(referred_by)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_quest_total_points ON quest_participants(total_points DESC)`;
+
     console.log("Database schema initialized successfully");
     return { success: true };
   } catch (error) {
