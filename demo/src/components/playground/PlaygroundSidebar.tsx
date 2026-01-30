@@ -196,9 +196,9 @@ export default function PlaygroundSidebar({
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 border-4 border-white/30 bg-[#0A0A0A]"
+        className="lg:hidden fixed top-3 sm:top-4 left-3 sm:left-4 z-50 p-1.5 sm:p-2 border-2 sm:border-4 border-white/30 bg-[#0A0A0A]"
       >
-        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {mobileOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
       </button>
 
       {/* Mobile overlay */}
@@ -211,7 +211,7 @@ export default function PlaygroundSidebar({
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static top-0 left-0 h-full w-[280px] bg-[#0A0A0A] border-r-4 border-white/10 z-40 transition-transform lg:translate-x-0 ${
+        className={`fixed lg:static top-0 left-0 h-full w-[260px] sm:w-[280px] bg-[#0A0A0A] border-r-2 sm:border-r-4 border-white/10 z-40 transition-transform duration-300 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
