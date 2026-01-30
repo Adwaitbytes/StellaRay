@@ -234,7 +234,7 @@ export default function Home() {
                     <span className="text-6xl font-black text-[#00FF88]">10,000</span>
                     <span className={`text-2xl font-black ${isDark ? 'text-white/40' : 'text-black/40'}`}>XLM</span>
                   </div>
-                  <p className={`font-bold mt-2 ${isDark ? 'text-white/50' : 'text-black/50'}`}>≈ $1,200 USD</p>
+                  <p className={`font-bold mt-2 ${isDark ? 'text-white/50' : 'text-black/50'}`}>≈ $1,945.05 USD</p>
                 </div>
 
                 {/* Stats Grid */}

@@ -58,13 +58,15 @@ export async function POST(request: NextRequest) {
     `;
 
     // Merge all users, deduplicate by email
+    interface BackfillUser { email: string; wallet_address: string; network: string; first_seen: string }
     const allUsers = [...paymentLinkUsers, ...streamSenders, ...streamRecipients];
-    const uniqueByEmail = new Map<string, { email: string; wallet_address: string; network: string; first_seen: string }>();
+    const uniqueByEmail = new Map<string, BackfillUser>();
 
     for (const user of allUsers) {
-      const existing = uniqueByEmail.get(user.email);
-      if (!existing || new Date(user.first_seen) < new Date(existing.first_seen)) {
-        uniqueByEmail.set(user.email, user);
+      const u = user as BackfillUser;
+      const existing = uniqueByEmail.get(u.email);
+      if (!existing || new Date(u.first_seen) < new Date(existing.first_seen)) {
+        uniqueByEmail.set(u.email, u);
       }
     }
 
