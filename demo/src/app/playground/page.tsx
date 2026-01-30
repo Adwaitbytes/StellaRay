@@ -94,20 +94,15 @@ export default function PlaygroundPage() {
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      // Ctrl+Enter: Run
       if (e.ctrlKey && e.key === "Enter") {
         e.preventDefault();
         if (activeTab === "playground") handleRun();
       }
-
-      // Ctrl+K: Focus search
       if (e.ctrlKey && e.key === "k") {
         e.preventDefault();
         setActiveTab("reference");
         setTimeout(() => searchRef.current?.focus(), 100);
       }
-
-      // Ctrl+1-4: Switch tabs
       if (e.ctrlKey && e.key >= "1" && e.key <= "4") {
         e.preventDefault();
         const tabs: TabId[] = ["playground", "wallet", "explorer", "reference"];
@@ -144,19 +139,19 @@ export default function PlaygroundPage() {
       onNetworkChange={setNetwork}
       isConnected={isConnected}
     >
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col min-h-screen lg:h-screen">
         {/* Header */}
-        <div className="px-6 pt-6 pb-0 lg:pl-6 pl-16">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-black tracking-tight">
+        <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-0 pl-14 sm:pl-14 lg:pl-6">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight truncate">
                 SDK PLAYGROUND
               </h1>
-              <p className="text-xs text-white/40 font-mono mt-1">
-                INTERACTIVE DEVELOPMENT ENVIRONMENT FOR @stellar-zklogin/sdk
+              <p className="text-[10px] sm:text-xs text-white/40 font-mono mt-0.5 sm:mt-1 truncate">
+                INTERACTIVE DEV ENVIRONMENT
               </p>
             </div>
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
               <div className="px-3 py-1 border-2 border-[#39FF14]/40 text-[10px] font-mono text-[#39FF14]">
                 PROTOCOL 25
               </div>
@@ -175,10 +170,10 @@ export default function PlaygroundPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-auto px-6 py-4">
+        <div className="flex-1 overflow-auto px-4 sm:px-6 py-3 sm:py-4">
           {/* TAB 1: PLAYGROUND */}
           {activeTab === "playground" && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full min-h-[600px]">
+            <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:h-full lg:min-h-[500px]">
               <CodeEditorPanel
                 code={editorCode}
                 onCodeChange={setEditorCode}
