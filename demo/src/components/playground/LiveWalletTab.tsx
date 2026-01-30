@@ -143,14 +143,14 @@ function MetricCard({
 
   return (
     <div
-      className={`border-4 p-4 ${
+      className={`border-2 sm:border-4 p-3 sm:p-4 ${
         isDark ? "border-white/20 bg-[#0A0A0A]" : "border-black/20 bg-white"
       }`}
     >
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4" style={{ color: metric.color }} />
+      <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+        <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: metric.color }} />
         <span
-          className={`text-xs font-black uppercase ${
+          className={`text-[10px] sm:text-xs font-black uppercase ${
             isDark ? "text-white/50" : "text-black/50"
           }`}
         >
@@ -158,7 +158,7 @@ function MetricCard({
         </span>
       </div>
       <p
-        className={`font-black text-2xl font-mono ${
+        className={`font-black text-xl sm:text-2xl font-mono ${
           isDark ? "text-white" : "text-black"
         }`}
       >
@@ -259,7 +259,7 @@ export default function LiveWalletTab({ isDark }: LiveWalletTabProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 p-5">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 p-2 sm:p-5">
       {/* Dashboard: columns 1-2 */}
       <div className="lg:col-span-2">
         <LiveWalletDashboard
@@ -275,11 +275,11 @@ export default function LiveWalletTab({ isDark }: LiveWalletTabProps) {
       </div>
 
       {/* Metrics sidebar: column 3 */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-3 h-3 bg-[#39FF14]" />
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex items-center gap-2 mb-1 sm:mb-2">
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#39FF14]" />
           <span
-            className={`font-black text-xs uppercase ${
+            className={`font-black text-[10px] sm:text-xs uppercase ${
               isDark ? "text-white/60" : "text-black/60"
             }`}
           >
