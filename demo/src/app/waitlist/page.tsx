@@ -22,15 +22,13 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { FEATURES } from "@/config/features";
-import Image from "next/image";
-
-// Human avatar URLs from randomuser.me (placeholder faces)
+// Local avatar SVGs - always load reliably from our own domain
 const AVATAR_URLS = [
-  "https://randomuser.me/api/portraits/women/44.jpg",
-  "https://randomuser.me/api/portraits/men/32.jpg",
-  "https://randomuser.me/api/portraits/women/68.jpg",
-  "https://randomuser.me/api/portraits/men/75.jpg",
-  "https://randomuser.me/api/portraits/women/90.jpg",
+  "/avatars/1.svg",
+  "/avatars/2.svg",
+  "/avatars/3.svg",
+  "/avatars/4.svg",
+  "/avatars/5.svg",
 ];
 
 // Confetti particle component
@@ -626,7 +624,8 @@ export default function WaitlistPage() {
                       className="w-8 h-8 rounded-full border-2 border-[#0A0A0A] overflow-hidden"
                       style={{ zIndex: AVATAR_URLS.length - i }}
                     >
-                      <Image
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
                         src={url}
                         alt={`User ${i + 1}`}
                         width={32}

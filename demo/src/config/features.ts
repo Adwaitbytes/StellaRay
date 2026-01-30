@@ -62,12 +62,12 @@ export const FEATURES = {
   /**
    * Auto-increment amount (for simulation)
    */
-  WAITLIST_INCREMENT_AMOUNT: 2,
+  WAITLIST_INCREMENT_AMOUNT: 5,
 
   /**
-   * Auto-increment interval in milliseconds (2 minutes = 120000)
+   * Auto-increment interval in milliseconds (10 minutes = 600000)
    */
-  WAITLIST_INCREMENT_INTERVAL: 120000,
+  WAITLIST_INCREMENT_INTERVAL: 600000,
 
   // ========================================
   // ✨ WAITLIST PAGE ENHANCEMENTS
