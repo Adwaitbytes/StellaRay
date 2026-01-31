@@ -727,7 +727,7 @@ export default function AdminDashboard() {
                 </div>
                 <p className="text-white/50 text-sm">
                   Each user below has authenticated via Google OAuth and has a deterministically derived Stellar wallet address.
-                  This proves real user adoption with on-chain wallet readiness.
+                  This proves real user adoption with on-chain wallet readiness
                 </p>
               </div>
 

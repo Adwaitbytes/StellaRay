@@ -335,7 +335,7 @@ function WalletComponent() {
 
           <p className="text-xl max-w-2xl mb-8 text-white/60">
             This page imports the SDK directly from npm to prove it works globally.
-            Run the verification tests to see all modules loading correctly.
+            Run the verification tests to see all modules loading correctly
           </p>
 
           {/* Run Tests Button */}
@@ -443,21 +443,21 @@ function WalletComponent() {
               <Globe className="w-8 h-8 text-[#00D4FF] mb-4" />
               <h3 className="font-black text-lg mb-2">GLOBAL PACKAGE</h3>
               <p className="text-white/60 text-sm">
-                Published on npm, install anywhere with a single command.
+                Published on npm, install anywhere with a single command
               </p>
             </div>
             <div className="p-6 border-4 border-white/20">
               <Shield className="w-8 h-8 text-[#0066FF] mb-4" />
               <h3 className="font-black text-lg mb-2">ZERO-KNOWLEDGE</h3>
               <p className="text-white/60 text-sm">
-                Groth16 proofs on BN254 curve with Poseidon hashing.
+                Groth16 proofs on BN254 curve with Poseidon hashing
               </p>
             </div>
             <div className="p-6 border-4 border-white/20">
               <Lock className="w-8 h-8 text-[#FF10F0] mb-4" />
               <h3 className="font-black text-lg mb-2">SELF-CUSTODIAL</h3>
               <p className="text-white/60 text-sm">
-                Users control their keys. No seed phrases required.
+                Users control their keys. No seed phrases required
               </p>
             </div>
           </div>
@@ -542,7 +542,7 @@ function WalletComponent() {
             START <span className="text-[#0066FF]">BUILDING</span> TODAY
           </h2>
           <p className="text-lg mb-8 text-white/60">
-            The SDK is published and ready. Install it now and add zkLogin to your dApp.
+            The SDK is published and ready. Install it now and add zkLogin to your dApp
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a

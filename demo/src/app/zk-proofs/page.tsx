@@ -289,7 +289,7 @@ export default function ZkProofsPage() {
             <h1 className="text-4xl font-black text-white mb-2 tracking-tight">ZK PROOFS</h1>
             <div className="w-16 h-1 bg-[#00FFFF] mx-auto my-4" />
             <p className="text-white/40 text-sm mb-10">
-              Zero-knowledge proofs on Stellar. Sign in to generate.
+              Zero-knowledge proofs on Stellar. Sign in to generate
             </p>
             <a
               href="/dashboard"
@@ -471,7 +471,7 @@ export default function ZkProofsPage() {
               </div>
               <p className="text-xs text-white/30 leading-relaxed max-w-2xl">
                 Native BN254 curve operations (CAP-0074) and Poseidon hashes (CAP-0075) as Soroban host functions.
-                On-chain zk-SNARK verification with ~30% gas savings vs WASM.
+                On-chain zk-SNARK verification with ~30% gas savings vs WASM
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
                 {[...xrayInfo.hostFunctions.bn254, ...xrayInfo.hostFunctions.poseidon].map(fn => (

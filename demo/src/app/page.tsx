@@ -58,25 +58,25 @@ export default function Home() {
     {
       icon: Zap,
       title: "2 Second Setup",
-      description: "No seed phrases. No extensions. Just your Google account.",
+      description: "No seed phrases. No extensions. Just your Google account",
       accent: "#0066FF",
     },
     {
       icon: Shield,
       title: "Zero-Knowledge",
-      description: "Your identity stays private. Cryptographic proof, not trust.",
+      description: "Your identity stays private. Cryptographic proof, not trust",
       accent: "#00D4FF",
     },
     {
       icon: Globe,
       title: "Global & Instant",
-      description: "Send anywhere in 3-5 seconds. Minimal fees on Stellar.",
+      description: "Send anywhere in 3-5 seconds. Minimal fees on Stellar",
       accent: "#00D4FF",
     },
     {
       icon: Lock,
       title: "Self-Custodial",
-      description: "You control your keys. We never have access to your funds.",
+      description: "You control your keys. We never have access to your funds",
       accent: "#0066FF",
     },
   ];
@@ -181,7 +181,7 @@ export default function Home() {
 
               {/* Description */}
               <p className={`text-xl lg:text-2xl font-medium leading-relaxed mb-10 max-w-lg ${isDark ? 'text-white/70' : 'text-black/70'}`}>
-                Sign in with Google. Get a real blockchain wallet. No seed phrases. No browser extensions. No complexity.
+                Sign in with Google. Get a real blockchain wallet. No seed phrases. No browser extensions. No complexity
               </p>
 
               {/* CTA */}
@@ -336,7 +336,7 @@ export default function Home() {
 
           <p className={`text-xl max-w-3xl mb-12 ${isDark ? 'text-white/60' : 'text-black/60'}`}>
             Powered by native BN254 elliptic curve operations and Poseidon hash functions.
-            The most efficient zero-knowledge proof verification on any blockchain.
+            The most efficient zero-knowledge proof verification on any blockchain
           </p>
 
           <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
@@ -345,7 +345,7 @@ export default function Home() {
                 {
                   icon: Cpu,
                   title: "BN254 Native",
-                  description: "Hardware-accelerated elliptic curve operations for Groth16 proofs.",
+                  description: "Hardware-accelerated elliptic curve operations for Groth16 proofs",
                   accent: "#00D4FF",
                   stat: "94%",
                   statLabel: "Gas Savings"
@@ -353,7 +353,7 @@ export default function Home() {
                 {
                   icon: Hash,
                   title: "Poseidon Hash",
-                  description: "ZK-optimized hash function built into the protocol.",
+                  description: "ZK-optimized hash function built into the protocol",
                   accent: "#0066FF",
                   stat: "10x",
                   statLabel: "Faster"
@@ -361,7 +361,7 @@ export default function Home() {
                 {
                   icon: Shield,
                   title: "Groth16 Proofs",
-                  description: "Succinct non-interactive zero-knowledge proofs.",
+                  description: "Succinct non-interactive zero-knowledge proofs",
                   accent: "#00D4FF",
                   stat: "12ms",
                   statLabel: "Verify Time"
@@ -369,7 +369,7 @@ export default function Home() {
                 {
                   icon: Lock,
                   title: "Privacy First",
-                  description: "Prove identity without revealing personal data.",
+                  description: "Prove identity without revealing personal data",
                   accent: "#0066FF",
                   stat: "100%",
                   statLabel: "Private"
@@ -411,9 +411,9 @@ export default function Home() {
           <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
             <div className="grid sm:grid-cols-3">
               {[
-                { step: "01", title: "SIGN IN", desc: "Use your existing Google account. No new passwords to remember." },
-                { step: "02", title: "GET WALLET", desc: "We generate a secure blockchain wallet tied to your identity." },
-                { step: "03", title: "START USING", desc: "Send, receive, and manage crypto instantly. It's that simple." },
+                { step: "01", title: "SIGN IN", desc: "Use your existing Google account. No new passwords to remember" },
+                { step: "02", title: "GET WALLET", desc: "We generate a secure blockchain wallet tied to your identity" },
+                { step: "03", title: "START USING", desc: "Send, receive, and manage crypto instantly" },
               ].map((item, i) => (
                 <div key={i} className={`p-8 ${i < 2 ? `border-r-4 ${isDark ? 'border-white' : 'border-black'}` : ''} ${i < 2 ? `border-b-4 sm:border-b-0 ${isDark ? 'border-white' : 'border-black'}` : ''}`}>
                   <span className={`text-6xl font-black ${i === 0 ? 'text-[#0066FF]' : i === 1 ? 'text-[#00D4FF]' : 'text-[#00FF88]'}`}>
@@ -444,7 +444,7 @@ export default function Home() {
                   READ THE <span className="text-[#0066FF]">RESEARCH</span>
                 </h2>
                 <p className={`text-base sm:text-lg mb-8 max-w-md ${isDark ? 'text-white/60' : 'text-black/60'}`}>
-                  Dive into the cryptographic foundations, protocol architecture, and zero-knowledge proof system that powers StellaRay.
+                  Dive into the cryptographic foundations, protocol architecture, and zero-knowledge proof system that powers StellaRay
                 </p>
                 <Link
                   href="/whitepaper"
@@ -508,7 +508,7 @@ export default function Home() {
             READY TO <span className="text-[#0066FF]">START</span>?
           </h2>
           <p className={`text-xl mb-10 max-w-2xl mx-auto ${isDark ? 'text-white/60' : 'text-black/60'}`}>
-            Get 10,000 free testnet XLM and experience the future of crypto wallets.
+            Get 10,000 free testnet XLM and experience the future of crypto wallets
           </p>
 
           <button

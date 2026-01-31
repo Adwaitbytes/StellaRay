@@ -526,7 +526,7 @@ export default function WaitlistPage() {
               }`}
             >
               Zero-knowledge authentication on Stellar. Sign in with Google.
-              No seed phrases. No extensions. Just you.
+              No seed phrases. No extensions. Just you
             </p>
 
             {/* Signup form */}
@@ -586,7 +586,7 @@ export default function WaitlistPage() {
                     <span className="text-[#00FF88] font-semibold">You're on the list!</span>
                   </div>
                   <p className="text-white/50 text-sm">
-                    We'll email you when Stellaray launches.
+                    We'll email you when Stellaray launches
                   </p>
                   <button
                     onClick={() => setShowModal(true)}

@@ -475,7 +475,7 @@ export default function SDKDemo() {
 
           <p className={`text-base sm:text-xl max-w-2xl mb-6 sm:mb-8 ${isDark ? "text-white/60" : "text-black/60"}`}>
             Experience the power of zero-knowledge authentication on Stellar. Connect, transact, and explore
-            the SDK capabilities in real-time.
+            the SDK capabilities in real-time
           </p>
 
           {/* Tab Navigation */}
@@ -981,7 +981,7 @@ export default function SDKDemo() {
             READY TO <span className="text-[#0066FF]">BUILD</span>?
           </h2>
           <p className={`text-sm sm:text-lg mb-6 sm:mb-8 ${isDark ? "text-white/60" : "text-black/60"}`}>
-            Integrate zkLogin into your dApp. Full documentation and examples available.
+            Integrate zkLogin into your dApp. Full documentation and examples available
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
             <Link href="/sdk" className="group relative inline-block w-full sm:w-auto">

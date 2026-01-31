@@ -292,7 +292,7 @@ export default function SDKPage() {
             </h1>
             <p className="text-base sm:text-xl text-white/60 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
               Integrate zkLogin into your Stellar dApp in 6 simple steps.
-              No external wallets required.
+              No external wallets required
             </p>
 
             {/* Step Indicators - scrollable on mobile */}
@@ -515,7 +515,7 @@ export default function SDKPage() {
           </h2>
           <p className="text-black/70 mb-6 sm:mb-8 max-w-xl mx-auto text-sm sm:text-base">
             Start integrating zkLogin into your Stellar dApp today.
-            No external wallets. No complexity. Just code.
+            No external wallets. No complexity. Just code
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <a

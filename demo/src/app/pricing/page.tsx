@@ -101,7 +101,7 @@ export default function PricingPage() {
               </span>
             </h1>
             <p className="text-white/50 text-lg max-w-xl mx-auto mb-8">
-              Start free. Scale as you grow. No hidden fees.
+              Start free. Scale as you grow. No hidden fees
             </p>
 
             {/* Billing toggle */}

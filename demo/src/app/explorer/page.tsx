@@ -212,7 +212,7 @@ export default function ExplorerPage() {
             ZK PROOF <span className="text-[#0066FF]">EXPLORER</span>
           </h1>
           <p className={`${isDark ? 'text-white/60' : 'text-black/60'}`}>
-            Live zero-knowledge proof data from Stellar X-Ray Protocol.
+            Live zero-knowledge proof data from Stellar X-Ray Protocol
             {protocolStatus && (
               <span className="ml-2 text-[#0066FF]">
                 • {protocolStatus.status.toUpperCase()} on {protocolStatus.network.toUpperCase()}

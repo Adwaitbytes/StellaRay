@@ -559,7 +559,7 @@ export default function QuestsPage() {
                       <h2 className="text-sm font-bold">Invite Friends</h2>
                     </div>
                     <p className="text-white/40 text-[11px] mb-3">
-                      Earn <span className="text-[#FFD700] font-bold">{POINTS_PER_REFERRAL} XLM</span> per friend who joins.
+                      Earn <span className="text-[#FFD700] font-bold">{POINTS_PER_REFERRAL} XLM</span> per friend who joins
                     </p>
                     <div className="flex gap-1.5 mb-3">
                       <div className="flex-1 px-3 py-2 bg-black/30 rounded-lg border border-white/[0.06] font-mono text-[11px] text-white/50 truncate flex items-center">

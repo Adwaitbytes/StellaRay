@@ -483,7 +483,7 @@ export default function StreamsPage() {
               </div>
               <h3 className="font-bold mb-1">CREATE</h3>
               <p className="text-white/40 text-sm">
-                Set recipient, amount, and duration. Choose a streaming curve.
+                Set recipient, amount, and duration. Choose a streaming curve
               </p>
             </div>
             <div>
@@ -492,7 +492,7 @@ export default function StreamsPage() {
               </div>
               <h3 className="font-bold mb-1">STREAM</h3>
               <p className="text-white/40 text-sm">
-                Money flows continuously. Watch the real-time counter tick up.
+                Money flows continuously. Watch the real-time counter tick up
               </p>
             </div>
             <div>
@@ -501,7 +501,7 @@ export default function StreamsPage() {
               </div>
               <h3 className="font-bold mb-1">WITHDRAW</h3>
               <p className="text-white/40 text-sm">
-                Recipients can withdraw available funds at any time.
+                Recipients can withdraw available funds at any time
               </p>
             </div>
             <div>
@@ -510,7 +510,7 @@ export default function StreamsPage() {
               </div>
               <h3 className="font-bold mb-1">COMPLETE</h3>
               <p className="text-white/40 text-sm">
-                Stream ends when duration expires or sender cancels.
+                Stream ends when duration expires or sender cancels
               </p>
             </div>
           </div>
