@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Lock, Check, Sun, Moon, Cpu, Hash, Code, FileText, BookOpen } from "lucide-react";
 import LoadingScreen, { ButtonLoader } from "@/components/LoadingScreen";
 import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 import Link from "next/link";
@@ -114,6 +114,15 @@ export default function Home() {
 
             {/* Right */}
             <div className="flex items-center gap-2">
+              {/* Whitepaper Link */}
+              <Link
+                href="/whitepaper"
+                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${isDark ? 'bg-[#00D4FF]/10 text-[#00D4FF] hover:bg-[#00D4FF]/20' : 'bg-[#0066FF]/10 text-[#0066FF] hover:bg-[#0066FF]/20'} font-bold text-sm transition-all`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                PAPER
+              </Link>
+
               {/* SDK Link */}
               <Link
                 href="/sdk"
@@ -419,6 +428,66 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Whitepaper Section */}
+      <section className={`py-20 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'} relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0066FF]/5 via-transparent to-[#00D4FF]/5" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
+            <div className="grid lg:grid-cols-2">
+              {/* Left: Info */}
+              <div className={`p-8 sm:p-12 lg:border-r-4 ${isDark ? 'lg:border-white' : 'lg:border-black'} border-b-4 lg:border-b-0 ${isDark ? 'border-white' : 'border-black'}`}>
+                <div className={`inline-flex items-center gap-2 px-3 py-1.5 border-2 mb-6 ${isDark ? 'border-[#0066FF]/40 bg-[#0066FF]/10' : 'border-[#0066FF]/40 bg-[#0066FF]/10'}`}>
+                  <FileText className="w-3.5 h-3.5 text-[#0066FF]" />
+                  <span className="text-[10px] sm:text-xs font-black text-[#0066FF]">WHITEPAPER v1.0</span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tighter mb-4 leading-[0.95]">
+                  READ THE <span className="text-[#0066FF]">RESEARCH</span>
+                </h2>
+                <p className={`text-base sm:text-lg mb-8 max-w-md ${isDark ? 'text-white/60' : 'text-black/60'}`}>
+                  Dive into the cryptographic foundations, protocol architecture, and zero-knowledge proof system that powers StellaRay.
+                </p>
+                <Link
+                  href="/whitepaper"
+                  className="group relative inline-block"
+                >
+                  <div className="absolute inset-0 bg-[#0066FF] translate-x-1.5 translate-y-1.5 transition-transform group-hover:translate-x-2 group-hover:translate-y-2" />
+                  <div className={`relative flex items-center gap-3 px-8 py-4 font-black text-base border-4 border-[#0066FF] transition-transform group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 ${isDark ? 'bg-[#0A0A0A] text-white' : 'bg-[#F5F5F5] text-black'}`}>
+                    <BookOpen className="w-5 h-5" />
+                    READ WHITEPAPER
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </div>
+
+              {/* Right: Key highlights */}
+              <div className="p-8 sm:p-12">
+                <p className={`text-[10px] font-black tracking-widest mb-6 ${isDark ? 'text-white/40' : 'text-black/40'}`}>
+                  KEY HIGHLIGHTS
+                </p>
+                <div className="space-y-5">
+                  {[
+                    { stat: "94%", label: "Gas Cost Reduction", desc: "Protocol 25 native BN254 host functions vs WASM baseline" },
+                    { stat: "256B", label: "Proof Size", desc: "Constant-size Groth16 proofs regardless of statement complexity" },
+                    { stat: "12ms", label: "Verification Time", desc: "On-chain proof verification via native Soroban host functions" },
+                    { stat: "5-9s", label: "Total Auth Latency", desc: "From Google Sign-In to on-chain session registration" },
+                  ].map((h, i) => (
+                    <div key={i} className="flex items-start gap-4">
+                      <span className={`text-2xl sm:text-3xl font-black flex-shrink-0 w-16 sm:w-20 ${i % 2 === 0 ? 'text-[#0066FF]' : 'text-[#00D4FF]'}`}>
+                        {h.stat}
+                      </span>
+                      <div>
+                        <p className="font-black text-sm">{h.label}</p>
+                        <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>{h.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className={`py-24 px-6 lg:px-8 relative overflow-hidden ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'}`}>
         {/* Background gradient */}
@@ -478,6 +547,9 @@ export default function Home() {
             </span>
           </div>
           <div className="flex gap-8">
+            <Link href="/whitepaper" className={`font-bold text-sm hover:text-[#00D4FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+              PAPER
+            </Link>
             <Link href="/sdk" className={`font-bold text-sm hover:text-[#0066FF] transition-colors ${isDark ? 'text-white/50' : 'text-black/50'}`}>
               DOCS
             </Link>
