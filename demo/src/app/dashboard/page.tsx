@@ -542,10 +542,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-6 items-stretch">
           {/* Balance Card */}
           <div className="lg:col-span-2">
-            <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
+            <div className={`border-4 h-full ${isDark ? 'border-white' : 'border-black'}`}>
               {/* Header */}
               <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`}>
                 <div className="flex items-center gap-3">
@@ -607,79 +607,40 @@ export default function Dashboard() {
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <button
-                    onClick={() => setShowSendModal(true)}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-[#00D4FF] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#00D4FF] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <Send className="w-6 h-6 text-[#00D4FF]" />
-                      <span className="text-sm">SEND</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setShowReceiveModal(true)}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-[#00FF88] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#00FF88] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <QrCode className="w-6 h-6 text-[#00FF88]" />
-                      <span className="text-sm">RECEIVE</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => router.push('/scan')}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-[#FF6B00] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#FF6B00] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <ScanLine className="w-6 h-6 text-[#FF6B00]" />
-                      <span className="text-sm">SCAN</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => router.push('/pay/create')}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-[#0066FF] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#0066FF] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <Link2 className="w-6 h-6 text-[#0066FF]" />
-                      <span className="text-sm">PAY LINK</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => router.push('/streams')}
-                    className="group relative"
-                  >
-                    <div className="absolute inset-0 bg-[#00FF88] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#00FF88] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <Zap className="w-6 h-6 text-[#00FF88]" />
-                      <span className="text-sm">STREAMS</span>
-                    </div>
-                  </button>
-                  <button
-                    onClick={exportTransactions}
-                    disabled={transactions.length === 0}
-                    className="group relative disabled:opacity-50"
-                  >
-                    <div className="absolute inset-0 bg-[#FFD600] translate-x-1 translate-y-1 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform" />
-                    <div className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 border-[#FFD600] font-black group-hover:-translate-x-1 group-hover:-translate-y-1 transition-transform`}>
-                      <Download className="w-6 h-6 text-[#FFD600]" />
-                      <span className="text-sm">EXPORT</span>
-                    </div>
-                  </button>
+                <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {[
+                    { label: 'SEND', icon: Send, color: '#00D4FF', onClick: () => setShowSendModal(true) },
+                    { label: 'RECEIVE', icon: QrCode, color: '#00FF88', onClick: () => setShowReceiveModal(true) },
+                    { label: 'SCAN', icon: ScanLine, color: '#FF6B00', onClick: () => router.push('/scan') },
+                    { label: 'PAY LINK', icon: Link2, color: '#0066FF', onClick: () => router.push('/pay/create') },
+                    { label: 'STREAMS', icon: Zap, color: '#00FF88', onClick: () => router.push('/streams') },
+                    { label: 'EXPORT', icon: Download, color: '#FFD600', onClick: exportTransactions, disabled: transactions.length === 0 },
+                  ].map((btn) => (
+                    <button
+                      key={btn.label}
+                      onClick={btn.onClick}
+                      disabled={btn.disabled}
+                      className={`flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 font-black transition-all hover:translate-y-[-2px] disabled:opacity-40`}
+                      style={{
+                        borderColor: btn.color,
+                        boxShadow: `4px 4px 0px 0px ${btn.color}`,
+                      }}
+                    >
+                      <btn.icon className="w-6 h-6" style={{ color: btn.color }} />
+                      <span className="text-xs">{btn.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Info Panel */}
-          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'} h-fit`}>
+          <div className={`border-4 ${isDark ? 'border-white' : 'border-black'} flex flex-col`}>
             <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-white text-black' : 'border-black bg-black text-white'}`}>
               <span className="font-black text-sm">ACCOUNT_INFO.DAT</span>
             </div>
-            <div className="p-6">
+            <div className="p-6 flex-1 flex flex-col">
               {/* ZK Proof Status */}
               {zkWallet.proof && (
                 <div className={`mb-4 p-3 border-2 ${isDark ? 'border-[#00FF88]/30 bg-[#00FF88]/5' : 'border-[#00AA55]/30 bg-[#00AA55]/5'}`}>
@@ -718,7 +679,7 @@ export default function Dashboard() {
                 href={`${getNetworkConfig(network).explorerUrl}/account/${publicKey}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`mt-6 flex items-center justify-center gap-2 w-full py-3 border-4 ${isDark ? 'border-[#00D4FF] text-[#00D4FF] hover:bg-[#00D4FF] hover:text-black' : 'border-[#0099CC] text-[#0099CC] hover:bg-[#0099CC] hover:text-white'} font-black text-sm transition-all`}
+                className={`mt-auto flex items-center justify-center gap-2 w-full py-3 border-4 ${isDark ? 'border-[#00D4FF] text-[#00D4FF] hover:bg-[#00D4FF] hover:text-black' : 'border-[#0099CC] text-[#0099CC] hover:bg-[#0099CC] hover:text-white'} font-black text-sm transition-all`}
               >
                 VIEW ON EXPLORER
                 <ExternalLink className="w-4 h-4" />

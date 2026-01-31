@@ -46,7 +46,10 @@
       "WebFetch(domain:docs.google.com)",
       "Bash(npx next dev --port 3000)",
       "Bash(dir:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\photo_2026-01-31_16-40-45.jpg\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\followers-engagement.jpg\")",
+      "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\Screenshot 2026-01-31 164401.png\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\followers-101.png\")",
+      "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\ChatGPT Image Jan 31, 2026, 04_34_30 PM.png\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\logo-glow-new.png\")"
     ]
   }
 }

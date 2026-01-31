@@ -33,58 +33,13 @@
     padding: 60px 80px;
     position: relative;
     overflow: hidden;
-    opacity: 0;
-    transform: translateX(100px);
-    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .slide.active { 
-    display: flex; 
-    flex-direction: column; 
+  .slide.active {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    opacity: 1;
-    transform: translateX(0);
-    animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  .slide.exiting {
-    opacity: 0;
-    transform: translateX(-100px);
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(100px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .slide.active > * {
-    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .slide.active > *:nth-child(1) { animation-delay: 0.05s; }
-  .slide.active > *:nth-child(2) { animation-delay: 0.1s; }
-  .slide.active > *:nth-child(3) { animation-delay: 0.15s; }
-  .slide.active > *:nth-child(4) { animation-delay: 0.2s; }
 
   /* Background grid on every slide */
   .slide::before {
@@ -536,6 +491,12 @@
   .split-left { padding-right: 40px; }
   .split-right { padding-left: 40px; border-left: 2px solid rgba(255,255,255,0.08); }
 
+  .team-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
   @media (max-width: 900px) {
     .slide { padding: 40px 30px; }
     .two-col { grid-template-columns: 1fr; gap: 30px; }
@@ -544,6 +505,8 @@
     .split-right { border-left: none; padding-left: 0; }
     .slide-dots { display: none; }
     .keyboard-shortcuts { display: none; }
+    .team-photo-grid { grid-template-columns: 1fr 1fr; }
+    #s15 div[style*="repeat(4"] { grid-template-columns: 1fr 1fr !important; }
   }
 
   /* Smooth scrolling for better performance */
@@ -604,22 +567,47 @@
 
 <!-- SLIDE 3: WHAT IF -->
 <div class="slide" id="s3">
-  <div style="width: 100%;">
-    <div class="highlight-line" style="background: var(--cyan);"></div>
+  <div>
     <div class="tag tag-cyan" style="margin-bottom: 30px;">The solution</div>
-    <h1 class="huge" style="max-width: 1100px; line-height: 1.1;">
-      What if signing in<br>
-      with <span class="accent-cyan">Google</span> gave you<br>
-      a <span class="accent-blue">real wallet</span>?
+    <h1 class="big">
+      What if signing in with <span class="accent-cyan">Google</span><br>
+      gave you a <span class="accent-blue">real wallet</span>?
     </h1>
-    <div style="max-width: 900px; margin-top: 50px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
-      <div style="border-left: 4px solid var(--cyan); padding-left: 24px;">
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--cyan); letter-spacing: 0.15em; margin-bottom: 8px;">NO MORE</div>
-        <p class="small-text" style="margin-top: 0;">Seed phrases<br>Browser extensions<br>Complex setup</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px;">
+      <div style="border: 3px solid var(--red); padding: 28px; background: rgba(255,51,102,0.05); position: relative;">
+        <div style="position: absolute; top: -1px; left: 20px; background: var(--bg); padding: 0 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); letter-spacing: 0.15em;">KILL</span>
+        </div>
+        <div style="font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: var(--red); margin-bottom: 12px; margin-top: 8px;">Seed Phrases</div>
+        <p style="font-size: clamp(13px, 1.2vw, 17px); color: rgba(255,255,255,0.6); line-height: 1.5;">12 random words on paper. Lost phones, forgotten backups. The number one reason people never come back.</p>
       </div>
-      <div style="border-left: 4px solid var(--blue); padding-left: 24px;">
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--blue); letter-spacing: 0.15em; margin-bottom: 8px;">YOU GET</div>
-        <p class="small-text" style="margin-top: 0;">Full self custody<br>Zero identity on chain<br>Under 10 seconds</p>
+      <div style="border: 3px solid var(--red); padding: 28px; background: rgba(255,51,102,0.05); position: relative;">
+        <div style="position: absolute; top: -1px; left: 20px; background: var(--bg); padding: 0 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); letter-spacing: 0.15em;">KILL</span>
+        </div>
+        <div style="font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: var(--red); margin-bottom: 12px; margin-top: 8px;">Extensions</div>
+        <p style="font-size: clamp(13px, 1.2vw, 17px); color: rgba(255,255,255,0.6); line-height: 1.5;">Browser plugins, mobile apps, signing popups. Five steps before you can do anything. Nobody has time for this.</p>
+      </div>
+      <div style="border: 3px solid var(--cyan); padding: 28px; background: rgba(0,212,255,0.05); position: relative;">
+        <div style="position: absolute; top: -1px; left: 20px; background: var(--bg); padding: 0 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); letter-spacing: 0.15em;">REPLACE WITH</span>
+        </div>
+        <div style="font-size: clamp(20px, 2.5vw, 32px); font-weight: 900; color: var(--cyan); margin-bottom: 12px; margin-top: 8px;">Google Login</div>
+        <p style="font-size: clamp(13px, 1.2vw, 17px); color: rgba(255,255,255,0.6); line-height: 1.5;">One click. Full self custody. Zero identity on chain. Same account always gives you the same wallet.</p>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 24px;">
+      <div class="stat-card" style="border-color: var(--cyan); padding: 20px;">
+        <div class="stat-number accent-cyan" style="font-size: clamp(24px, 3vw, 40px);">&lt;10s</div>
+        <div class="stat-label">First wallet creation</div>
+      </div>
+      <div class="stat-card" style="border-color: var(--blue); padding: 20px;">
+        <div class="stat-number accent-blue" style="font-size: clamp(24px, 3vw, 40px);">5s</div>
+        <div class="stat-label">Return login</div>
+      </div>
+      <div class="stat-card" style="border-color: var(--yellow); padding: 20px;">
+        <div class="stat-number accent-yellow" style="font-size: clamp(24px, 3vw, 40px);">0</div>
+        <div class="stat-label">Steps to remember</div>
       </div>
     </div>
   </div>
@@ -986,32 +974,132 @@
 <!-- SLIDE 14: TEAM -->
 <div class="slide" id="s14">
   <div>
-    <div class="tag tag-blue" style="margin-bottom: 30px;">The team</div>
-    <h1 class="medium">Two people. Zero dollars. Full product.</h1>
-    <div style="display: flex; gap: 30px; margin-top: 40px; flex-wrap: wrap;">
-      <div class="team-card" style="border-color: var(--blue);">
-        <div class="team-name">Yatharth Tripathi</div>
-        <div class="team-role">Co-Founder & Technical Lead</div>
-        <div class="team-desc">
-          Built the entire ZK proof system from scratch. Groth16 verifier with Protocol 25 native pairing. All 5 Soroban smart contracts. Poseidon identity commitments. Ephemeral key architecture. The person who made ZK work on Stellar.
+    <div class="tag tag-blue" style="margin-bottom: 24px;">The team</div>
+    <h1 class="medium">Built by builders. Not by funding.</h1>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 36px;">
+      <!-- Adwait -->
+      <div style="border: 3px solid var(--blue); overflow: hidden;">
+        <div style="width: 100%; height: 200px; overflow: hidden;">
+          <img src="pitch-assets/adwait.jpg" alt="Adwait Keshari" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: grayscale(30%);">
+        </div>
+        <div style="padding: 20px;">
+          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Adwait Keshari</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); letter-spacing: 0.1em; margin-top: 4px;">CO-FOUNDER & PRODUCT</div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Dashboard, payments, streaming, explorer, SDK playground, whitepaper. Everything users touch.</p>
         </div>
       </div>
-      <div class="team-card" style="border-color: var(--cyan);">
-        <div class="team-name">Adwait Keshari</div>
-        <div class="team-role">Co-Founder & Product Lead</div>
-        <div class="team-desc">
-          Built everything users touch. Dashboard, payment links, streaming UI, block explorer, admin analytics, SDK playground. Authored the whitepaper. Owns developer experience. Made ZK feel simple.
+      <!-- Yatharth -->
+      <div style="border: 3px solid var(--cyan); overflow: hidden;">
+        <div style="width: 100%; height: 200px; overflow: hidden;">
+          <img src="pitch-assets/yatharth.jpg" alt="Yatharth Tripathi" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: grayscale(30%);">
+        </div>
+        <div style="padding: 20px;">
+          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Yatharth Tripathi</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); letter-spacing: 0.1em; margin-top: 4px;">CO-FOUNDER & TECH LEAD</div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">ZK cryptography, Groth16 verifier, all 5 Soroban contracts, Protocol 25 integration.</p>
+        </div>
+      </div>
+      <!-- Atharv -->
+      <div style="border: 3px solid var(--yellow); overflow: hidden;">
+        <div style="width: 100%; height: 200px; overflow: hidden;">
+          <img src="pitch-assets/atharv.jpg" alt="Atharv Shrivastav" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: grayscale(30%);">
+        </div>
+        <div style="padding: 20px;">
+          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Atharv Shrivastav</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--yellow); letter-spacing: 0.1em; margin-top: 4px;">MARKETING LEAD</div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Growth strategy, community building, ecosystem partnerships, brand positioning.</p>
+        </div>
+      </div>
+      <!-- Niharika -->
+      <div style="border: 3px solid var(--red); overflow: hidden;">
+        <div style="width: 100%; height: 200px; overflow: hidden;">
+          <img src="pitch-assets/niharika.jpg" alt="Niharika" style="width: 100%; height: 100%; object-fit: cover; object-position: center top; filter: grayscale(30%);">
+        </div>
+        <div style="padding: 20px;">
+          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Niharika</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); letter-spacing: 0.1em; margin-top: 4px;">CONTENT CREATOR</div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Content strategy, visual storytelling, social media, developer education materials.</p>
         </div>
       </div>
     </div>
-    <p class="small-text" style="margin-top: 24px;">
-      Based in India. Self funded. 15,000+ lines of production code between us. We did not raise money to build this. We built it, and now we are here.
+    <p class="small-text" style="margin-top: 20px;">
+      Based in India. Self funded. 15,000+ lines of production code. We did not raise money to build this. We built it, and now we are here.
     </p>
   </div>
 </div>
 
-<!-- SLIDE 15: THE ASK -->
+<!-- SLIDE 15: PRE-LAUNCH TRACTION -->
 <div class="slide" id="s15">
+  <div>
+    <div class="tag tag-cyan" style="margin-bottom: 20px;">Pre-launch traction</div>
+    <h1 class="medium">9 days old. Already <span class="accent-cyan">moving.</span></h1>
+    <!-- Combined image+stat cards -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px;">
+      <!-- Followers + Engagement -->
+      <div style="border: 3px solid var(--cyan); overflow: hidden;">
+        <div style="width: 100%; height: 180px; overflow: hidden; position: relative;">
+          <img src="pitch-assets/followers-101.png" alt="101 followers" style="width: 100%; height: 100%; object-fit: cover; object-position: center bottom;">
+        </div>
+        <div style="padding: 14px 16px; background: rgba(0,212,255,0.05); border-top: 3px solid var(--cyan);">
+          <div style="font-size: clamp(24px, 3vw, 36px); font-weight: 900; color: var(--cyan);">101</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; margin-top: 2px;">FOLLOWERS + 8.3K IMPRESSIONS</div>
+        </div>
+      </div>
+      <!-- Kaan tweet -->
+      <div style="border: 3px solid var(--blue); overflow: hidden;">
+        <div style="width: 100%; height: 180px; overflow: hidden;">
+          <img src="pitch-assets/tweet-kaan.png" alt="Kaan Kacar tweet" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+        </div>
+        <div style="padding: 14px 16px; background: rgba(0,102,255,0.05); border-top: 3px solid var(--blue);">
+          <div style="font-size: clamp(24px, 3vw, 36px); font-weight: 900; color: var(--blue);">1,637</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; margin-top: 2px;">VIEWS / ECOSYSTEM SHOUTOUT</div>
+        </div>
+      </div>
+      <!-- Pinned tweet -->
+      <div style="border: 3px solid var(--yellow); overflow: hidden;">
+        <div style="width: 100%; height: 180px; overflow: hidden;">
+          <img src="pitch-assets/tweet-pinned.png" alt="Pinned launch tweet" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
+        </div>
+        <div style="padding: 14px 16px; background: rgba(255,214,0,0.05); border-top: 3px solid var(--yellow);">
+          <div style="font-size: clamp(24px, 3vw, 36px); font-weight: 900; color: var(--yellow);">3,863</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; margin-top: 2px;">VIEWS / LAUNCH TWEET</div>
+        </div>
+      </div>
+      <!-- npm -->
+      <div style="border: 3px solid rgba(255,255,255,0.4); overflow: hidden;">
+        <div style="width: 100%; height: 180px; overflow: hidden;">
+          <img src="pitch-assets/npm-page.png" alt="npm package page" style="width: 100%; height: 100%; object-fit: cover; object-position: left top;">
+        </div>
+        <div style="padding: 14px 16px; background: rgba(255,255,255,0.03); border-top: 3px solid rgba(255,255,255,0.4);">
+          <div style="font-size: clamp(24px, 3vw, 36px); font-weight: 900;">81</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; margin-top: 2px;">NPM DOWNLOADS / WEEK 1</div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom row: Singularity + summary -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+      <div style="border: 3px solid var(--red); overflow: hidden; display: flex;">
+        <div style="width: 220px; height: 100%; min-height: 100px; overflow: hidden; flex-shrink: 0;">
+          <img src="pitch-assets/singularity-wall.png" alt="StellaRay at Singularity" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+        </div>
+        <div style="padding: 16px 20px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size: clamp(18px, 2vw, 28px); font-weight: 900; color: var(--red);">SINGULARITY EVENT</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; margin-top: 6px;">ON THE WALL. DAY 1. STELLARAY REPRESENTED.</div>
+        </div>
+      </div>
+      <div style="border: 3px solid var(--cyan); padding: 20px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,212,255,0.03);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); letter-spacing: 0.15em; margin-bottom: 10px;">THE SUMMARY</div>
+        <div style="font-size: clamp(16px, 1.6vw, 22px); font-weight: 900; line-height: 1.6;">
+          Zero paid promotion. Zero ad spend.<br>
+          <span style="color: var(--cyan);">All organic. All in 9 days.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 16: THE ASK -->
+<div class="slide" id="s16">
   <div>
     <div class="tag tag-blue" style="margin-bottom: 30px;">The ask</div>
     <h1 class="big"><span class="accent-blue">$150,000</span> SCF Grant<br>6 Months. 4 Milestones.</h1>
@@ -1040,8 +1128,8 @@
   </div>
 </div>
 
-<!-- SLIDE 16: WHY NOW -->
-<div class="slide" id="s16">
+<!-- SLIDE 17: WHY NOW -->
+<div class="slide" id="s17">
   <div>
     <div class="tag tag-red" style="margin-bottom: 30px;">Timing</div>
     <h1 class="big">Why right now.</h1>
@@ -1054,8 +1142,8 @@
   </div>
 </div>
 
-<!-- SLIDE 17: THE CLOSE -->
-<div class="slide" id="s17">
+<!-- SLIDE 18: THE CLOSE -->
+<div class="slide" id="s18">
   <div style="text-align: center;">
     <div class="logo-mark" style="justify-content: center; margin-bottom: 50px;">
       <div class="logo-icon" style="width: 56px; height: 56px;">
@@ -1090,9 +1178,9 @@
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <span>StellaRay / Pitch 2026</span>
-  <span id="slideCounter">1 / 17</span>
+  <span id="slideCounter">1 / 18</span>
 </div>
-<div class="progress-bar" id="progressBar" style="width: 5.88%;"></div>
+<div class="progress-bar" id="progressBar" style="width: 5.56%;"></div>
 
 <!-- NAV HINT -->
 <div class="nav-hint">Arrow keys or click to navigate</div>
@@ -1113,14 +1201,12 @@
   const slides = document.querySelectorAll('.slide');
   let current = 0;
   const total = slides.length;
-  let isTransitioning = false;
-
   // Initialize slide dots
   const slideDotsContainer = document.getElementById('slideDots');
   const slideNames = [
     'Hook', 'Problem', 'Vision', 'Brand', 'How', 'Protocol 25',
-    'Built', 'Stack', 'Near Intent', 'SDK', 'Competition', 
-    'Revenue', 'Growth', 'Team', 'Ask', 'Timing', 'Close'
+    'Built', 'Stack', 'Near Intent', 'SDK', 'Competition',
+    'Revenue', 'Growth', 'Team', 'Traction', 'Ask', 'Timing', 'Close'
   ];
   
   slideNames.forEach((name, index) => {
@@ -1133,35 +1219,19 @@
   });
 
   function showSlide(n) {
-    if (isTransitioning) return;
-    if (n === current) return;
-    
     const newCurrent = Math.max(0, Math.min(n, total - 1));
     if (newCurrent === current) return;
-    
-    isTransitioning = true;
-    
-    // Exit animation for current slide
-    slides[current].classList.add('exiting');
-    
-    setTimeout(() => {
-      slides[current].classList.remove('active', 'exiting');
-      current = newCurrent;
-      slides[current].classList.add('active');
-      
-      // Update UI
-      document.getElementById('slideCounter').textContent = `${current + 1} / ${total}`;
-      document.getElementById('progressBar').style.width = `${((current + 1) / total) * 100}%`;
-      
-      // Update dots
-      document.querySelectorAll('.slide-dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === current);
-      });
-      
-      setTimeout(() => {
-        isTransitioning = false;
-      }, 100);
-    }, 300);
+
+    slides[current].classList.remove('active');
+    current = newCurrent;
+    slides[current].classList.add('active');
+
+    document.getElementById('slideCounter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('progressBar').style.width = `${((current + 1) / total) * 100}%`;
+
+    document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === current);
+    });
   }
 
   document.addEventListener('keydown', (e) => {
@@ -1215,43 +1285,20 @@
     }
   });
 
-  // Preload next/prev slides for smoother transitions
-  function preloadSlides() {
-    [current - 1, current + 1].forEach(index => {
-      if (index >= 0 && index < total) {
-        slides[index].style.display = 'flex';
-        setTimeout(() => {
-          slides[index].style.display = 'none';
-        }, 50);
-      }
-    });
-  }
 
   // Mouse wheel support
   let wheelTimeout;
   document.addEventListener('wheel', (e) => {
-    if (isTransitioning) return;
     clearTimeout(wheelTimeout);
-    
     wheelTimeout = setTimeout(() => {
       if (e.deltaY > 0) {
         showSlide(current + 1);
       } else if (e.deltaY < 0) {
         showSlide(current - 1);
       }
-    }, 50);
+    }, 100);
   }, { passive: true });
 
-  // Initialize
-  preloadSlides();
-
-  // Add visual feedback for navigation
-  document.addEventListener('keydown', (e) => {
-    const progressBar = document.getElementById('progressBar');
-    if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
-      progressBar.style.transition = 'all 0.2s ease';
-    }
-  });
 </script>
 </body>
 </html>
