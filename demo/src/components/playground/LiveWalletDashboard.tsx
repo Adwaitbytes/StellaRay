@@ -116,7 +116,7 @@ export default function LiveWalletDashboard({
     switch (proofStatus) {
       case "ready":
         return (
-          <div className="flex items-center gap-2 px-3 py-1 border-2 border-[#39FF14] text-[#39FF14] text-xs font-black uppercase">
+          <div className="flex items-center gap-2 px-3 py-1 border-2 border-[#00D4FF] text-[#00D4FF] text-xs font-black uppercase">
             <Shield className="w-3.5 h-3.5" />
             PROOF READY
           </div>
@@ -158,7 +158,7 @@ export default function LiveWalletDashboard({
       >
         <div className="w-3 h-3 bg-[#FF3366]" />
         <div className="w-3 h-3 bg-[#FFD600]" />
-        <div className="w-3 h-3 bg-[#39FF14]" />
+        <div className="w-3 h-3 bg-[#00D4FF]" />
         <span
           className={`ml-3 text-xs font-black uppercase ${
             isDark ? "text-white/60" : "text-black/60"
@@ -189,7 +189,7 @@ export default function LiveWalletDashboard({
               title="Copy address"
             >
               {copied ? (
-                <Check className="w-4 h-4 text-[#39FF14]" />
+                <Check className="w-4 h-4 text-[#00D4FF]" />
               ) : (
                 <Copy className="w-4 h-4" />
               )}
@@ -394,7 +394,7 @@ export default function LiveWalletDashboard({
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-[#39FF14] rounded-full" />
+                        <div className="w-2 h-2 bg-[#00D4FF] rounded-full" />
                         <div>
                           <p
                             className={`font-mono text-xs ${

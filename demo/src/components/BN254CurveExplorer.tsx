@@ -100,7 +100,7 @@ export function BN254CurveExplorer({ isDark = true }: BN254CurveExplorerProps) {
       x: newX,
       y: y !== null ? -y : 0,
       label: `${p1.label}+${p2.label}`,
-      color: '#39FF14',
+      color: '#00D4FF',
     };
   };
 
@@ -399,17 +399,17 @@ export function BN254CurveExplorer({ isDark = true }: BN254CurveExplorerProps) {
                 <p className={isDark ? 'text-white/70' : 'text-black/70'}>
                   <span className="text-[#FF3366] font-bold">Point Addition (P+Q)</span><br/>
                   Adds two points on the curve. Used in multi-scalar multiplication.
-                  <br/><span className="text-[#39FF14]">Gas: ~{gasCosts.add.gas.toLocaleString()}</span>
+                  <br/><span className="text-[#00D4FF]">Gas: ~{gasCosts.add.gas.toLocaleString()}</span>
                 </p>
                 <p className={isDark ? 'text-white/70' : 'text-black/70'}>
                   <span className="text-[#FFD600] font-bold">Scalar Multiplication (kP)</span><br/>
                   Multiplies a point by a scalar. Core operation for verification.
-                  <br/><span className="text-[#39FF14]">Gas: ~{gasCosts.mul.gas.toLocaleString()}</span>
+                  <br/><span className="text-[#00D4FF]">Gas: ~{gasCosts.mul.gas.toLocaleString()}</span>
                 </p>
                 <p className={isDark ? 'text-white/70' : 'text-black/70'}>
                   <span className="text-[#FF10F0] font-bold">Pairing e(P,Q)</span><br/>
                   Bilinear map to target group. Used in Groth16 verification.
-                  <br/><span className="text-[#39FF14]">Gas: ~{gasCosts.pairing.gas.toLocaleString()}</span>
+                  <br/><span className="text-[#00D4FF]">Gas: ~{gasCosts.pairing.gas.toLocaleString()}</span>
                 </p>
               </div>
               {metrics && (
@@ -430,7 +430,7 @@ export function BN254CurveExplorer({ isDark = true }: BN254CurveExplorerProps) {
 
           <div className="flex flex-col gap-2 mb-4">
             {[
-              { id: 'add', label: 'P + Q', icon: Plus, color: '#39FF14', gas: gasCosts.add.gas },
+              { id: 'add', label: 'P + Q', icon: Plus, color: '#00D4FF', gas: gasCosts.add.gas },
               { id: 'mul', label: `${scalar}P`, icon: X, color: '#FFD600', gas: gasCosts.mul.gas },
               { id: 'pairing', label: 'e(P,Q)', icon: Zap, color: '#FF10F0', gas: gasCosts.pairing.gas },
             ].map((op) => (
@@ -476,7 +476,7 @@ export function BN254CurveExplorer({ isDark = true }: BN254CurveExplorerProps) {
             className={`w-full flex items-center justify-center gap-2 py-3 border-4 font-black text-sm transition-all ${
               isRunning
                 ? 'border-gray-500 bg-gray-500/20 text-gray-500'
-                : 'border-[#39FF14] bg-[#39FF14] text-black hover:bg-[#39FF14]/80'
+                : 'border-[#00D4FF] bg-[#00D4FF] text-black hover:bg-[#00D4FF]/80'
             }`}
           >
             <Play className="w-4 h-4" />
@@ -494,7 +494,7 @@ export function BN254CurveExplorer({ isDark = true }: BN254CurveExplorerProps) {
                       op.status === 'completed' ? 'opacity-100' : 'opacity-50'
                     }`}
                   >
-                    <span className="text-[#39FF14]">{op.type.toUpperCase()}</span>
+                    <span className="text-[#00D4FF]">{op.type.toUpperCase()}</span>
                     {op.duration && <span className={isDark ? 'text-white/40' : 'text-black/40'}> • {op.duration}ms</span>}
                     {op.gasUsed && <span className={isDark ? 'text-white/40' : 'text-black/40'}> • {op.gasUsed.toLocaleString()} gas</span>}
                   </div>

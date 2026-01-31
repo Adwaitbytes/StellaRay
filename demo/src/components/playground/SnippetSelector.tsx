@@ -93,17 +93,23 @@ export default function SnippetSelector({
               ? 'bg-[#0A0A0A] border-white'
               : 'bg-[#F5F5F5] border-black'
           }`}
+          style={{
+            boxShadow: isDark
+              ? '0 0 30px rgba(0, 102, 255, 0.15), 4px 4px 0px rgba(255,255,255,0.3)'
+              : '4px 4px 0px rgba(0,0,0,0.3)',
+          }}
         >
           {grouped.map((group) => (
             <div key={group.category}>
               {/* Category header */}
               <div
-                className={`sticky top-0 px-4 py-2 text-xs font-black uppercase tracking-wider border-b ${
+                className={`sticky top-0 px-4 py-2 text-xs font-black uppercase tracking-wider border-b flex items-center gap-2 ${
                   isDark
                     ? 'bg-[#0A0A0A] border-white/10'
                     : 'bg-[#F5F5F5] border-black/10'
                 }`}
               >
+                <div className="w-1 h-4" style={{ backgroundColor: group.meta.color }} />
                 <span style={{ color: group.meta.color }}>
                   {group.meta.label}
                 </span>
@@ -120,27 +126,28 @@ export default function SnippetSelector({
                       onSnippetChange(snippet.id);
                       setIsOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 transition-colors border-b ${
+                    className={`relative w-full text-left px-4 py-3 transition-all border-b ${
                       isDark
                         ? `border-white/5 ${
                             isActive
                               ? 'bg-white/10'
-                              : 'hover:bg-white/5'
+                              : 'hover:bg-white/5 hover:pl-5'
                           }`
                         : `border-black/5 ${
                             isActive
                               ? 'bg-black/10'
-                              : 'hover:bg-black/5'
+                              : 'hover:bg-black/5 hover:pl-5'
                           }`
                     }`}
                   >
+                    {/* Left color bar for active */}
+                    {isActive && (
+                      <div
+                        className="absolute left-0 top-0 bottom-0 w-1"
+                        style={{ backgroundColor: group.meta.color }}
+                      />
+                    )}
                     <div className="flex items-center gap-2">
-                      {isActive && (
-                        <span
-                          className="w-2 h-2 flex-shrink-0"
-                          style={{ backgroundColor: group.meta.color }}
-                        />
-                      )}
                       <span
                         className={`font-black text-sm uppercase ${
                           isDark ? 'text-white' : 'text-black'

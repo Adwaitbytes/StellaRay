@@ -229,7 +229,7 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
       const points = [
         { x: centerX - 70, y: centerY - 50, label: "π.A", color: "#FF3366" },
         { x: centerX + 50, y: centerY - 30, label: "π.B", color: "#00D4FF" },
-        { x: centerX + 70, y: centerY + 40, label: "π.C", color: "#39FF14" },
+        { x: centerX + 70, y: centerY + 40, label: "π.C", color: "#00D4FF" },
         { x: centerX - 30, y: centerY + 60, label: "vk_x", color: "#FFD600" },
       ];
 
@@ -277,7 +277,7 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
 
       // Verification complete indicator
       if (verificationComplete) {
-        ctx.fillStyle = "#39FF14";
+        ctx.fillStyle = "#00D4FF";
         ctx.font = "bold 16px monospace";
         const text = "✓ PROOF VERIFIED";
         const textWidth = ctx.measureText(text).width;
@@ -330,13 +330,13 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
               </button>
             )}
             {isVerifying && (
-              <div className="flex items-center gap-2 px-4 py-1 bg-[#39FF14] text-black font-black text-xs">
+              <div className="flex items-center gap-2 px-4 py-1 bg-[#00D4FF] text-black font-black text-xs">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 VERIFYING...
               </div>
             )}
             {verificationComplete && (
-              <div className="flex items-center gap-2 px-4 py-1 bg-[#39FF14] text-black font-black text-xs">
+              <div className="flex items-center gap-2 px-4 py-1 bg-[#00D4FF] text-black font-black text-xs">
                 <CheckCircle className="w-3 h-3" />
                 VERIFIED
               </div>
@@ -381,7 +381,7 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
                 <span className="text-[#FF10F0] font-bold">IC[i]</span> - Verification key commitment points
               </p>
               <p className={isDark ? 'text-white/70' : 'text-black/70'}>
-                <span className="text-[#39FF14] font-bold">Pairing Check</span> - e(-A,B) × e(α,β) × e(vk_x,γ) × e(C,δ) = 1
+                <span className="text-[#00D4FF] font-bold">Pairing Check</span> - e(-A,B) × e(α,β) × e(vk_x,γ) × e(C,δ) = 1
               </p>
               <div className={`mt-4 p-3 border ${isDark ? 'border-white/20' : 'border-black/20'}`}>
                 <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>
@@ -400,7 +400,7 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
           {verificationComplete && (
             <div className="flex items-center gap-4 text-xs">
               <span className={isDark ? 'text-white/50' : 'text-black/50'}>
-                Time: <span className="text-[#39FF14] font-black">{totalDuration}ms</span>
+                Time: <span className="text-[#00D4FF] font-black">{totalDuration}ms</span>
               </span>
               <span className={isDark ? 'text-white/50' : 'text-black/50'}>
                 Gas: <span className="text-[#00D4FF] font-black">{totalGasUsed.toLocaleString()}</span>
@@ -414,17 +414,17 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
               key={idx}
               className={`flex-shrink-0 px-3 py-2 border-2 transition-all ${
                 step.status === 'completed'
-                  ? 'border-[#39FF14] bg-[#39FF14]/20'
+                  ? 'border-[#00D4FF] bg-[#00D4FF]/20'
                   : step.status === 'running'
                   ? 'border-[#FFD600] bg-[#FFD600]/20 animate-pulse'
                   : `${isDark ? 'border-white/20' : 'border-black/20'}`
               }`}
             >
               <div className="flex items-center gap-2">
-                {step.status === 'completed' && <CheckCircle className="w-3 h-3 text-[#39FF14]" />}
+                {step.status === 'completed' && <CheckCircle className="w-3 h-3 text-[#00D4FF]" />}
                 {step.status === 'running' && <Loader2 className="w-3 h-3 text-[#FFD600] animate-spin" />}
                 <p className={`text-xs font-black ${
-                  step.status === 'completed' ? 'text-[#39FF14]' :
+                  step.status === 'completed' ? 'text-[#00D4FF]' :
                   step.status === 'running' ? 'text-[#FFD600]' :
                   isDark ? 'text-white/50' : 'text-black/50'
                 }`}>
@@ -449,10 +449,10 @@ export function ZKProofVisualizer({ isDark = true, proofData }: ZKProofVisualize
         <div className={`px-4 py-3 border-t-2 ${isDark ? 'border-white/10 bg-white/5' : 'border-black/10 bg-black/5'}`}>
           <div className="flex items-center justify-between text-xs">
             <span className={isDark ? 'text-white/40' : 'text-black/40'}>
-              Total Proofs Verified: <span className="text-[#39FF14] font-bold">{metrics.proofsVerified.toLocaleString()}</span>
+              Total Proofs Verified: <span className="text-[#00D4FF] font-bold">{metrics.proofsVerified.toLocaleString()}</span>
             </span>
             <span className={isDark ? 'text-white/40' : 'text-black/40'}>
-              Success Rate: <span className="text-[#39FF14] font-bold">{metrics.successRate.toFixed(1)}%</span>
+              Success Rate: <span className="text-[#00D4FF] font-bold">{metrics.successRate.toFixed(1)}%</span>
             </span>
           </div>
         </div>

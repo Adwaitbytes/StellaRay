@@ -100,7 +100,7 @@ export default function RunToolbar({
         style={{ boxShadow: `4px 4px 0px ${shadowColor}` }}
       >
         {copied ? (
-          <Check className="w-3.5 h-3.5 text-[#39FF14]" />
+          <Check className="w-3.5 h-3.5 text-[#00D4FF]" />
         ) : (
           <Copy className="w-3.5 h-3.5" />
         )}

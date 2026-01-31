@@ -85,7 +85,7 @@ const CONTRACTS: Contract[] = [
     id: 'jwkRegistry',
     name: 'JWK REGISTRY',
     address: 'CAMO5LYOANZWUZ...',
-    color: '#39FF14',
+    color: '#00D4FF',
     methods: [
       {
         name: 'get_provider_jwks',
@@ -177,7 +177,7 @@ export default function ContractInteractionSimulator({
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[#FF3366]" />
           <div className="w-3 h-3 rounded-full bg-[#FFD600]" />
-          <div className="w-3 h-3 rounded-full bg-[#39FF14]" />
+          <div className="w-3 h-3 rounded-full bg-[#00D4FF]" />
         </div>
         <Box className="w-5 h-5" style={{ color: '#0066FF' }} />
         <span
@@ -382,7 +382,7 @@ export default function ContractInteractionSimulator({
                 onClick={handleCopy}
                 className={`flex items-center gap-1.5 px-3 py-1.5 border-2 font-black text-xs uppercase transition-all ${
                   copied
-                    ? 'border-[#39FF14] text-[#39FF14]'
+                    ? 'border-[#00D4FF] text-[#00D4FF]'
                     : isDark
                       ? 'border-white/30 text-white/50 hover:border-white/50'
                       : 'border-black/30 text-black/50 hover:border-black/50'
@@ -404,8 +404,8 @@ export default function ContractInteractionSimulator({
             <div
               className={`border-4 overflow-auto ${
                 isDark
-                  ? 'border-[#39FF14]/40 bg-[#39FF14]/5'
-                  : 'border-[#39FF14]/60 bg-[#39FF14]/10'
+                  ? 'border-[#00D4FF]/40 bg-[#00D4FF]/5'
+                  : 'border-[#00D4FF]/60 bg-[#00D4FF]/10'
               }`}
             >
               <div className="p-4">

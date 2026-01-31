@@ -54,7 +54,7 @@ export default function PoseidonHashCalculator({ isDark }: PoseidonHashCalculato
       label: 'COST',
       value: '50,000 gas',
       icon: Clock,
-      color: '#39FF14',
+      color: '#00D4FF',
     },
   ];
 
@@ -71,9 +71,9 @@ export default function PoseidonHashCalculator({ isDark }: PoseidonHashCalculato
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[#FF3366]" />
           <div className="w-3 h-3 rounded-full bg-[#FFD600]" />
-          <div className="w-3 h-3 rounded-full bg-[#39FF14]" />
+          <div className="w-3 h-3 rounded-full bg-[#00D4FF]" />
         </div>
-        <Hash className="w-5 h-5" style={{ color: '#39FF14' }} />
+        <Hash className="w-5 h-5" style={{ color: '#00D4FF' }} />
         <span
           className={`font-black text-sm uppercase tracking-wider ${
             isDark ? 'text-white' : 'text-black'
@@ -132,8 +132,8 @@ export default function PoseidonHashCalculator({ isDark }: PoseidonHashCalculato
               POSEIDON HASH
             </label>
             <div
-              className={`w-full px-4 py-3 border-4 border-[#39FF14] bg-[#39FF14]/10 font-mono text-sm break-all min-h-[48px] ${
-                isDark ? 'text-[#39FF14]' : 'text-green-700'
+              className={`w-full px-4 py-3 border-4 border-[#00D4FF] bg-[#00D4FF]/10 font-mono text-sm break-all min-h-[48px] ${
+                isDark ? 'text-[#00D4FF]' : 'text-blue-700'
               }`}
             >
               {hash || (
@@ -191,7 +191,7 @@ export default function PoseidonHashCalculator({ isDark }: PoseidonHashCalculato
             className={`font-mono text-sm ${isDark ? 'text-white' : 'text-black'}`}
           >
             vs SHA-256: 500,000 gas{' '}
-            <span className="font-black text-[#39FF14]">(90% savings)</span>
+            <span className="font-black text-[#00D4FF]">(90% savings)</span>
           </span>
         </div>
       </div>

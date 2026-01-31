@@ -65,14 +65,14 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
   if (loading && !metrics) {
     return (
       <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
-        <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#39FF14]' : 'border-black bg-[#00AA55]'}`}>
+        <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#00D4FF]' : 'border-black bg-[#00AA55]'}`}>
           <div className="flex items-center gap-3">
             <TrendingDown className="w-5 h-5 text-black" />
             <span className="font-black text-black">GAS_COMPARISON.BENCHMARK</span>
           </div>
         </div>
         <div className="p-8 flex items-center justify-center">
-          <RefreshCw className="w-6 h-6 animate-spin text-[#39FF14]" />
+          <RefreshCw className="w-6 h-6 animate-spin text-[#00D4FF]" />
         </div>
       </div>
     );
@@ -82,7 +82,7 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
   if (error && !metrics) {
     return (
       <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
-        <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#39FF14]' : 'border-black bg-[#00AA55]'}`}>
+        <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#00D4FF]' : 'border-black bg-[#00AA55]'}`}>
           <div className="flex items-center gap-3">
             <TrendingDown className="w-5 h-5 text-black" />
             <span className="font-black text-black">GAS_COMPARISON.BENCHMARK</span>
@@ -123,7 +123,7 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
   return (
     <div className={`border-4 ${isDark ? 'border-white' : 'border-black'}`}>
       {/* Header */}
-      <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#39FF14]' : 'border-black bg-[#00AA55]'}`}>
+      <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-white bg-[#00D4FF]' : 'border-black bg-[#00AA55]'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <TrendingDown className="w-5 h-5 text-black" />
@@ -146,9 +146,9 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
           <div className="flex items-center justify-center">
             <ArrowRight className={`w-8 h-8 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
           </div>
-          <div className={`text-center p-3 border-2 ${isDark ? 'border-[#39FF14]/50' : 'border-[#00AA55]/50'}`}>
+          <div className={`text-center p-3 border-2 ${isDark ? 'border-[#00D4FF]/50' : 'border-[#00AA55]/50'}`}>
             <p className={`text-xs font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>X-RAY (NEW)</p>
-            <p className="text-xl font-black text-[#39FF14]">{formatGas(totalXray)}</p>
+            <p className="text-xl font-black text-[#00D4FF]">{formatGas(totalXray)}</p>
           </div>
         </div>
 
@@ -164,19 +164,19 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
                   <span className={`text-xs font-black ${isDark ? 'text-white/70' : 'text-black/70'}`}>
                     {metric.operation}
                   </span>
-                  <span className="text-xs font-black text-[#39FF14]">-{savings}%</span>
+                  <span className="text-xs font-black text-[#00D4FF]">-{savings}%</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className={`flex-1 h-2 ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
                     <div
-                      className="h-full bg-gradient-to-r from-[#FF3366] to-[#39FF14] transition-all duration-1000"
+                      className="h-full bg-gradient-to-r from-[#FF3366] to-[#00D4FF] transition-all duration-1000"
                       style={{ width: `${progressWidth}%` }}
                     />
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-[#FF3366] font-mono">{formatGas(metric.wasmGas)}</span>
                     <span className={isDark ? 'text-white/30' : 'text-black/30'}>→</span>
-                    <span className="text-[#39FF14] font-mono">{formatGas(metric.xrayGas)}</span>
+                    <span className="text-[#00D4FF] font-mono">{formatGas(metric.xrayGas)}</span>
                   </div>
                 </div>
               </div>
@@ -185,13 +185,13 @@ export function GasSavingsComparison({ isDark = true }: GasSavingsComparisonProp
         </div>
 
         {/* Total Savings */}
-        <div className={`p-4 border-4 ${isDark ? 'border-[#39FF14] bg-[#39FF14]/10' : 'border-[#00AA55] bg-[#00AA55]/10'}`}>
+        <div className={`p-4 border-4 ${isDark ? 'border-[#00D4FF] bg-[#00D4FF]/10' : 'border-[#00AA55] bg-[#00AA55]/10'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Zap className="w-6 h-6 text-[#39FF14]" />
+              <Zap className="w-6 h-6 text-[#00D4FF]" />
               <div>
                 <p className={`text-xs font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>TOTAL SAVINGS</p>
-                <p className="text-3xl font-black text-[#39FF14]">{savingsPercent}%</p>
+                <p className="text-3xl font-black text-[#00D4FF]">{savingsPercent}%</p>
               </div>
             </div>
             <div className="text-right">

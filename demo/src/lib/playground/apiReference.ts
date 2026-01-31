@@ -22,7 +22,7 @@ export const API_MODULES = [
   { id: 'IntentClient', label: 'INTENT CLIENT', color: '#FFD600', icon: 'Zap' },
   { id: 'X402PaymentClient', label: 'X402 CLIENT', color: '#FF3366', icon: 'CreditCard' },
   { id: 'XRayClient', label: 'X-RAY CLIENT', color: '#00D4FF', icon: 'Activity' },
-  { id: 'Hooks', label: 'REACT HOOKS', color: '#39FF14', icon: 'Code' },
+  { id: 'Hooks', label: 'REACT HOOKS', color: '#00D4FF', icon: 'Code' },
   { id: 'Utils', label: 'UTILITIES', color: '#BD93F9', icon: 'Wrench' },
 ] as const;
 

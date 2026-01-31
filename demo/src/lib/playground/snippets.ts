@@ -12,7 +12,7 @@ export interface Snippet {
 export const CATEGORY_META: Record<SnippetCategory, { label: string; color: string }> = {
   authentication: { label: 'AUTHENTICATION', color: '#0066FF' },
   payments: { label: 'PAYMENTS', color: '#00D4FF' },
-  streaming: { label: 'STREAMING', color: '#39FF14' },
+  streaming: { label: 'STREAMING', color: '#00D4FF' },
   intent: { label: 'NEAR INTENT', color: '#FFD600' },
   x402: { label: 'x402 PROTOCOL', color: '#FF3366' },
   advanced: { label: 'ADVANCED', color: '#BD93F9' },

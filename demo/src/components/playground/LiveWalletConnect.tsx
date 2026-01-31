@@ -9,7 +9,7 @@ interface LiveWalletConnectProps {
 }
 
 const features = [
-  { icon: Shield, label: "Zero Knowledge", color: "#39FF14" },
+  { icon: Shield, label: "Zero Knowledge", color: "#00D4FF" },
   { icon: Zap, label: "Protocol 25", color: "#0066FF" },
   { icon: Clock, label: "3 Second Login", color: "#00D4FF" },
 ] as const;
@@ -30,7 +30,7 @@ export default function LiveWalletConnect({
         <div className="flex items-center gap-2 mb-8">
           <div className="w-3 h-3 bg-[#FF3366]" />
           <div className="w-3 h-3 bg-[#FFD600]" />
-          <div className="w-3 h-3 bg-[#39FF14]" />
+          <div className="w-3 h-3 bg-[#00D4FF]" />
         </div>
 
         {/* Wallet icon */}

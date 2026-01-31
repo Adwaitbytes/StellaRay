@@ -133,7 +133,7 @@ export default function ApiMethodCard({ method, isDark, moduleColor }: ApiMethod
                     <div className="px-3 py-2 flex items-center">
                       <span
                         className={`w-2.5 h-2.5 rounded-full ${
-                          param.required ? 'bg-[#39FF14]' : isDark ? 'bg-white/20' : 'bg-black/20'
+                          param.required ? 'bg-[#00D4FF]' : isDark ? 'bg-white/20' : 'bg-black/20'
                         }`}
                       />
                     </div>
@@ -156,7 +156,7 @@ export default function ApiMethodCard({ method, isDark, moduleColor }: ApiMethod
               RETURNS
             </h4>
             <div className={`p-3 ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
-              <span className="font-mono text-sm text-[#FF3366]">{method.returnType}</span>
+              <span className="font-mono text-sm text-[#0066FF]">{method.returnType}</span>
               <p className={`text-xs mt-1 ${isDark ? 'text-white/50' : 'text-black/50'}`}>
                 {method.returnDescription}
               </p>
@@ -178,7 +178,7 @@ export default function ApiMethodCard({ method, isDark, moduleColor }: ApiMethod
                 className={`flex items-center gap-1.5 px-2 py-1 text-xs font-black uppercase tracking-wider
                   border-2 transition-all duration-200
                   ${copied
-                    ? 'border-[#39FF14] text-[#39FF14]'
+                    ? 'border-[#00D4FF] text-[#00D4FF]'
                     : isDark
                       ? 'border-white/20 text-white/40 hover:border-white/40 hover:text-white/60'
                       : 'border-black/20 text-black/40 hover:border-black/40 hover:text-black/60'

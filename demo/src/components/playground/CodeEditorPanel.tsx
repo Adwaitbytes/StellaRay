@@ -83,22 +83,28 @@ export default function CodeEditorPanel({
   );
 
   return (
-    <div
-      className={`flex flex-col min-h-[350px] sm:min-h-[400px] lg:h-full border-2 sm:border-4 ${
-        isDark ? "border-white bg-[#0A0A0A]" : "border-black bg-white"
-      }`}
-    >
+    <div className="relative flex flex-col min-h-[350px] sm:min-h-[400px] lg:h-full">
+      {/* Offset shadow layer */}
+      <div className="absolute inset-0 bg-[#0066FF] translate-x-1.5 translate-y-1.5 sm:translate-x-2 sm:translate-y-2" />
+
+      {/* Main panel */}
+      <div
+        className={`relative flex flex-col flex-1 border-2 sm:border-4 ${
+          isDark ? "border-white bg-[#0A0A0A]" : "border-black bg-white"
+        }`}
+      >
       {/* Title Bar */}
       <div
         className={`flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b-2 sm:border-b-4 ${
           isDark ? "border-white" : "border-black"
         }`}
+        style={isDark ? { boxShadow: "0 4px 15px rgba(0, 102, 255, 0.1)" } : undefined}
       >
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#FF3366]" />
             <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#FFD600]" />
-            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#39FF14]" />
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#00D4FF] animate-pulse" />
           </div>
           <Code
             className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${isDark ? "text-[#00D4FF]" : "text-[#0066FF]"}`}
@@ -112,11 +118,12 @@ export default function CodeEditorPanel({
           </span>
         </div>
         <span
-          className={`font-mono text-[10px] uppercase px-1.5 sm:px-2 py-0.5 border sm:border-2 flex-shrink-0 ${
-            isDark
-              ? "border-[#00D4FF] text-[#00D4FF]"
-              : "border-[#0066FF] text-[#0066FF]"
-          }`}
+          className="font-mono text-[10px] uppercase px-1.5 sm:px-2 py-0.5 border sm:border-2 flex-shrink-0"
+          style={{
+            borderColor: isDark ? "#00D4FF" : "#0066FF",
+            color: isDark ? "#00D4FF" : "#0066FF",
+            boxShadow: isDark ? "0 0 10px rgba(0, 212, 255, 0.2)" : "none",
+          }}
         >
           {snippetLanguage}
         </span>
@@ -174,7 +181,7 @@ export default function CodeEditorPanel({
             !isRunning
               ? {
                   boxShadow: isDark
-                    ? "3px 3px 0px #fff"
+                    ? "3px 3px 0px #fff, 0 0 20px rgba(0, 102, 255, 0.3)"
                     : "3px 3px 0px #000",
                 }
               : undefined
@@ -213,7 +220,7 @@ export default function CodeEditorPanel({
           }}
         >
           {copied ? (
-            <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#39FF14]" />
+            <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00D4FF]" />
           ) : (
             <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           )}
@@ -237,6 +244,7 @@ export default function CodeEditorPanel({
           <ExternalLink className="w-3.5 h-3.5" />
           SHARE
         </button>
+      </div>
       </div>
     </div>
   );

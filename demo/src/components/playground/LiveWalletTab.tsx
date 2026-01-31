@@ -35,7 +35,7 @@ const METRICS: MetricDef[] = [
     label: "PROOFS VERIFIED",
     value: 15847,
     suffix: "",
-    color: "#39FF14",
+    color: "#00D4FF",
   },
   {
     icon: Zap,
@@ -277,7 +277,7 @@ export default function LiveWalletTab({ isDark }: LiveWalletTabProps) {
       {/* Metrics sidebar: column 3 */}
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 mb-1 sm:mb-2">
-          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#39FF14]" />
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#00D4FF]" />
           <span
             className={`font-black text-[10px] sm:text-xs uppercase ${
               isDark ? "text-white/60" : "text-black/60"

@@ -195,7 +195,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
           <div className="flex items-center gap-2">
             {loading && <RefreshCw className="w-4 h-4 text-black animate-spin" />}
             {benchmark?.status === 'completed' && (
-              <div className="flex items-center gap-1 px-2 py-1 bg-black text-[#39FF14] text-xs font-black">
+              <div className="flex items-center gap-1 px-2 py-1 bg-black text-[#00D4FF] text-xs font-black">
                 <CheckCircle className="w-3 h-3" />
                 DONE
               </div>
@@ -247,7 +247,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
 
           <button
             onClick={runBenchmark}
-            className="w-full flex items-center justify-center gap-3 py-4 border-4 border-[#39FF14] bg-[#39FF14] text-black font-black transition-all hover:bg-[#39FF14]/80"
+            className="w-full flex items-center justify-center gap-3 py-4 border-4 border-[#00D4FF] bg-[#00D4FF] text-black font-black transition-all hover:bg-[#00D4FF]/80"
           >
             <Play className="w-5 h-5" />
             RUN BENCHMARK
@@ -262,7 +262,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
               <p className={`text-[10px] font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>LIVE NETWORK STATS</p>
               <div className="flex justify-between mt-2 text-xs">
                 <span className={isDark ? 'text-white/60' : 'text-black/60'}>Total Proofs Verified:</span>
-                <span className="text-[#39FF14]">{metrics.proofsVerified?.toLocaleString()}</span>
+                <span className="text-[#00D4FF]">{metrics.proofsVerified?.toLocaleString()}</span>
               </div>
               <div className="flex justify-between mt-1 text-xs">
                 <span className={isDark ? 'text-white/60' : 'text-black/60'}>Avg Gas Savings:</span>
@@ -280,14 +280,14 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
               <span className={`text-xs font-black ${isDark ? 'text-white/50' : 'text-black/50'}`}>
                 {benchmark.status === 'running' ? `Running ${benchmark.currentOp}/${operations.length}...` : 'Benchmark Complete'}
               </span>
-              <span className="text-xs font-black text-[#39FF14]">
+              <span className="text-xs font-black text-[#00D4FF]">
                 {Math.round((benchmark.currentOp / operations.length) * 100)}%
               </span>
             </div>
             <div className={`h-2 ${isDark ? 'bg-white/10' : 'bg-black/10'}`}>
               <div
                 ref={progressRef}
-                className="h-full bg-[#39FF14] transition-all duration-300"
+                className="h-full bg-[#00D4FF] transition-all duration-300"
                 style={{ width: `${(benchmark.currentOp / operations.length) * 100}%` }}
               />
             </div>
@@ -299,7 +299,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
             <div className={`grid grid-cols-5 gap-2 px-3 py-2 text-[10px] font-black border-b-2 ${isDark ? 'border-white/20 bg-white/5' : 'border-black/20 bg-black/5'}`}>
               <span className={isDark ? 'text-white/50' : 'text-black/50'}>OPERATION</span>
               <span className="text-[#FF3366] text-center">WASM</span>
-              <span className="text-[#39FF14] text-center">X-RAY</span>
+              <span className="text-[#00D4FF] text-center">X-RAY</span>
               <span className="text-[#00D4FF] text-center">GAS SAVED</span>
               <span className="text-[#FFD600] text-center">SPEEDUP</span>
             </div>
@@ -314,7 +314,7 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
               >
                 <span className={`font-bold truncate ${isDark ? 'text-white/70' : 'text-black/70'}`}>{result.operation}</span>
                 <span className="text-[#FF3366] text-center font-mono">{formatTime(result.wasmTime)}</span>
-                <span className="text-[#39FF14] text-center font-mono">{formatTime(result.xrayTime)}</span>
+                <span className="text-[#00D4FF] text-center font-mono">{formatTime(result.xrayTime)}</span>
                 <span className="text-[#00D4FF] text-center font-mono">
                   {Math.round((1 - result.xrayGas / result.wasmGas) * 100)}%
                 </span>
@@ -346,9 +346,9 @@ export function ProofBenchmark({ isDark = true }: ProofBenchmarkProps) {
                 <p className="text-lg font-black text-[#FF3366]">{formatGas(benchmark.totalWasmGas)}</p>
               </div>
               <div className={`p-3 border-2 ${isDark ? 'border-white/20' : 'border-black/20'} text-center`}>
-                <Zap className="w-4 h-4 mx-auto mb-1 text-[#39FF14]" />
+                <Zap className="w-4 h-4 mx-auto mb-1 text-[#00D4FF]" />
                 <p className={`text-[10px] ${isDark ? 'text-white/50' : 'text-black/50'}`}>X-RAY GAS</p>
-                <p className="text-lg font-black text-[#39FF14]">{formatGas(benchmark.totalXrayGas)}</p>
+                <p className="text-lg font-black text-[#00D4FF]">{formatGas(benchmark.totalXrayGas)}</p>
               </div>
               <div className={`p-3 border-2 border-[#00D4FF]/50 bg-[#00D4FF]/10 text-center`}>
                 <TrendingDown className="w-4 h-4 mx-auto mb-1 text-[#00D4FF]" />

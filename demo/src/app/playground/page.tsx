@@ -144,22 +144,32 @@ export default function PlaygroundPage() {
         <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-0 pl-14 sm:pl-14 lg:pl-6">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight truncate">
+              <h1
+                className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight truncate"
+                style={{ textShadow: "0 0 30px rgba(0, 102, 255, 0.3), 0 0 60px rgba(0, 102, 255, 0.15)" }}
+              >
                 SDK PLAYGROUND
               </h1>
-              <p className="text-[10px] sm:text-xs text-white/40 font-mono mt-0.5 sm:mt-1 truncate">
-                INTERACTIVE DEV ENVIRONMENT
-              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-6 sm:w-8 h-0.5 bg-[#0066FF]" />
+                <p className="text-[10px] sm:text-xs text-white/50 font-mono tracking-widest truncate">
+                  INTERACTIVE DEV ENVIRONMENT
+                </p>
+              </div>
             </div>
             <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
-              <div className="px-3 py-1 border-2 border-[#39FF14]/40 text-[10px] font-mono text-[#39FF14]">
+              <div className="flex items-center gap-2 px-3 py-1.5 border-4 border-[#00D4FF] bg-[#00D4FF]/10 text-[10px] font-mono font-black text-[#00D4FF]">
+                <div className="w-2 h-2 bg-[#00D4FF] rounded-full animate-pulse" />
                 PROTOCOL 25
               </div>
-              <div className="px-3 py-1 border-2 border-[#0066FF]/40 text-[10px] font-mono text-[#0066FF]">
+              <div className="px-3 py-1.5 border-4 border-[#0066FF] bg-[#0066FF]/10 text-[10px] font-mono font-black text-[#0066FF]">
                 X-RAY
               </div>
             </div>
           </div>
+
+          {/* Gradient separator */}
+          <div className="h-px bg-gradient-to-r from-transparent via-[#0066FF]/30 to-transparent mb-3" />
 
           {/* Tabs */}
           <PlaygroundTabs
@@ -170,7 +180,7 @@ export default function PlaygroundPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex-1 overflow-auto px-4 sm:px-6 py-3 sm:py-4 bg-[#0066FF]/[0.02]">
           {/* TAB 1: PLAYGROUND */}
           {activeTab === "playground" && (
             <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4 lg:h-full lg:min-h-[500px]">

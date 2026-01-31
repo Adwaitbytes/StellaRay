@@ -104,7 +104,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return '#39FF14';
+    if (score >= 80) return '#00D4FF';
     if (score >= 60) return '#FFD600';
     if (score >= 40) return '#FF9500';
     return '#FF3366';
@@ -190,7 +190,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
               key={factor.id}
               className={`p-3 border-2 transition-all cursor-pointer ${
                 factor.enabled
-                  ? `${isDark ? 'border-[#39FF14]/50 bg-[#39FF14]/10' : 'border-[#00AA55]/50 bg-[#00AA55]/10'}`
+                  ? `${isDark ? 'border-[#00D4FF]/50 bg-[#00D4FF]/10' : 'border-[#00AA55]/50 bg-[#00AA55]/10'}`
                   : `${isDark ? 'border-white/10 bg-white/5' : 'border-black/10 bg-black/5'}`
               }`}
               onClick={() => toggleFactor(factor.id)}
@@ -198,7 +198,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 flex items-center justify-center ${
-                    factor.enabled ? 'bg-[#39FF14]' : isDark ? 'bg-white/20' : 'bg-black/20'
+                    factor.enabled ? 'bg-[#00D4FF]' : isDark ? 'bg-white/20' : 'bg-black/20'
                   }`}>
                     {factor.enabled ? (
                       <Lock className="w-4 h-4 text-black" />
@@ -223,7 +223,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <p className={`text-xs font-mono ${factor.enabled ? 'text-[#39FF14]' : isDark ? 'text-white/30' : 'text-black/30'}`}>
+                    <p className={`text-xs font-mono ${factor.enabled ? 'text-[#00D4FF]' : isDark ? 'text-white/30' : 'text-black/30'}`}>
                       +{factor.weight}pts
                     </p>
                     {factor.enabled && (
@@ -233,7 +233,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
                     )}
                   </div>
                   {factor.enabled ? (
-                    <CheckCircle className="w-5 h-5 text-[#39FF14]" />
+                    <CheckCircle className="w-5 h-5 text-[#00D4FF]" />
                   ) : (
                     <AlertTriangle className={`w-5 h-5 ${isDark ? 'text-white/30' : 'text-black/30'}`} />
                   )}
@@ -279,7 +279,7 @@ export function PrivacyCalculator({ isDark = true }: PrivacyCalculatorProps) {
             <div>
               <EyeOff className={`w-4 h-4 mx-auto mb-1 ${isDark ? 'text-white/50' : 'text-black/50'}`} />
               <p className={`text-[10px] ${isDark ? 'text-white/40' : 'text-black/40'}`}>Private</p>
-              <p className="text-sm font-black text-[#39FF14]">
+              <p className="text-sm font-black text-[#00D4FF]">
                 {factors.filter(f => f.enabled).length}
               </p>
             </div>
