@@ -26,6 +26,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 // ─── Section Data ──────────────────────────────────────────────────────────────
 
@@ -398,16 +399,7 @@ export default function WhitepaperPage() {
               </Link>
 
               <div className="hidden md:flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#0066FF] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5">
-                    <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5" />
-                    <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5" />
-                    <circle cx="12" cy="12" r="1.5" fill="white" />
-                  </svg>
-                </div>
-                <span className="font-black text-sm tracking-tight">
-                  STELLA<span className="text-[#0066FF]">RAY</span>
-                </span>
+                <Logo size="sm" />
               </div>
             </div>
 

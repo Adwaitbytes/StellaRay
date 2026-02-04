@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 interface PlaygroundSidebarProps {
   isDark: boolean;
@@ -39,16 +40,7 @@ export default function PlaygroundSidebar({
       {/* Logo */}
       <div className="px-5 py-5 border-b-4 border-[#0066FF]/30">
         <Link href="/" className="flex items-center gap-3 group">
-          <div
-            className="w-9 h-9 bg-[#0066FF] flex items-center justify-center rounded-lg flex-shrink-0"
-            style={{ boxShadow: "0 0 15px rgba(0, 102, 255, 0.3)" }}
-          >
-            <svg viewBox="0 0 24 24" className="w-5 h-5">
-              <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
-              <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
-              <circle cx="12" cy="12" r="1.5" fill="white"/>
-            </svg>
-          </div>
+          <Logo size="md" showText={false} />
           <div>
             <div className="flex items-baseline gap-0.5">
               <span className="font-black text-sm tracking-wider">STELLA</span>

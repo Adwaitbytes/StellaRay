@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 interface DemoWallet {
   address: string;
@@ -417,13 +418,7 @@ export default function SDKDemo() {
           <div className="flex items-center justify-between h-14 sm:h-20">
             <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/" className="flex items-center gap-2 sm:gap-4">
-                <div className="w-9 h-9 sm:w-12 sm:h-12 bg-[#0066FF] flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-7 sm:h-7">
-                    <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="3"/>
-                    <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3"/>
-                    <circle cx="12" cy="12" r="2" fill="white"/>
-                  </svg>
-                </div>
+                <Logo size="md" showText={false} />
                 <div className="hidden sm:block">
                   <span className="text-xl sm:text-2xl font-black tracking-tighter">SDK</span>
                   <span className="text-xl sm:text-2xl font-black tracking-tighter text-[#0066FF]">DEMO</span>
@@ -1008,13 +1003,7 @@ export default function SDKDemo() {
       <footer className={`py-6 sm:py-8 px-4 sm:px-6 lg:px-8 border-t-2 sm:border-t-4 ${isDark ? "border-white/10" : "border-black/10"}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#0066FF] flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5">
-                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2"/>
-                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2"/>
-                <circle cx="12" cy="12" r="1.5" fill="white"/>
-              </svg>
-            </div>
+            <Logo size="sm" showText={false} />
             <span className={`font-bold text-xs sm:text-base ${isDark ? "text-white/50" : "text-black/50"}`}>
               STELLARAY SDK Demo
             </span>

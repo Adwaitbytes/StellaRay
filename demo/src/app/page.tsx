@@ -9,6 +9,7 @@ import { NetworkSwitcher } from "@/components/NetworkSwitcher";
 import Link from "next/link";
 import { getCurrentNetwork, type NetworkType } from "@/lib/stellar";
 import { FEATURES } from "@/config/features";
+import { Logo } from "@/components/Logo";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -98,18 +99,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6">
-                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
-                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
-                  <circle cx="12" cy="12" r="1.5" fill="white"/>
-                </svg>
-              </div>
-              <div className="hidden sm:flex items-baseline gap-0.5">
-                <span className="text-lg font-black tracking-tight">STELLA</span>
-                <span className="text-lg font-black tracking-tight text-[#0066FF]">RAY</span>
-              </div>
+            <Link href="/">
+              <Logo size="md" />
             </Link>
 
             {/* Right */}
@@ -535,15 +526,9 @@ export default function Home() {
       <footer className={`py-8 px-6 lg:px-8 border-t-2 ${isDark ? 'border-white/10' : 'border-black/10'}`}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#0066FF] flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-5 h-5">
-                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2"/>
-                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2"/>
-                <circle cx="12" cy="12" r="1.5" fill="white"/>
-              </svg>
-            </div>
+            <Logo size="sm" showText={false} />
             <span className={`font-bold ${isDark ? 'text-white/50' : 'text-black/50'}`}>
-              STELLARAY — Prove Everything. Reveal Nothing.
+              STELLARAY — Prove Everything, Reveal Nothing
             </span>
           </div>
           <div className="flex gap-8">

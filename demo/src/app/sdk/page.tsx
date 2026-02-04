@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import {
   ArrowRight,
   ArrowLeft,
@@ -216,13 +217,7 @@ export default function SDKPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#0066FF] flex items-center justify-center flex-shrink-0">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-6 sm:h-6">
-                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
-                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
-                  <circle cx="12" cy="12" r="1.5" fill="white"/>
-                </svg>
-              </div>
+              <Logo size="md" showText={false} />
               <span className="font-black text-base sm:text-xl">STELLARAY_SDK</span>
             </Link>
 

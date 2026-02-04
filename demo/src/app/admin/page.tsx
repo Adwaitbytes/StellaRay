@@ -31,6 +31,7 @@ import {
   Building2,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { PRICING } from "@/config/pricing";
 
 // Types
@@ -336,17 +337,8 @@ export default function AdminDashboard() {
       <header className="px-6 py-4 border-b border-white/5 sticky top-0 bg-[#0A0A0A]/95 backdrop-blur-sm z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#0066FF] rounded-lg flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4">
-                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5" />
-                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5" />
-                  <circle cx="12" cy="12" r="2" fill="white" />
-                </svg>
-              </div>
-              <span className="font-bold text-sm">
-                STELLA<span className="text-[#0066FF]">RAY</span>
-              </span>
+            <Link href="/">
+              <Logo size="sm" />
             </Link>
             <div className="h-5 w-px bg-white/10" />
             <span className="text-white/40 text-sm font-medium">Admin</span>

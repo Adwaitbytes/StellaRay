@@ -1,6 +1,7 @@
 "use client";
 
 import { Shield } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 interface LoadingScreenProps {
   message?: string;
@@ -55,17 +56,8 @@ export default function LoadingScreen({
           />
 
           {/* Main icon box */}
-          <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative">
-            {/* Ray Icon */}
-            <svg
-              viewBox="0 0 24 24"
-              className="w-12 h-12 animate-pulse"
-              style={{ filter: "drop-shadow(0 0 10px rgba(0, 102, 255, 0.5))" }}
-            >
-              <line x1="4" y1="4" x2="20" y2="20" stroke="#0066FF" strokeWidth="3" />
-              <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3" />
-              <circle cx="12" cy="12" r="2" fill="white" />
-            </svg>
+          <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative animate-pulse">
+            <Logo size="xl" showText={false} />
 
             {/* Corner accents inside */}
             <div className="absolute top-1 left-1 w-3 h-0.5 bg-[#0066FF]" />

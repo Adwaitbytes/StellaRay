@@ -25,6 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 // ─── Types ───
 interface QuestUser {
@@ -393,15 +394,8 @@ export default function QuestsPage() {
       {/* Header */}
       <header className={`relative z-10 px-4 py-3 transition-all duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}>
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#0066FF] rounded-lg flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-4 h-4">
-                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5" />
-                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5" />
-                <circle cx="12" cy="12" r="2" fill="white" />
-              </svg>
-            </div>
-            <span className="text-sm font-bold">STELLA<span className="text-[#0066FF]">RAY</span></span>
+          <Link href="/">
+            <Logo size="sm" />
           </Link>
           <div className="flex items-center gap-2">
             {totalParticipants > 0 && (

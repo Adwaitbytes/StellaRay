@@ -18,6 +18,7 @@ import {
   Github,
 } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { PRICING, type TierKey } from "@/config/pricing";
 
 export default function PricingPage() {
@@ -55,17 +56,8 @@ export default function PricingPage() {
       {/* Header */}
       <header className="px-6 py-5 border-b border-white/5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#0066FF] rounded-lg flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="w-5 h-5">
-                <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5" />
-                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5" />
-                <circle cx="12" cy="12" r="2" fill="white" />
-              </svg>
-            </div>
-            <span className="text-lg font-bold tracking-tight">
-              STELLA<span className="text-[#0066FF]">RAY</span>
-            </span>
+          <Link href="/">
+            <Logo size="md" />
           </Link>
 
           <div className="flex items-center gap-3">

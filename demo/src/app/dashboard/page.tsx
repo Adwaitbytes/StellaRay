@@ -41,6 +41,7 @@ import { ProofTimeline } from "@/components/ProofTimeline";
 import { GasSavingsComparison } from "@/components/GasSavingsComparison";
 import { ZKProofVisualizer } from "@/components/ZKProofVisualizer";
 import { TransactionXRayBadge } from "@/components/TransactionXRayBadge";
+import { Logo } from "@/components/Logo";
 import { useZkWallet } from "@/hooks/useZkWallet";
 import {
   isValidAddress,
@@ -339,13 +340,8 @@ export default function Dashboard() {
             />
 
             {/* Main icon box */}
-            <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative">
-              {/* Ray Icon */}
-              <svg viewBox="0 0 24 24" className="w-12 h-12 animate-pulse" style={{ filter: "drop-shadow(0 0 10px rgba(0, 102, 255, 0.5))" }}>
-                <line x1="4" y1="4" x2="20" y2="20" stroke="#0066FF" strokeWidth="3"/>
-                <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="3"/>
-                <circle cx="12" cy="12" r="2" fill="white"/>
-              </svg>
+            <div className="w-24 h-24 bg-[#0A0A0A] border-4 border-white flex items-center justify-center relative animate-pulse">
+              <Logo size="xl" showText={false} />
 
               {/* Corner accents inside */}
               <div className="absolute top-1 left-1 w-3 h-0.5 bg-[#0066FF]" />
@@ -450,18 +446,8 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left: Logo */}
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#0066FF] flex items-center justify-center rounded-lg">
-                <svg viewBox="0 0 24 24" className="w-6 h-6">
-                  <line x1="4" y1="4" x2="20" y2="20" stroke="white" strokeWidth="2.5"/>
-                  <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" strokeWidth="2.5"/>
-                  <circle cx="12" cy="12" r="1.5" fill="white"/>
-                </svg>
-              </div>
-              <div className="hidden sm:flex items-baseline gap-0.5">
-                <span className="text-lg font-black tracking-tight">STELLA</span>
-                <span className="text-lg font-black tracking-tight text-[#0066FF]">RAY</span>
-              </div>
+            <Link href="/">
+              <Logo size="md" />
             </Link>
 
             {/* Center: Price (desktop only) */}
