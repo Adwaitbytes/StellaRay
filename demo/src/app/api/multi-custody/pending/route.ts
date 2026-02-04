@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
     }
 
     // TODO: Call Soroban contract
-    // For now, return mock data
-    const pendingTransactions = [];
+    // For now, return mock data (demo mode)
+    const pendingTransactions: any[] = [];
 
     return NextResponse.json({
       success: true,

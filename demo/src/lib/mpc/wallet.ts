@@ -50,7 +50,7 @@ export class MPCWallet {
     console.log('[MPC] Generated keypair:', publicKey);
 
     // 2. Split private key into 3 shares (2-of-3 threshold)
-    const shares = ShamirSharing.split(privateKey, 2, 3);
+    const shares = await ShamirSharing.split(privateKey, 2, 3);
     console.log('[MPC] Split private key into 3 shares');
 
     // 3. Encrypt and store each share
@@ -204,7 +204,7 @@ export class MPCWallet {
 
     // 3. Reconstruct private key from shares
     console.log('[MPC] Reconstructing private key...');
-    const privateKey = ShamirSharing.combine(retrievedShares);
+    const privateKey = await ShamirSharing.combine(retrievedShares);
 
     // 4. Create keypair and sign transaction
     console.log('[MPC] Signing transaction...');

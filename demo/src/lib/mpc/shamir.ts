@@ -3,7 +3,21 @@
  * Splits private keys into shares for MPC wallet recovery
  */
 
-import secrets from 'secrets.js-grempe';
+// Dynamic import to avoid initialization issues during build
+let secretsModule: any = null;
+
+async function getSecrets() {
+  if (!secretsModule) {
+    const module = await import('secrets.js-grempe');
+    secretsModule = module.default;
+    try {
+      secretsModule.init();
+    } catch {
+      // Ignore if already initialized or not needed
+    }
+  }
+  return secretsModule;
+}
 
 export class ShamirSharing {
   /**
@@ -13,7 +27,8 @@ export class ShamirSharing {
    * @param totalShares - Total number of shares to create (e.g., 3)
    * @returns Array of share strings
    */
-  static split(privateKey: string, threshold: number, totalShares: number): string[] {
+  static async split(privateKey: string, threshold: number, totalShares: number): Promise<string[]> {
+    const secrets = await getSecrets();
     if (threshold > totalShares) {
       throw new Error('Threshold cannot exceed total shares');
     }
@@ -29,7 +44,8 @@ export class ShamirSharing {
    * @param shares - Array of share strings (minimum = threshold)
    * @returns Reconstructed private key hex string
    */
-  static combine(shares: string[]): string {
+  static async combine(shares: string[]): Promise<string> {
+    const secrets = await getSecrets();
     if (shares.length < 2) {
       throw new Error('Need at least 2 shares to reconstruct');
     }
@@ -42,7 +58,8 @@ export class ShamirSharing {
    * @param shares - Array of shares to validate
    * @returns true if valid, false otherwise
    */
-  static validate(shares: string[]): boolean {
+  static async validate(shares: string[]): Promise<boolean> {
+    const secrets = await getSecrets();
     try {
       secrets.combine(shares);
       return true;

@@ -148,45 +148,56 @@ export default async function Image() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 16,
+              gap: 20,
               marginBottom: 40,
             }}
           >
-            <div
-              style={{
-                width: 64,
-                height: 64,
-                backgroundColor: "#0066FF",
-                borderRadius: 12,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="36" height="36" viewBox="0 0 24 24">
-                <line
-                  x1="4"
-                  y1="4"
-                  x2="20"
-                  y2="20"
-                  stroke="white"
-                  strokeWidth="2.5"
-                />
-                <line
-                  x1="20"
-                  y1="4"
-                  x2="4"
-                  y2="20"
-                  stroke="#00D4FF"
-                  strokeWidth="2.5"
-                />
-                <circle cx="12" cy="12" r="2.5" fill="white" />
-              </svg>
-            </div>
+            {/* Eye with bolt logo */}
+            <svg width="72" height="72" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="tw-eye-grad" x1="0%" y1="50%" x2="100%" y2="50%">
+                  <stop offset="0%" stopColor="#00AAFF" />
+                  <stop offset="40%" stopColor="#FFFFFF" />
+                  <stop offset="60%" stopColor="#FFFFFF" />
+                  <stop offset="100%" stopColor="#00CCFF" />
+                </linearGradient>
+                <linearGradient id="tw-bolt-grad" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="40%" stopColor="#88DDFF" />
+                  <stop offset="100%" stopColor="#0066FF" />
+                </linearGradient>
+              </defs>
+              {/* Top arc */}
+              <path
+                d="M 10 50 Q 30 20, 50 20 Q 70 20, 90 50"
+                fill="none"
+                stroke="url(#tw-eye-grad)"
+                strokeWidth="5"
+                strokeLinecap="round"
+              />
+              {/* Bottom arc */}
+              <path
+                d="M 10 50 Q 30 80, 50 80 Q 70 80, 90 50"
+                fill="none"
+                stroke="url(#tw-eye-grad)"
+                strokeWidth="5"
+                strokeLinecap="round"
+              />
+              {/* Bolt - TOP-RIGHT to BOTTOM-LEFT */}
+              <line
+                x1="88"
+                y1="5"
+                x2="12"
+                y2="95"
+                stroke="url(#tw-bolt-grad)"
+                strokeWidth="7"
+                strokeLinecap="round"
+              />
+            </svg>
             <span
               style={{
-                fontSize: 48,
-                fontWeight: 700,
+                fontSize: 56,
+                fontWeight: 900,
                 color: "white",
                 letterSpacing: "-0.02em",
               }}
