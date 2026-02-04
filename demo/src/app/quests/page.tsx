@@ -263,7 +263,7 @@ export default function QuestsPage() {
   const [user, setUser] = useState<QuestUser | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [totalParticipants, setTotalParticipants] = useState(0);
-  const [rewardEndDate, setRewardEndDate] = useState("2026-02-05T23:59:59Z");
+  const [rewardEndDate, setRewardEndDate] = useState("2026-02-20T23:59:59Z");
 
   const [copied, setCopied] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);

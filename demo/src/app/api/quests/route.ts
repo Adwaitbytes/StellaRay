@@ -9,8 +9,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
-// Fixed reward end date: 6 days from Jan 30, 2026
-const REWARD_END_DATE = "2026-02-05T23:59:59Z";
+// Fixed reward end date: extended to Feb 20, 2026
+const REWARD_END_DATE = "2026-02-20T23:59:59Z";
 
 const TASKS = [
   { id: "follow_twitter", points: 5 },
