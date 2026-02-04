@@ -49,7 +49,11 @@
       "Bash(powershell -Command:*)",
       "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\photo_2026-01-31_16-40-45.jpg\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\followers-engagement.jpg\")",
       "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\Screenshot 2026-01-31 164401.png\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\followers-101.png\")",
-      "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\ChatGPT Image Jan 31, 2026, 04_34_30 PM.png\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\logo-glow-new.png\")"
+      "Bash(copy \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\photos\\\\ChatGPT Image Jan 31, 2026, 04_34_30 PM.png\" \"c:\\\\Users\\\\adwai\\\\Stellar-new-project\\\\demo\\\\public\\\\pitch-assets\\\\logo-glow-new.png\")",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Complete ZK Multi-Custody implementation\n\n- Smart contract with K-of-N threshold signing\n- Guardian commitments using Poseidon hashing\n- Multi-step OAuth authentication flow\n- API endpoints for wallet operations\n- Poseidon hash library integration\n- Launch video scripts and documentation\n\nTechnical details:\n- Soroban contract with 550+ lines\n- 5 API endpoints \\(create, initiate, approve, execute, pending\\)\n- Real Poseidon hashing with circomlibjs\n- Complete frontend with 7-step setup flow\n- Google OAuth configuration guides\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
