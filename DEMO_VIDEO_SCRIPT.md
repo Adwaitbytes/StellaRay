@@ -1,4 +1,60 @@
 # StellaRay Demo Video Script
+
+---
+
+# SCF BUILD AWARD VERSION (60-90 seconds)
+*This is the version to submit with your SCF application*
+
+## SCRIPT (60 seconds)
+
+**[0:00-0:05] Opening Hook**
+- SCREEN: StellaRay homepage
+- VOICE: "What if getting a Stellar wallet was as easy as signing in with Google?"
+
+**[0:05-0:15] The Demo**
+- SCREEN: Click "Sign in with Google" button
+- SCREEN: Google OAuth popup, select account
+- VOICE: "Watch - I click Sign in with Google..."
+
+**[0:15-0:25] The Result**
+- SCREEN: Dashboard appears with wallet address
+- VOICE: "...and in 8 seconds, I have a real Stellar wallet. No seed phrases. No extensions."
+- SCREEN: Highlight wallet address, show on Stellar Explorer
+
+**[0:25-0:35] The Tech**
+- SCREEN: Show ZK proof generation or Protocol 25 diagram
+- VOICE: "We're the first to use Stellar's Protocol 25 - native BN254 pairing and Poseidon hashing. This is deep protocol integration."
+
+**[0:35-0:45] The Features**
+- SCREEN: Quick demo of payment link OR streaming payment
+- VOICE: "With zkLogin, you get payment links, streaming payments, and ZK Multi-Custody wallets - all without exposing your identity."
+
+**[0:45-0:55] The Credibility**
+- SCREEN: GitHub repo showing code stats
+- VOICE: "Over 15,000 lines of open source code. Self-funded. MIT licensed. Live on testnet today."
+
+**[0:55-1:00] The Ask**
+- SCREEN: StellaRay logo + "stellaray.xyz"
+- VOICE: "StellaRay. Support our SCF Build Award to bring zkLogin to mainnet."
+
+---
+
+## Recording Checklist for SCF
+
+1. [ ] Record in 1080p, quiet environment
+2. [ ] Practice flow 3-4 times before recording
+3. [ ] Keep mouse movements smooth
+4. [ ] Ensure wallet creates successfully before recording
+5. [ ] Fund wallet with Friendbot before showing explorer
+6. [ ] Export as MP4, upload to YouTube (unlisted)
+7. [ ] Embed link in SCF submission
+
+---
+---
+
+# FULL VERSION (3-4 minutes)
+*For detailed technical demos and presentations*
+
 ## Duration: 3-4 minutes
 
 ---

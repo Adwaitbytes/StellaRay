@@ -64,6 +64,7 @@ import {
   getContractExplorerUrl,
 } from "@/lib/soroban";
 import { NetworkSwitcher } from "@/components/NetworkSwitcher";
+import { FEATURES } from "@/config/features";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -593,25 +594,45 @@ export default function Dashboard() {
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
                     { label: 'SEND', icon: Send, color: '#00D4FF', onClick: () => setShowSendModal(true) },
                     { label: 'RECEIVE', icon: QrCode, color: '#00FF88', onClick: () => setShowReceiveModal(true) },
                     { label: 'SCAN', icon: ScanLine, color: '#FF6B00', onClick: () => router.push('/scan') },
-                    { label: 'PAY LINK', icon: Link2, color: '#0066FF', onClick: () => router.push('/pay/create') },
-                    { label: 'STREAMS', icon: Zap, color: '#00FF88', onClick: () => router.push('/streams') },
+                    // PAY LINK & STREAMS - Show with "COMING SOON" or functional based on flag
+                    {
+                      label: 'PAY LINK',
+                      icon: Link2,
+                      color: '#0066FF',
+                      onClick: FEATURES.SCF_REVEAL_FEATURES ? () => router.push('/pay/create') : undefined,
+                      comingSoon: !FEATURES.SCF_REVEAL_FEATURES,
+                      disabled: !FEATURES.SCF_REVEAL_FEATURES
+                    },
+                    {
+                      label: 'STREAMS',
+                      icon: Zap,
+                      color: '#00FF88',
+                      onClick: FEATURES.SCF_REVEAL_FEATURES ? () => router.push('/streams') : undefined,
+                      comingSoon: !FEATURES.SCF_REVEAL_FEATURES,
+                      disabled: !FEATURES.SCF_REVEAL_FEATURES
+                    },
                     { label: 'EXPORT', icon: Download, color: '#FFD600', onClick: exportTransactions, disabled: transactions.length === 0 },
                   ].map((btn) => (
                     <button
                       key={btn.label}
                       onClick={btn.onClick}
                       disabled={btn.disabled}
-                      className={`flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 font-black transition-all hover:translate-y-[-2px] disabled:opacity-40`}
+                      className={`relative flex flex-col items-center gap-2 p-4 ${isDark ? 'bg-[#0A0A0A]' : 'bg-[#F5F5F5]'} border-4 font-black transition-all ${btn.comingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:translate-y-[-2px]'} disabled:hover:translate-y-0`}
                       style={{
                         borderColor: btn.color,
                         boxShadow: `4px 4px 0px 0px ${btn.color}`,
                       }}
                     >
+                      {btn.comingSoon && (
+                        <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-[#FFD600] text-black text-[8px] font-black tracking-wider rotate-12 shadow-lg">
+                          SOON
+                        </div>
+                      )}
                       <btn.icon className="w-6 h-6" style={{ color: btn.color }} />
                       <span className="text-xs">{btn.label}</span>
                     </button>
@@ -796,6 +817,85 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* Advanced Features - SCF Milestone 2 & 3 */}
+        {FEATURES.SCF_REVEAL_FEATURES && (
+          <div className={`mt-6 border-4 ${isDark ? 'border-[#00D4FF]/30 bg-gradient-to-r from-[#00D4FF]/5 to-transparent' : 'border-[#00D4FF]/30 bg-gradient-to-r from-[#00D4FF]/5 to-transparent'}`}>
+            <div className={`px-6 py-4 border-b-4 ${isDark ? 'border-[#00D4FF]/30' : 'border-[#00D4FF]/30'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#00D4FF] flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-black" />
+                  </div>
+                  <div>
+                    <h2 className={`font-black text-lg ${isDark ? 'text-white' : 'text-black'}`}>ADVANCED FEATURES</h2>
+                    <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>ZK-Powered Next-Gen Wallet Features</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* ZK Multi-Custody */}
+                <Link
+                  href="/zk-multi-custody"
+                  className={`p-4 border-4 ${isDark ? 'border-[#00D4FF]/30 hover:border-[#00D4FF] bg-[#00D4FF]/5' : 'border-[#00D4FF]/30 hover:border-[#00D4FF] bg-[#00D4FF]/5'} transition-all hover:translate-y-[-2px]`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Shield className="w-6 h-6 text-[#00D4FF]" />
+                    <span className="font-black text-sm">ZK MULTI-CUSTODY</span>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    Multi-sig wallets with anonymous guardians using zero-knowledge proofs
+                  </p>
+                </Link>
+
+                {/* ZK Proofs */}
+                <Link
+                  href="/zk-proofs"
+                  className={`p-4 border-4 ${isDark ? 'border-[#0066FF]/30 hover:border-[#0066FF] bg-[#0066FF]/5' : 'border-[#0066FF]/30 hover:border-[#0066FF] bg-[#0066FF]/5'} transition-all hover:translate-y-[-2px]`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Fingerprint className="w-6 h-6 text-[#0066FF]" />
+                    <span className="font-black text-sm">ZK PROOFS</span>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    Generate and verify zero-knowledge proofs for privacy-preserving actions
+                  </p>
+                </Link>
+
+                {/* Payment Links */}
+                <Link
+                  href="/pay/create"
+                  className={`p-4 border-4 ${isDark ? 'border-[#00FF88]/30 hover:border-[#00FF88] bg-[#00FF88]/5' : 'border-[#00FF88]/30 hover:border-[#00FF88] bg-[#00FF88]/5'} transition-all hover:translate-y-[-2px]`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Link2 className="w-6 h-6 text-[#00FF88]" />
+                    <span className="font-black text-sm">PAYMENT LINKS</span>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    Create shareable payment links for easy crypto payments
+                  </p>
+                </Link>
+
+                {/* Streaming Payments */}
+                <Link
+                  href="/streams"
+                  className={`p-4 border-4 ${isDark ? 'border-[#FFD600]/30 hover:border-[#FFD600] bg-[#FFD600]/5' : 'border-[#FFD600]/30 hover:border-[#FFD600] bg-[#FFD600]/5'} transition-all hover:translate-y-[-2px]`}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Zap className="w-6 h-6 text-[#FFD600]" />
+                    <span className="font-black text-sm">STREAMING</span>
+                  </div>
+                  <p className={`text-xs ${isDark ? 'text-white/50' : 'text-black/50'}`}>
+                    Real-time payment streams for subscriptions and salaries
+                  </p>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Transactions */}
         <div className={`mt-6 border-4 ${isDark ? 'border-white' : 'border-black'}`}>

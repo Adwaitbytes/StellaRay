@@ -1,6 +1,10 @@
 # Stellar zkLogin Gateway
 
 <p align="center">
+  <img src="https://img.shields.io/badge/SCF%20Build%20Award-Applicant-gold?style=for-the-badge&logo=stellar&logoColor=white" alt="SCF Build Award Applicant">
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Stellar-Protocol%2025-7B3FF2?logo=stellar&logoColor=white" alt="Protocol 25">
   <img src="https://img.shields.io/badge/ZK%20Proofs-Groth16-brightgreen" alt="Groth16">
   <img src="https://img.shields.io/badge/SDK-TypeScript-blue?logo=typescript" alt="TypeScript">
@@ -14,10 +18,10 @@
 </p>
 
 <p align="center">
-  <a href="https://stellargateway.vercel.app">Live Demo</a> •
+  <a href="https://stellaray.fun">Live Demo</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="docs/PROTOCOL_25_INTEGRATION.md">Protocol 25 Docs</a> •
-  <a href="docs/SCF_APPLICATION.md">SCF Application</a>
+  <a href="GRANT_SUBMISSION.md">SCF Grant Application</a>
 </p>
 
 ---
@@ -316,10 +320,11 @@ git push origin feature/your-feature
 
 ## Links
 
-- **Live Demo**: [stellargateway.vercel.app](https://stellargateway.vercel.app)
+- **Live Demo**: [stellaray.fun](https://stellaray.fun)
+- **SCF Grant Submission**: [GRANT_SUBMISSION.md](GRANT_SUBMISSION.md)
 - **SDK Package**: [@stellar-zklogin/sdk](https://www.npmjs.com/package/@stellar-zklogin/sdk)
-- **Discord**: [Join our community](https://discord.gg/stellarzklogin)
-- **Twitter**: [@StellarZkLogin](https://twitter.com/StellarZkLogin)
+- **Twitter**: [@stellaraydotfun](https://x.com/stellaraydotfun)
+- **GitHub**: [Adwaitbytes/StellaRay](https://github.com/Adwaitbytes/StellaRay)
 
 ---
 

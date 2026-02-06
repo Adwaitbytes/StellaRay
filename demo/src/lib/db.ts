@@ -240,6 +240,48 @@ export async function initializeDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_quest_referred_by ON quest_participants(referred_by)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_quest_total_points ON quest_participants(total_points DESC)`;
 
+    // Create zk_proofs table for tracking proof generations (SCF metrics)
+    await sql`
+      CREATE TABLE IF NOT EXISTS zk_proofs (
+        id SERIAL PRIMARY KEY,
+        proof_type VARCHAR(50) NOT NULL,
+        wallet_address VARCHAR(56),
+        network VARCHAR(20) DEFAULT 'testnet',
+        proof_size_bytes INTEGER,
+        generation_time_ms INTEGER,
+        verification_time_ms INTEGER,
+        gas_used INTEGER,
+        status VARCHAR(20) DEFAULT 'generated',
+        tx_hash VARCHAR(64),
+        user_agent TEXT,
+        country VARCHAR(100),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_zk_proofs_type ON zk_proofs(proof_type)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_zk_proofs_wallet ON zk_proofs(wallet_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_zk_proofs_created ON zk_proofs(created_at)`;
+
+    // Create multi_custody_wallets table for tracking ZK multi-custody wallets (SCF metrics)
+    await sql`
+      CREATE TABLE IF NOT EXISTS multi_custody_wallets (
+        id SERIAL PRIMARY KEY,
+        wallet_address VARCHAR(56) UNIQUE NOT NULL,
+        guardian_count INTEGER DEFAULT 3,
+        threshold INTEGER DEFAULT 2,
+        timelock_seconds INTEGER,
+        timelock_threshold VARCHAR(50),
+        network VARCHAR(20) DEFAULT 'testnet',
+        funded BOOLEAN DEFAULT FALSE,
+        tx_hash VARCHAR(64),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    await sql`CREATE INDEX IF NOT EXISTS idx_mc_wallets_address ON multi_custody_wallets(wallet_address)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_mc_wallets_created ON multi_custody_wallets(created_at)`;
+
     console.log("Database schema initialized successfully");
     return { success: true };
   } catch (error) {

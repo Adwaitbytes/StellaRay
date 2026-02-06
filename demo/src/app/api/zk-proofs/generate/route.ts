@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { sql } from '@/lib/db';
 import {
   generateEligibilityProof,
   getXRayProtocolInfo,
@@ -148,6 +149,40 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
     const proof = await generateEligibilityProof(proofInput);
     const generationTimeMs = Date.now() - startTime;
+
+    // Track proof generation in database (SCF Metrics)
+    try {
+      const userAgent = request.headers.get('user-agent') || null;
+      const country = request.headers.get('x-vercel-ip-country') ||
+                      request.headers.get('cf-ipcountry') || null;
+
+      // Map proof type to database format
+      const dbProofType = type === 'solvency' ? 'balance_intent' :
+                          type === 'eligibility' ? 'eligibility_intent' : type;
+
+      await sql`
+        INSERT INTO zk_proofs (
+          proof_type,
+          wallet_address,
+          network,
+          generation_time_ms,
+          status,
+          user_agent,
+          country
+        ) VALUES (
+          ${dbProofType},
+          ${walletAddress},
+          'testnet',
+          ${generationTimeMs},
+          'generated',
+          ${userAgent},
+          ${country}
+        )
+      `;
+      console.log('[ZK-Proofs] Tracked proof generation:', dbProofType);
+    } catch (dbError) {
+      console.warn('[ZK-Proofs] Failed to track in database:', dbError);
+    }
 
     return NextResponse.json({
       success: true,

@@ -53,7 +53,9 @@
       "Bash(git checkout:*)",
       "Bash(git stash:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Complete ZK Multi-Custody implementation\n\n- Smart contract with K-of-N threshold signing\n- Guardian commitments using Poseidon hashing\n- Multi-step OAuth authentication flow\n- API endpoints for wallet operations\n- Poseidon hash library integration\n- Launch video scripts and documentation\n\nTechnical details:\n- Soroban contract with 550+ lines\n- 5 API endpoints \\(create, initiate, approve, execute, pending\\)\n- Real Poseidon hashing with circomlibjs\n- Complete frontend with 7-step setup flow\n- Google OAuth configuration guides\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Complete ZK Multi-Custody implementation\n\n- Smart contract with K-of-N threshold signing\n- Guardian commitments using Poseidon hashing\n- Multi-step OAuth authentication flow\n- API endpoints for wallet operations\n- Poseidon hash library integration\n- Launch video scripts and documentation\n\nTechnical details:\n- Soroban contract with 550+ lines\n- 5 API endpoints \\(create, initiate, approve, execute, pending\\)\n- Real Poseidon hashing with circomlibjs\n- Complete frontend with 7-step setup flow\n- Google OAuth configuration guides\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:communityfund.stellar.org)"
     ]
   }
 }

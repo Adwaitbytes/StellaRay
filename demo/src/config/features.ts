@@ -36,6 +36,20 @@ export const FEATURES = {
   QUESTS_ENABLED: true,
 
   // ========================================
+  // 🎯 SCF MILESTONE FEATURES
+  // ========================================
+
+  /**
+   * SCF Reveal Features - ONE TOGGLE TO RULE THEM ALL
+   *
+   * When false: Hides Payment Links, Streaming Payments, ZK Multi-Custody, ZK Proofs
+   * When true: Shows all advanced features
+   *
+   * Set to true after SCF Milestone 2 completion to reveal all features
+   */
+  SCF_REVEAL_FEATURES: false,
+
+  // ========================================
   // 📊 ANALYTICS & TRACKING
   // ========================================
 

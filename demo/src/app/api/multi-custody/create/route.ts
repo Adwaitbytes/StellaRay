@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Keypair } from '@stellar/stellar-sdk';
+import { sql } from '@/lib/db';
 
 /**
  * ZK Multi-Custody Wallet Creation API
@@ -138,6 +139,39 @@ export async function POST(request: NextRequest) {
       txHash = result.txHash;
 
       console.log('[ZK-Multi-Custody] PRODUCTION: Deployed wallet', walletAddress);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TRACK IN DATABASE (SCF Metrics)
+    // ═══════════════════════════════════════════════════════════════
+
+    try {
+      await sql`
+        INSERT INTO multi_custody_wallets (
+          wallet_address,
+          guardian_count,
+          threshold,
+          timelock_seconds,
+          timelock_threshold,
+          network,
+          funded,
+          tx_hash
+        ) VALUES (
+          ${walletAddress},
+          ${guardians.length},
+          ${threshold},
+          ${timelockSeconds},
+          ${timelockThreshold},
+          'testnet',
+          false,
+          ${txHash}
+        )
+        ON CONFLICT (wallet_address) DO NOTHING
+      `;
+      console.log('[ZK-Multi-Custody] Tracked wallet creation in database');
+    } catch (dbError) {
+      console.warn('[ZK-Multi-Custody] Failed to track in database:', dbError);
+      // Don't fail the request if tracking fails
     }
 
     // ═══════════════════════════════════════════════════════════════

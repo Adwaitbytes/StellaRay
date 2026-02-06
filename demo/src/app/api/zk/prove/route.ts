@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import * as crypto from 'crypto';
+import { sql } from '@/lib/db';
 
 /**
  * Proof request structure
@@ -175,6 +176,36 @@ export async function POST(request: NextRequest) {
     const startTime = Date.now();
     const result = await generateProof(body);
     const proofTime = Date.now() - startTime;
+
+    // Track zkLogin proof generation in database (SCF Metrics)
+    try {
+      const userAgent = request.headers.get('user-agent') || null;
+      const country = request.headers.get('x-vercel-ip-country') ||
+                      request.headers.get('cf-ipcountry') || null;
+
+      await sql`
+        INSERT INTO zk_proofs (
+          proof_type,
+          wallet_address,
+          network,
+          generation_time_ms,
+          status,
+          user_agent,
+          country
+        ) VALUES (
+          'zklogin',
+          ${result.publicInputs.addressSeed.slice(0, 56)},
+          'testnet',
+          ${proofTime},
+          'generated',
+          ${userAgent},
+          ${country}
+        )
+      `;
+      console.log('[ZK-Prove] Tracked zkLogin proof generation');
+    } catch (dbError) {
+      console.warn('[ZK-Prove] Failed to track in database:', dbError);
+    }
 
     return NextResponse.json({
       proof: result.proof,

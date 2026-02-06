@@ -27,6 +27,15 @@ export async function GET(request: NextRequest) {
       paymentLinksStats,
       streamsStats,
       recentSignups,
+      // SCF Metrics - zkLogin
+      zkLoginWallets,
+      zkLoginDaily,
+      totalAuthentications,
+      // SCF Metrics - ZK Proofs
+      zkProofsStats,
+      zkProofsDaily,
+      // SCF Metrics - Multi-Custody
+      multiCustodyStats,
     ] = await Promise.all([
       // Total waitlist signups
       sql`SELECT COUNT(*) as total FROM waitlist`,
@@ -112,6 +121,69 @@ export async function GET(request: NextRequest) {
         ORDER BY created_at DESC
         LIMIT 20
       `,
+
+      // ═══════════════════════════════════════════════════════════════
+      // SCF METRICS - zkLogin Wallets
+      // ═══════════════════════════════════════════════════════════════
+
+      // Total zkLogin wallets created
+      sql`SELECT COUNT(*) as total FROM authenticated_users`,
+
+      // Daily zkLogin wallets (last 30 days)
+      sql`
+        SELECT
+          DATE(first_login_at) as date,
+          COUNT(*) as wallets
+        FROM authenticated_users
+        WHERE first_login_at >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY DATE(first_login_at)
+        ORDER BY date ASC
+      `,
+
+      // Total authentications (sum of all login_count)
+      sql`SELECT COALESCE(SUM(login_count), 0) as total FROM authenticated_users`,
+
+      // ═══════════════════════════════════════════════════════════════
+      // SCF METRICS - ZK Proofs
+      // ═══════════════════════════════════════════════════════════════
+
+      // ZK Proofs stats
+      sql`
+        SELECT
+          COUNT(*) as total,
+          COUNT(CASE WHEN proof_type = 'zklogin' THEN 1 END) as zklogin_proofs,
+          COUNT(CASE WHEN proof_type = 'balance_intent' THEN 1 END) as balance_intents,
+          COUNT(CASE WHEN proof_type = 'eligibility_intent' THEN 1 END) as eligibility_intents,
+          COALESCE(AVG(generation_time_ms), 0) as avg_generation_time,
+          COALESCE(AVG(verification_time_ms), 0) as avg_verification_time,
+          COALESCE(AVG(gas_used), 0) as avg_gas_used
+        FROM zk_proofs
+      `,
+
+      // Daily ZK proofs (last 30 days)
+      sql`
+        SELECT
+          DATE(created_at) as date,
+          COUNT(*) as proofs
+        FROM zk_proofs
+        WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+      `,
+
+      // ═══════════════════════════════════════════════════════════════
+      // SCF METRICS - Multi-Custody Wallets
+      // ═══════════════════════════════════════════════════════════════
+
+      // Multi-custody wallets stats
+      sql`
+        SELECT
+          COUNT(*) as total,
+          COUNT(CASE WHEN funded = true THEN 1 END) as funded,
+          COUNT(CASE WHEN threshold = 2 THEN 1 END) as threshold_2_of_3,
+          COUNT(CASE WHEN threshold = 3 THEN 1 END) as threshold_3_of_3
+        FROM multi_custody_wallets
+      `,
     ]);
 
     // Calculate revenue estimates
@@ -131,6 +203,12 @@ export async function GET(request: NextRequest) {
       ? ((weekSignups - prevWeekSignups) / prevWeekSignups) * 100
       : 100;
 
+    // Parse SCF metrics
+    const zkLoginTotal = parseInt(zkLoginWallets[0]?.total || "0");
+    const totalAuths = parseInt(totalAuthentications[0]?.total || "0");
+    const zkProofsTotal = parseInt(zkProofsStats[0]?.total || "0");
+    const multiCustodyTotal = parseInt(multiCustodyStats[0]?.total || "0");
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -139,6 +217,49 @@ export async function GET(request: NextRequest) {
         todaySignups: parseInt(waitlistToday[0]?.today || "0"),
         weekSignups,
         growthRate: Math.round(growthRate * 10) / 10,
+      },
+      // ═══════════════════════════════════════════════════════════════
+      // SCF METRICS SECTION (for grant submission)
+      // ═══════════════════════════════════════════════════════════════
+      scfMetrics: {
+        zkLogin: {
+          walletsCreated: zkLoginTotal,
+          totalAuthentications: totalAuths,
+          avgLoginsPerUser: zkLoginTotal > 0 ? Math.round((totalAuths / zkLoginTotal) * 10) / 10 : 0,
+          daily: zkLoginDaily,
+        },
+        zkProofs: {
+          total: zkProofsTotal,
+          byType: {
+            zklogin: parseInt(zkProofsStats[0]?.zklogin_proofs || "0"),
+            balanceIntent: parseInt(zkProofsStats[0]?.balance_intents || "0"),
+            eligibilityIntent: parseInt(zkProofsStats[0]?.eligibility_intents || "0"),
+          },
+          performance: {
+            avgGenerationTimeMs: Math.round(parseFloat(zkProofsStats[0]?.avg_generation_time || "0")),
+            avgVerificationTimeMs: Math.round(parseFloat(zkProofsStats[0]?.avg_verification_time || "0")),
+            avgGasUsed: Math.round(parseFloat(zkProofsStats[0]?.avg_gas_used || "0")),
+          },
+          daily: zkProofsDaily,
+        },
+        multiCustody: {
+          total: multiCustodyTotal,
+          funded: parseInt(multiCustodyStats[0]?.funded || "0"),
+          byThreshold: {
+            twoOfThree: parseInt(multiCustodyStats[0]?.threshold_2_of_3 || "0"),
+            threeOfThree: parseInt(multiCustodyStats[0]?.threshold_3_of_3 || "0"),
+          },
+        },
+        // Summary for grant submission
+        summary: {
+          totalZkLoginWallets: zkLoginTotal,
+          totalAuthentications: totalAuths,
+          totalZkProofs: zkProofsTotal,
+          totalMultiCustodyWallets: multiCustodyTotal,
+          totalPaymentLinks: parseInt(paymentLinksStats[0]?.total || "0"),
+          totalStreams: parseInt(streamsStats[0]?.total || "0"),
+          totalTransactionVolume: paymentVolume + streamVolume,
+        },
       },
       waitlist: {
         bySource: waitlistBySource,
