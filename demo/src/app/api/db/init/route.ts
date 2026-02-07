@@ -1,8 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { initializeDatabase } from "@/lib/db";
 
-// POST - Initialize database schema
-export async function POST() {
+function isAuthorized(request: NextRequest): boolean {
+  const authHeader = request.headers.get("authorization");
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (!adminKey) return false;
+  return authHeader === `Bearer ${adminKey}`;
+}
+
+// POST - Initialize database schema (protected)
+export async function POST(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     await initializeDatabase();
     return NextResponse.json({

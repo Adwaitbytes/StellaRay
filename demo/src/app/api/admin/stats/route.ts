@@ -4,7 +4,8 @@ import { sql } from "@/lib/db";
 // Simple admin auth check (use env variable)
 function isAuthorized(request: NextRequest): boolean {
   const authHeader = request.headers.get("authorization");
-  const adminKey = process.env.ADMIN_API_KEY || "stellaray-admin-2026";
+  const adminKey = process.env.ADMIN_API_KEY;
+  if (!adminKey) return false;
   return authHeader === `Bearer ${adminKey}`;
 }
 

@@ -116,3 +116,6 @@ __pycache__/
 .Python
 venv/
 .venv/
+
+# Private MPC wallet project (separate standalone app)
+mpc-wallet-private/
