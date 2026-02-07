@@ -32,7 +32,7 @@ function deriveSalt(issuer: string, subject: string): string {
   const saltInput = `${issuer}:${subject}:${SALT_DERIVATION_SECRET}`;
 
   // Use HMAC-SHA256 for secure derivation
-  const hmac = crypto.createHmac('sha256', SALT_DERIVATION_SECRET);
+  const hmac = crypto.createHmac('sha256', SALT_DERIVATION_SECRET!);
   hmac.update(saltInput);
   const hash = hmac.digest('hex');
 
