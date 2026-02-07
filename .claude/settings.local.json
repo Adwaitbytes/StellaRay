@@ -58,7 +58,8 @@
       "WebFetch(domain:communityfund.stellar.org)",
       "Bash(node -e:*)",
       "Bash(npx tsx:*)",
-      "WebFetch(domain:stellaray.fun)"
+      "WebFetch(domain:stellaray.fun)",
+      "WebFetch(domain:dashboard.communityfund.stellar.org)"
     ]
   }
 }
