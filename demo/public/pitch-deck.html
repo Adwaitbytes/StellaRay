@@ -616,14 +616,16 @@
 <!-- SLIDE 4: INTRODUCING STELLARAY -->
 <div class="slide" id="s4">
   <div style="text-align: center;">
-    <div class="logo-mark" style="justify-content: center; margin-bottom: 40px;">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-          <line x1="4" y1="4" x2="20" y2="20" stroke="white" stroke-width="2.5"/>
-          <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" stroke-width="2.5"/>
-          <circle cx="12" cy="12" r="1.5" fill="white"/>
-        </svg>
-      </div>
+    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 40px;">
+      <svg viewBox="0 0 100 100" width="100" height="100" style="margin-bottom: 16px; filter: drop-shadow(0 0 18px rgba(0,140,255,0.5));">
+        <defs>
+          <linearGradient id="s4eye" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#0077DD"/><stop offset="30%" stop-color="#66CCFF"/><stop offset="50%" stop-color="#FFFFFF"/><stop offset="70%" stop-color="#66CCFF"/><stop offset="100%" stop-color="#0077DD"/></linearGradient>
+          <linearGradient id="s4bolt" x1="80%" y1="0%" x2="20%" y2="100%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="50%" stop-color="#88DDFF"/><stop offset="100%" stop-color="#0055CC"/></linearGradient>
+          <filter id="s4g" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+        </defs>
+        <g filter="url(#s4g)"><path d="M 8 50 Q 28 18, 50 18 Q 72 18, 92 50" fill="none" stroke="url(#s4eye)" stroke-width="5.5" stroke-linecap="round"/><path d="M 8 50 Q 28 82, 50 82 Q 72 82, 92 50" fill="none" stroke="url(#s4eye)" stroke-width="5.5" stroke-linecap="round"/></g>
+        <line x1="85" y1="6" x2="15" y2="94" stroke="url(#s4bolt)" stroke-width="7" stroke-linecap="round" filter="url(#s4g)"/>
+      </svg>
       <div class="logo-text">
         <span>STELLA</span><span>RAY</span>
       </div>
@@ -714,7 +716,7 @@
         <div class="stat-label">Soroban Contracts Deployed</div>
       </div>
       <div class="stat-card" style="border-color: var(--cyan);">
-        <div class="stat-number accent-cyan">57+</div>
+        <div class="stat-number accent-cyan">101+</div>
         <div class="stat-label">SDK Exports Published</div>
       </div>
       <div class="stat-card" style="border-color: var(--yellow);">
@@ -802,7 +804,7 @@
       <span style="color: var(--cyan);">const</span> wallet = <span style="color: var(--cyan);">await</span> client.<span style="color: var(--blue);">loginWithGoogle</span>()
     </div>
     <div style="display: flex; gap: 16px; margin-top: 30px; flex-wrap: wrap;">
-      <span class="tag tag-blue">57+ SDK Exports</span>
+      <span class="tag tag-blue">101+ SDK Exports</span>
       <span class="tag tag-cyan">React Hooks</span>
       <span class="tag tag-yellow">TypeScript Strict</span>
       <span class="tag" style="border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.5);">npm Published</span>
@@ -915,8 +917,137 @@
   </div>
 </div>
 
-<!-- SLIDE 13: GROWTH TARGETS -->
-<div class="slide" id="s13">
+<!-- SLIDE 13: PRICING TIERS -->
+<div class="slide" id="s13" style="padding: 40px 60px;">
+  <div style="height: 100%; display: flex; flex-direction: column;">
+    <div class="tag tag-blue" style="margin-bottom: 14px;">Pricing</div>
+    <h1 style="font-weight: 900; text-transform: uppercase; font-size: clamp(22px, 2.8vw, 40px); line-height: 1.1;">Three tiers, <span class="accent-blue">one mission</span></h1>
+    <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; align-items: stretch;">
+
+      <!-- FREE TIER -->
+      <div style="border: 3px solid rgba(255,255,255,0.15); padding: 28px 24px; display: flex; flex-direction: column; background: rgba(255,255,255,0.02);">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); letter-spacing: 0.2em; margin-bottom: 6px;">FREE</div>
+        <div style="font-size: clamp(36px, 4vw, 56px); font-weight: 900; line-height: 1; margin-bottom: 4px;">$0</div>
+        <div style="font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 20px;">Forever free &bull; No card needed</div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">1 wallet</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">10 transactions/day</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">20 ZK proofs/month</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">Testnet access</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">5 payment links</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--cyan); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.6);">Community support</span>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding: 10px; border: 2px solid rgba(255,255,255,0.15); text-align: center; font-weight: 900; font-size: 13px; color: rgba(255,255,255,0.5);">GET STARTED</div>
+      </div>
+
+      <!-- PRO TIER -->
+      <div style="border: 3px solid var(--blue); padding: 28px 24px; display: flex; flex-direction: column; background: rgba(0,102,255,0.06); position: relative; box-shadow: 0 0 40px rgba(0,102,255,0.15), 0 0 80px rgba(0,102,255,0.08);">
+        <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--blue); color: black; padding: 4px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 900; letter-spacing: 0.15em;">POPULAR</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); letter-spacing: 0.2em; margin-bottom: 6px;">PRO</div>
+        <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px;">
+          <span style="font-size: clamp(36px, 4vw, 56px); font-weight: 900; line-height: 1;">$9</span>
+          <span style="font-size: 14px; color: rgba(255,255,255,0.35);">/mo</span>
+        </div>
+        <div style="font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 20px;">Yearly $89 &bull; Save 17%</div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600;">Unlimited wallets</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600;">Unlimited transactions</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">500 ZK proofs/month</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Mainnet access</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Streaming payments</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">50 payment links</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--blue); font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Priority support + Analytics</span>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding: 10px; background: var(--blue); text-align: center; font-weight: 900; font-size: 13px; color: white;">UPGRADE TO PRO</div>
+      </div>
+
+      <!-- BUSINESS TIER -->
+      <div style="border: 3px solid var(--green, #00FF88); padding: 28px 24px; display: flex; flex-direction: column; background: rgba(0,255,136,0.03); position: relative;">
+        <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #00FF88; color: black; padding: 4px 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 900; letter-spacing: 0.15em;">BEST VALUE</div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #00FF88; letter-spacing: 0.2em; margin-bottom: 6px;">BUSINESS</div>
+        <div style="display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px;">
+          <span style="font-size: clamp(36px, 4vw, 56px); font-weight: 900; line-height: 1;">$49</span>
+          <span style="font-size: 14px; color: rgba(255,255,255,0.35);">/mo</span>
+        </div>
+        <div style="font-size: 13px; color: rgba(255,255,255,0.35); margin-bottom: 20px;">Yearly $469 &bull; Save 17%</div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Everything in Pro</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600;">Unlimited ZK proofs</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600;">SDK API access</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">White-label + Custom branding</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 600;">Unlimited payment links</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Advanced analytics + SLA</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #00FF88; font-weight: 900;">&#10003;</span>
+            <span style="font-size: 13px; color: rgba(255,255,255,0.7);">Dedicated support</span>
+          </div>
+        </div>
+        <div style="margin-top: 16px; padding: 10px; background: #00FF88; text-align: center; font-weight: 900; font-size: 13px; color: black;">CONTACT SALES</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: GROWTH TARGETS -->
+<div class="slide" id="s14">
   <div>
     <div class="tag tag-cyan" style="margin-bottom: 30px;">Growth</div>
     <h1 class="medium">Where we are going</h1>
@@ -971,16 +1102,27 @@
   </div>
 </div>
 
-<!-- SLIDE 14: TEAM -->
-<div class="slide" id="s14">
+<!-- SLIDE 15: TEAM -->
+<div class="slide" id="s15">
   <div>
     <div class="tag tag-blue" style="margin-bottom: 24px;">The team</div>
     <h1 class="medium">Built by builders, not by funding</h1>
     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 36px;">
+      <!-- Adwait — 1st position -->
+      <div style="border: 3px solid var(--blue); overflow: hidden;">
+        <div style="width: 100%; height: 220px; overflow: hidden;">
+          <img src="pitch-assets/adwait.jpg" alt="Adwait Keshari" style="width: 100%; height: 100%; object-fit: cover; object-position: center 15%; filter: grayscale(30%);">
+        </div>
+        <div style="padding: 20px;">
+          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Adwait Keshari</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); letter-spacing: 0.1em; margin-top: 4px;">CO-FOUNDER & PRODUCT</div>
+          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Dashboard, payments, streaming, explorer, SDK playground, whitepaper, everything users touch</p>
+        </div>
+      </div>
       <!-- Yatharth -->
       <div style="border: 3px solid var(--cyan); overflow: hidden;">
         <div style="width: 100%; height: 220px; overflow: hidden;">
-          <img src="pitch-assets/yatharth.jpg" alt="Yatharth Tripathi" style="width: 100%; height: 100%; object-fit: cover; object-position: center 35%; filter: grayscale(30%);">
+          <img src="pitch-assets/yatharth.jpg" alt="Yatharth Tripathi" style="width: 100%; height: 100%; object-fit: cover; object-position: center 18%; filter: grayscale(30%);">
         </div>
         <div style="padding: 20px;">
           <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Yatharth Tripathi</div>
@@ -991,7 +1133,7 @@
       <!-- Atharv -->
       <div style="border: 3px solid var(--yellow); overflow: hidden;">
         <div style="width: 100%; height: 220px; overflow: hidden;">
-          <img src="pitch-assets/atharv.jpg" alt="Atharv Shrivastav" style="width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: grayscale(30%);">
+          <img src="pitch-assets/atharv.jpg" alt="Atharv Shrivastav" style="width: 100%; height: 100%; object-fit: cover; object-position: center 28%; filter: grayscale(30%);">
         </div>
         <div style="padding: 20px;">
           <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Atharv Shrivastav</div>
@@ -1010,17 +1152,6 @@
           <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Content strategy, visual storytelling, social media, developer education materials</p>
         </div>
       </div>
-      <!-- Adwait -->
-      <div style="border: 3px solid var(--blue); overflow: hidden;">
-        <div style="width: 100%; height: 220px; overflow: hidden;">
-          <img src="pitch-assets/adwait.jpg" alt="Adwait Keshari" style="width: 100%; height: 100%; object-fit: cover; object-position: center 25%; filter: grayscale(30%);">
-        </div>
-        <div style="padding: 20px;">
-          <div style="font-weight: 900; font-size: clamp(14px, 1.4vw, 20px); text-transform: uppercase;">Adwait Keshari</div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); letter-spacing: 0.1em; margin-top: 4px;">CO-FOUNDER & PRODUCT</div>
-          <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 10px; line-height: 1.5;">Dashboard, payments, streaming, explorer, SDK playground, whitepaper, everything users touch</p>
-        </div>
-      </div>
     </div>
     <p class="small-text" style="margin-top: 20px;">
       Based in India, self funded, 15,000+ lines of production code, we did not raise money to build this, we built it and now we are here
@@ -1028,20 +1159,20 @@
   </div>
 </div>
 
-<!-- SLIDE 15: PRE-LAUNCH TRACTION -->
-<div class="slide" id="s15" style="padding: 40px 60px;">
+<!-- SLIDE 16: PRE-LAUNCH TRACTION -->
+<div class="slide" id="s16" style="padding: 40px 60px;">
   <div style="height: 100%; display: flex; flex-direction: column;">
     <div class="tag tag-cyan" style="margin-bottom: 14px;">Pre-launch traction</div>
-    <h1 style="font-weight: 900; text-transform: uppercase; font-size: clamp(24px, 3vw, 44px); line-height: 1.1;">4 days old, already <span class="accent-cyan">moving</span></h1>
+    <h1 style="font-weight: 900; text-transform: uppercase; font-size: clamp(24px, 3vw, 44px); line-height: 1.1;">One week old, already <span class="accent-cyan">growing</span></h1>
     <div style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 12px; margin-top: 18px;">
       <!-- Row 1 -->
       <div style="border: 3px solid var(--cyan); overflow: hidden; display: flex; flex-direction: column;">
         <div style="flex: 1; min-height: 0; overflow: hidden;">
-          <img src="pitch-assets/followers-101.png" alt="101 followers" style="width: 100%; height: 100%; object-fit: cover; object-position: center bottom;">
+          <img src="pitch-assets/twitter-profile.png" alt="123 followers" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
         </div>
         <div style="padding: 8px 12px; background: rgba(0,212,255,0.05); border-top: 2px solid var(--cyan); flex-shrink: 0;">
-          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--cyan);">101 Followers</div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">+ 8.3K IMPRESSIONS IN 7 DAYS</div>
+          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--cyan);">123 Followers</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">47 POSTS &bull; 17 FOLLOWING &bull; ORGANIC</div>
         </div>
       </div>
       <div style="border: 3px solid var(--blue); overflow: hidden; display: flex; flex-direction: column;">
@@ -1049,8 +1180,8 @@
           <img src="pitch-assets/tweet-kaan.png" alt="Kaan Kacar tweet" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
         </div>
         <div style="padding: 8px 12px; background: rgba(0,102,255,0.05); border-top: 2px solid var(--blue); flex-shrink: 0;">
-          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--blue);">1,637 Views</div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">ECOSYSTEM SHOUTOUT</div>
+          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--blue);">2,565 Views</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">ECOSYSTEM SHOUTOUT &bull; 27 LIKES &bull; 8 RT</div>
         </div>
       </div>
       <div style="border: 3px solid var(--yellow); overflow: hidden; display: flex; flex-direction: column;">
@@ -1058,8 +1189,8 @@
           <img src="pitch-assets/tweet-pinned.png" alt="Pinned launch tweet" style="width: 100%; height: 100%; object-fit: cover; object-position: center top;">
         </div>
         <div style="padding: 8px 12px; background: rgba(255,214,0,0.05); border-top: 2px solid var(--yellow); flex-shrink: 0;">
-          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--yellow);">3,863 Views</div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">LAUNCH TWEET / ORGANIC</div>
+          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900; color: var(--yellow);">6,052 Views</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">119 LIKES &bull; 45 RT &bull; 41 REPLIES</div>
         </div>
       </div>
       <!-- Row 2 -->
@@ -1068,8 +1199,8 @@
           <img src="pitch-assets/npm-page.png" alt="npm package page" style="width: 100%; height: 100%; object-fit: cover; object-position: left top;">
         </div>
         <div style="padding: 8px 12px; background: rgba(255,255,255,0.03); border-top: 2px solid rgba(255,255,255,0.4); flex-shrink: 0;">
-          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900;">81 Downloads</div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">NPM / FIRST WEEK / ZERO ADS</div>
+          <div style="font-size: clamp(16px, 2vw, 24px); font-weight: 900;">101+ Downloads</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 0.1em;">NPM / ZERO ADS / ALL ORGANIC</div>
         </div>
       </div>
       <div style="border: 3px solid var(--red); overflow: hidden; display: flex; flex-direction: column;">
@@ -1086,15 +1217,15 @@
         <div style="font-size: clamp(14px, 1.5vw, 22px); font-weight: 900; line-height: 1.5;">
           Zero paid promotion<br>
           Zero ad spend<br>
-          <span style="color: var(--cyan);">All organic, 4 days</span>
+          <span style="color: var(--cyan);">All organic growth</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- SLIDE 16: WHY NOW -->
-<div class="slide" id="s16">
+<!-- SLIDE 17: WHY NOW -->
+<div class="slide" id="s17">
   <div>
     <div class="tag tag-red" style="margin-bottom: 30px;">Timing</div>
     <h1 class="big">Why right now</h1>
@@ -1119,35 +1250,35 @@
   </div>
 </div>
 
-<!-- SLIDE 17: THE CLOSE -->
-<div class="slide" id="s17">
-  <div style="text-align: center;">
-    <div class="logo-mark" style="justify-content: center; margin-bottom: 50px;">
-      <div class="logo-icon" style="width: 56px; height: 56px;">
-        <svg viewBox="0 0 24 24" width="32" height="32">
-          <line x1="4" y1="4" x2="20" y2="20" stroke="white" stroke-width="2.5"/>
-          <line x1="20" y1="4" x2="4" y2="20" stroke="#00D4FF" stroke-width="2.5"/>
-          <circle cx="12" cy="12" r="1.5" fill="white"/>
-        </svg>
-      </div>
-      <div class="logo-text" style="font-size: clamp(28px, 4vw, 52px);">
-        <span>STELLA</span><span>RAY</span>
-      </div>
+<!-- SLIDE 18: THE CLOSE -->
+<div class="slide" id="s18">
+  <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 40px 20px;">
+    <svg viewBox="0 0 100 100" width="120" height="120" style="margin-bottom: 20px; filter: drop-shadow(0 0 24px rgba(0,140,255,0.6));">
+      <defs>
+        <linearGradient id="s17eye" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#0077DD"/><stop offset="30%" stop-color="#66CCFF"/><stop offset="50%" stop-color="#FFFFFF"/><stop offset="70%" stop-color="#66CCFF"/><stop offset="100%" stop-color="#0077DD"/></linearGradient>
+        <linearGradient id="s17bolt" x1="80%" y1="0%" x2="20%" y2="100%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="50%" stop-color="#88DDFF"/><stop offset="100%" stop-color="#0055CC"/></linearGradient>
+        <filter id="s17g" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+      </defs>
+      <g filter="url(#s17g)"><path d="M 8 50 Q 28 18, 50 18 Q 72 18, 92 50" fill="none" stroke="url(#s17eye)" stroke-width="5.5" stroke-linecap="round"/><path d="M 8 50 Q 28 82, 50 82 Q 72 82, 92 50" fill="none" stroke="url(#s17eye)" stroke-width="5.5" stroke-linecap="round"/></g>
+      <line x1="85" y1="6" x2="15" y2="94" stroke="url(#s17bolt)" stroke-width="7" stroke-linecap="round" filter="url(#s17g)"/>
+    </svg>
+    <div class="logo-text" style="font-size: clamp(28px, 4vw, 52px); margin-bottom: 24px;">
+      <span>STELLA</span><span>RAY</span>
     </div>
-    <h1 class="huge" style="color: var(--cyan);">
+    <h1 class="huge" style="color: var(--cyan); margin-bottom: 20px;">
       Prove everything<br>
       Reveal nothing
     </h1>
-    <div class="subtitle" style="margin-top: 40px;">
+    <div class="subtitle" style="margin-top: 16px; font-size: clamp(12px, 1.2vw, 18px);">
       stellaray.fun &bull; @stellaraydotfun &bull; github.com/Adwaitbytes/StellaRay
     </div>
-    <div style="display: flex; gap: 16px; justify-content: center; margin-top: 30px;">
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 20px;">
       <span class="tag tag-blue">Live Demo</span>
       <span class="tag tag-cyan">Open Source</span>
       <span class="tag tag-yellow">Protocol 25</span>
     </div>
-    <p style="margin-top: 50px; font-size: clamp(18px, 2vw, 28px); font-weight: 900; color: rgba(255,255,255,0.7);">
-      "We did not raise money to build this<br>We built it, now let us take it to mainnet"
+    <p style="margin-top: 24px; font-size: clamp(14px, 1.5vw, 22px); font-weight: 900; color: rgba(255,255,255,0.7);">
+      "We didn't raise money to build this, we built it, now let us take it to mainnet"
     </p>
   </div>
 </div>
@@ -1155,7 +1286,7 @@
 <!-- BOTTOM BAR -->
 <div class="bottom-bar">
   <span>StellaRay / Pitch 2026</span>
-  <span id="slideCounter">1 / 17</span>
+  <span id="slideCounter">1 / 18</span>
 </div>
 <div class="progress-bar" id="progressBar" style="width: 5.88%;"></div>
 
@@ -1183,7 +1314,7 @@
   const slideNames = [
     'Hook', 'Problem', 'Vision', 'Brand', 'How', 'Protocol 25',
     'Built', 'Stack', 'Near Intent', 'SDK', 'Competition',
-    'Revenue', 'Growth', 'Team', 'Traction', 'Ask', 'Timing', 'Close'
+    'Revenue', 'Pricing', 'Growth', 'Team', 'Traction', 'Ask', 'Timing', 'Close'
   ];
   
   slideNames.forEach((name, index) => {
