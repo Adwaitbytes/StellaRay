@@ -48,9 +48,9 @@ This security analysis covers the complete StellaRay codebase including:
 
 **Details:**
 ```env
-GOOGLE_CLIENT_SECRET=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
-DATABASE_URL=postgresql://neondb_owner:npg_wugQRKj81DvS@ep-rapid-truth-ahf6awxl-pooler...
-NEXTAUTH_SECRET=stellar-gateway-demo-secret-key-change-in-production
+GOOGLE_CLIENT_SECRET=<REDACTED - real secret was exposed here>
+DATABASE_URL=<REDACTED - real database URL was exposed here>
+NEXTAUTH_SECRET=<REDACTED - real secret was exposed here>
 ```
 
 **Impact:**
@@ -180,7 +180,7 @@ pnpm add jose
 **Details:**
 ```typescript
 // ❌ VULNERABLE: Hardcoded fallback
-const SALT_DERIVATION_SECRET = process.env.SALT_DERIVATION_SECRET || 'stellaray-zk-salt-secret-v1';
+const SALT_DERIVATION_SECRET = process.env.SALT_DERIVATION_SECRET || '<REDACTED-hardcoded-fallback>';
 ```
 
 **Impact:**
@@ -195,7 +195,7 @@ const SALT_DERIVATION_SECRET = process.env.SALT_DERIVATION_SECRET || 'stellaray-
 import crypto from 'crypto';
 
 function stealWallet(googleSub) {
-  const secret = 'stellaray-zk-salt-secret-v1'; // Public knowledge
+  const secret = '<REDACTED>'; // Was hardcoded - now fixed
   const salt = crypto.createHmac('sha256', secret)
     .update(googleSub)
     .digest('hex');

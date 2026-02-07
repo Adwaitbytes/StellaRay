@@ -23,7 +23,7 @@ This happens because your OAuth app is in "Testing" mode and only whitelisted us
 
 1. Scroll down to **"Test users"** section
 2. Click **"+ ADD USERS"** button
-3. Add your email: **tripathiyatharth257@gmail.com**
+3. Add your email: **your-email@gmail.com**
 4. Click **"SAVE"**
 
 ### Step 4: Add More Test Users (Optional)
@@ -112,7 +112,7 @@ After:
 ## Current OAuth Configuration
 
 Your app details:
-- **Client ID**: `757367004425-ll5k12p7b938nhet3odcfk0ulnj1aug7.apps.googleusercontent.com`
+- **Client ID**: `your-google-client-id.apps.googleusercontent.com`
 - **Status**: Testing mode
 - **Scopes**: openid, email, profile, drive.appdata
 - **Test Users**: Currently empty (needs your email)

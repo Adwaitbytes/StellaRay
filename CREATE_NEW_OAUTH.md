@@ -30,7 +30,7 @@
 
 **Test users:**
 - Click **+ ADD USERS**
-- Add: `tripathiyatharth257@gmail.com`
+- Add: `your-email@gmail.com`
 - Add any other emails you want to test
 - Click **SAVE AND CONTINUE**
 

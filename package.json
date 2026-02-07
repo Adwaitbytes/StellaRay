@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "@stellar-zklogin/sdk": "^2.0.0"
+    "@stellar-zklogin/sdk": "^2.0.0",
+    "puppeteer-core": "^24.37.2"
   }
 }

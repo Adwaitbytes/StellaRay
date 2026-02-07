@@ -4,12 +4,12 @@
 
 ### 1. GOOGLE_CLIENT_ID
 ```
-138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689.apps.googleusercontent.com
+your-google-client-id.apps.googleusercontent.com
 ```
 
 ### 2. GOOGLE_CLIENT_SECRET
 ```
-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
+your-google-client-secret (get from Google Cloud Console)
 ```
 
 ### 3. NEXTAUTH_SECRET
@@ -24,7 +24,7 @@ Your Vercel deployment URL (Vercel will auto-populate this)
 
 ### 5. NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ```
-138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689.apps.googleusercontent.com
+your-google-client-id.apps.googleusercontent.com (same as GOOGLE_CLIENT_ID)
 ```
 
 ---

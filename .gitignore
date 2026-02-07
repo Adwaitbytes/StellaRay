@@ -5,11 +5,27 @@ target/
 dist/
 build/
 .next/
+out/
 
-# Environment
+# Environment files - NEVER commit secrets
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+.env.development
+demo/.env.local
+demo/.env.production
+demo/.env.staging
+
+# Claude Code settings (local permissions)
+.claude/
+
+# Personal/private files
+photos/
+
+# Waitlist data (contains PII)
+demo/data/waitlist.json
 
 # IDE
 .vscode/
@@ -21,6 +37,7 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Build artifacts
 *.wasm
@@ -50,6 +67,19 @@ temp/
 package-lock.json
 yarn.lock
 
+# Windows artifacts
 nul
 demo/nul
 
+# Vercel
+.vercel
+
+# Secrets & keys - safety net
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*secret*
+!*.example
+!*.md

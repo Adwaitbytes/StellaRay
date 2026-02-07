@@ -20,6 +20,8 @@ dist
 *.pem
 .env
 .env*.local
+.env.production
+.env.staging
 
 # Debug
 npm-debug.log*

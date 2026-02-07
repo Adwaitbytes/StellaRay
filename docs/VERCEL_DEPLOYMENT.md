@@ -22,7 +22,7 @@ Your Stellar Gateway project is now **deployment-ready**! Follow this checklist 
 **Required before deployment:**
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Select your OAuth 2.0 Client ID: `138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689`
+2. Select your OAuth 2.0 Client ID
 3. **Important:** Add authorized redirect URIs:
    - For Vercel preview: `https://*.vercel.app/api/auth/callback/google`
    - For production: `https://your-domain.vercel.app/api/auth/callback/google`
@@ -54,12 +54,12 @@ In your Vercel project dashboard, add these environment variables:
 
 | Variable | Value | Type |
 |----------|-------|------|
-| `GOOGLE_CLIENT_ID` | `138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689.apps.googleusercontent.com` | Secret |
+| `GOOGLE_CLIENT_ID` | Your Google OAuth Client ID from GCP Console | Secret |
 | `GOOGLE_CLIENT_SECRET` | Your secret from Google Console | Secret |
 | `NEXTAUTH_SECRET` | Generate: `openssl rand -base64 32` | Secret |
 | `NEXTAUTH_URL` | `https://your-app.vercel.app` | Secret |
 | `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` | Public |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689.apps.googleusercontent.com` | Public |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Same as GOOGLE_CLIENT_ID above | Public |
 
 #### Optional Variables (defaults work):
 

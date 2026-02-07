@@ -9,7 +9,7 @@ Everything is configured for Vercel deployment. Just follow these 3 steps:
 ## Step 1: Get Your Google Client Secret
 
 1. Go to: https://console.cloud.google.com/apis/credentials
-2. Find your OAuth 2.0 Client: `138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689`
+2. Find your OAuth 2.0 Client ID
 3. Copy the **Client Secret** (format: `GOCSPX-...`)
 4. Keep it handy for Step 2
 
@@ -23,7 +23,7 @@ Everything is configured for Vercel deployment. Just follow these 3 steps:
 
 | Variable | What to Enter |
 |----------|---------------|
-| `GOOGLE_CLIENT_ID` | `138834794677-pdn6lifgvg8jc6mrdjurumoujk5cj689.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_ID` | Your Google OAuth Client ID from GCP Console |
 | `GOOGLE_CLIENT_SECRET` | Paste your secret from Step 1 |
 | `NEXTAUTH_SECRET` | Click "Generate" button in Vercel |
 | `NEXTAUTH_URL` | Leave blank (Vercel auto-fills) |
@@ -107,7 +107,3 @@ Then manually add environment variables in Vercel Dashboard.
 ---
 
 **Ready? Click the Deploy button above! 🚀**
-
-757367004425-ll5k12p7b938nhet3odcfk0ulnj1aug7.apps.googleusercontent.com
-
-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

@@ -13,7 +13,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as crypto from 'crypto';
 
 // Salt derivation secret - in production, this should be stored in HSM/KMS
-const SALT_DERIVATION_SECRET = process.env.SALT_DERIVATION_SECRET || 'stellaray-zk-salt-secret-v1';
+// IMPORTANT: Never use a hardcoded fallback - set SALT_DERIVATION_SECRET in your environment
+const SALT_DERIVATION_SECRET = process.env.SALT_DERIVATION_SECRET;
+
+if (!SALT_DERIVATION_SECRET) {
+  console.error('FATAL: SALT_DERIVATION_SECRET environment variable is required. Generate one with: openssl rand -hex 32');
+}
 
 // Salt storage (in-memory for demo, use database in production)
 const saltCache = new Map<string, string>();
@@ -83,6 +88,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'JWT token is required' },
         { status: 400 }
+      );
+    }
+
+    if (!SALT_DERIVATION_SECRET) {
+      return NextResponse.json(
+        { error: 'Server misconfiguration: SALT_DERIVATION_SECRET is not set' },
+        { status: 500 }
       );
     }
 
