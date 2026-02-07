@@ -83,3 +83,36 @@ demo/nul
 *secret*
 !*.example
 !*.md
+
+# Internal files (planning docs, old pitch decks, scripts, unused assets)
+_internal/
+
+# Duplicate/old pitch decks
+demo/public/pitch-deck-final.html
+demo/public/pitch-deck-new.html
+demo/public/pitch.html
+
+# Unused pitch assets
+demo/public/pitch-assets/followers-101.png
+demo/public/pitch-assets/logo-glow.png
+
+# Seed scripts
+demo/scripts/seed-all.ts
+demo/scripts/seed-waitlist.ts
+
+# PDF pitch deck (large binary)
+demo/public/StellaRay-Pitch-Deck.pdf
+
+# Generate scripts
+demo/scripts/generate-pitch-pdf.js
+
+# Cargo lock (can be regenerated)
+Cargo.lock
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+venv/
+.venv/
