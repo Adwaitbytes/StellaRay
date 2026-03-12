@@ -750,49 +750,27 @@ const MAINNET_CONTRACTS = {
 
 ## 11. Mainnet Migration Plan
 
-### Phase 1: Tranche 1 (by April 15, 2026)
-- Enable streaming payments + payment links on testnet (feature flag: `SCF_REVEAL_FEATURES: true`)
-- Harden streaming escrow contract edge cases
-- Publish SDK v2.1 with streaming + payment link hooks
+### Phase 1: Payment Layer (April 2026)
+- Harden streaming escrow contract edge cases (expiry, failed withdrawal, partial cancel)
+- Complete integration testing for payment links with one-time-use enforcement
+- Publish SDK v2.1 with streaming payment hooks and payment link utilities
 - Launch developer playground at stellaray.fun/playground
 
-### Phase 2: Tranche 2 (by June 15, 2026)
-- Enable Near Intent / ZK Proof Gates
-- Enable ZK Multi-Custody Recovery
-- Enable MPC Dashboard
-- Identity Badge System
-- Documentation portal: docs.stellaray.fun
+### Phase 2: Privacy Layer (June 2026)
+- Complete integration testing for Near Intent ZK proof gates
+- End-to-end testing of multi-custody recovery flow (split, initiate, approve, execute)
+- MPC dashboard hardening and testing
+- Full documentation portal covering all 3 layers and 26 API endpoints
 
-### Phase 3: Tranche 3 (by July 15, 2026)
-**Mainnet deployment checklist:**
-- [ ] Trusted setup ceremony for all circuits (Powers of Tau + circuit-specific phase 2)
-- [ ] Deploy ZK Verifier to `Networks.PUBLIC` with mainnet VK
-- [ ] Deploy JWK Registry with current Google JWK modulus hashes
-- [ ] Deploy Gateway Factory and Smart Wallet WASM
-- [ ] Deploy x402 Facilitator
-- [ ] Update SDK `MAINNET_CONTRACTS` with deployed addresses
-- [ ] Update `.env` `NEXT_PUBLIC_STELLAR_NETWORK=mainnet`
-- [ ] Set `MAINNET_ENABLED: true` in features.ts
-- [ ] Security audit (SCF-provided)
-- [ ] UX testing with 10+ real users
-- [ ] 100 unique mainnet wallets created within 30 days
-
-### Migration Script
-
-```bash
-# Deploy all contracts to mainnet
-cd contracts
-stellar contract deploy --wasm zk-verifier.wasm --network mainnet --source admin
-stellar contract deploy --wasm jwk-registry.wasm --network mainnet --source admin
-# ... (remaining contracts)
-
-# Initialize contracts
-stellar contract invoke --id $ZK_VERIFIER_MAINNET --fn register_vk \
-  --arg zklogin --arg $MAINNET_VK_JSON
-
-# Verify on Stellar Expert
-open https://stellar.expert/explorer/public/contract/$ZK_VERIFIER_MAINNET
-```
+### Phase 3: Mainnet Deployment (July 2026)
+- Trusted setup ceremony for all circuits (Powers of Tau + circuit-specific phase 2)
+- Deploy ZK Verifier to Stellar mainnet with production verification key
+- Deploy JWK Registry with current Google JWK modulus hashes
+- Deploy Gateway Factory, Smart Wallet, x402 Facilitator, and ZK Multi-Custody contracts
+- Update SDK MAINNET_CONTRACTS with all deployed addresses
+- Security audit (all contracts reviewed before mainnet launch)
+- Professional UX testing with 10+ real users
+- Public launch targeting 100 unique mainnet wallets in first 30 days
 
 ---
 
