@@ -13,10 +13,10 @@ StellaRay replaces seed phrases with Google Sign-In. A user clicks "Sign in with
 
 The system has four layers that build on each other:
 
-- **ZK Wallet** — Google OAuth to Stellar wallet using Protocol 25's native BN254 and Poseidon host functions
-- **Payments** — streaming payments, shareable payment links, and x402 micropayments settled on Stellar
-- **Near Intent** — ZK proof gates that let any Soroban contract verify private user state without seeing the underlying data
-- **Multi-Custody Recovery** — Shamir 2-of-3 social recovery so users never permanently lose wallet access
+- **ZK Wallet**: Google OAuth to Stellar wallet using Protocol 25's native BN254 and Poseidon host functions
+- **Payments**: streaming payments, shareable payment links, and x402 micropayments settled on Stellar
+- **Near Intent**: ZK proof gates that let any Soroban contract verify private user state without seeing the underlying data
+- **Multi-Custody Recovery**: Shamir 2-of-3 social recovery so users never permanently lose wallet access
 
 Everything is live on Stellar testnet. Five Soroban contracts are deployed and verifiable on stellar.expert right now. The SDK is published on npm and any Stellar dApp can integrate ZK login today.
 
