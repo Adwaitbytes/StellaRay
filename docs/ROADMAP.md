@@ -1,354 +1,318 @@
 # Product Roadmap
 
-## Stellar zkLogin Gateway
+## StellaRay: ZK Authentication Layer for Stellar
 
-**Version**: 2.0
-**Last Updated**: January 2026
-**Roadmap Period**: January 2026 - January 2027
+**Version**: 3.0
+**Last Updated**: April 2026
+**Roadmap Period**: April 2026 to April 2027
 
 ---
 
 ## Vision
 
-Make blockchain as easy as "Sign in with Google" while preserving self-custody and privacy through zero-knowledge proofs.
+Make blockchain as easy as "Sign in with Google" while preserving self-custody and privacy through zero-knowledge proofs. Replace the current single-operator salt service with a 3-of-5 threshold MPC across independent operators, then ship audited contracts to Stellar mainnet with named launch partners and on-chain protocol revenue.
 
 ---
 
-## Current Status (v2.0)
+## Current Status (April 2026)
 
-### Completed ✅
+### Shipped
 
-| Feature | Status | Release |
-|---------|--------|---------|
-| Protocol 25 Integration | ✅ Complete | v2.0 |
-| Google OAuth Support | ✅ Complete | v1.0 |
-| Groth16 Verification | ✅ Complete | v1.0 |
-| TypeScript SDK | ✅ Complete | v1.0 |
-| React Hooks | ✅ Complete | v1.5 |
-| x402 Payment Integration | ✅ Complete | v2.0 |
-| Testnet Deployment | ✅ Complete | v2.0 |
-| Demo Application | ✅ Complete | v2.0 |
+| Capability | Status | Where to verify |
+|---|---|---|
+| 6 Soroban contracts on Stellar testnet | Live | stellar.expert (addresses below) |
+| Google OAuth zkLogin flow end to end | Live | stellaray.fun |
+| TypeScript SDK + React hooks | Live | npmjs.com/package/@stellar-zklogin/sdk |
+| Streaming payments | Live | stellaray.fun/streams |
+| Payment links | Live | stellaray.fun/pay |
+| x402 micropayments | Live | x402 facilitator contract |
+| Eligibility proof framework (4 proof types) | Live | stellaray.fun/zk-proofs |
+| Shamir 2-of-3 multi-custody recovery | Live | stellaray.fun/zk-multi-custody |
+| Protocol 25 BN254 + Poseidon host-function integration | Live | First on Stellar |
 
-### Deployed Contracts
+### Deployed Testnet Contracts
 
-| Contract | Testnet | Mainnet |
-|----------|---------|---------|
-| ZK Verifier | ✅ Deployed | 🔜 Pending |
-| JWK Registry | ✅ Deployed | 🔜 Pending |
-| Gateway Factory | ✅ Deployed | 🔜 Pending |
-| Smart Wallet | ✅ Deployed | 🔜 Pending |
-| x402 Facilitator | ✅ Deployed | 🔜 Pending |
+| Contract | Status |
+|---|---|
+| ZK Verifier (`CDAQXHN...CP6`) | Live on testnet |
+| JWK Registry (`CAMO5LY...S2I`) | Live on testnet |
+| Gateway Factory (`CAAOQR7...F76`) | Live on testnet |
+| Smart Wallet (WASM hash `2a7e...4d5d`) | Live on testnet |
+| x402 Facilitator (`CDJMT4P...TZZ`) | Live on testnet |
+| ZK Multi-Custody Recovery | Live on testnet |
+
+### Honest Open Risks
+
+| Risk | Status | Where it gets fixed |
+|---|---|---|
+| Single-operator salt service (custody-equivalent) | Active risk | Replaced in Q3 2026 by 3-of-5 FROST cluster |
+| Mainnet verification key not from a multi-party ceremony | Open | Fixed in Q3 2026 trusted-setup ceremony |
+| External cryptography audit not yet completed | Open | SCF-funded audit during Q3 2026 |
 
 ---
 
-## Q1 2026: Security & Stability
+## Q1 2026: Foundation (Historical)
 
 ### January 2026
 
-**Focus**: Protocol 25 Mainnet Preparation
+**Focus**: Protocol 25 readiness and testnet deployment.
 
-| Milestone | Target Date | Status |
-|-----------|-------------|--------|
-| Protocol 25 Testnet Vote | Jan 7 | 📅 Scheduled |
-| Complete SDK Test Suite | Jan 15 | 🔄 In Progress |
-| Protocol 25 Mainnet Vote | Jan 22 | 📅 Scheduled |
-| Security Audit Engagement | Jan 31 | 📋 Planned |
+| Milestone | Date | Status |
+|---|---|---|
+| Protocol 25 testnet vote | Jan 7 | Complete |
+| Protocol 25 mainnet activation | Jan 22 | Complete |
+| StellaRay testnet contract deployment (all 6 contracts) | Jan-end | Complete |
+| Live demo at stellaray.fun | Jan-end | Complete |
+| TypeScript SDK published on npm | Jan-end | Complete |
 
-**KPIs**:
-- [ ] 90% test coverage
-- [ ] Zero P0/P1 bugs
-- [ ] Audit firm selected
+### February to March 2026
 
-### February 2026
+**Focus**: SCF #42 Build Award submission (rejected); incorporated reviewer feedback into the SCF #43 plan.
 
-**Focus**: Security Audit
-
-| Milestone | Target Date | Status |
-|-----------|-------------|--------|
-| Audit Kickoff | Feb 1 | 📋 Planned |
-| Interim Report Review | Feb 15 | 📋 Planned |
-| Final Audit Report | Feb 28 | 📋 Planned |
-
-**KPIs**:
-- [ ] All critical findings addressed
-- [ ] All high findings addressed
-- [ ] Audit report published
-
-### March 2026
-
-**Focus**: Mainnet Launch
-
-| Milestone | Target Date | Status |
-|-----------|-------------|--------|
-| Mainnet Contract Deployment | Mar 7 | 📋 Planned |
-| SDK v2.1 Release | Mar 14 | 📋 Planned |
-| Bug Bounty Launch | Mar 21 | 📋 Planned |
-| Public Launch Announcement | Mar 28 | 📋 Planned |
-
-**KPIs**:
-- [ ] Mainnet contracts verified
-- [ ] 100 unique wallets created
-- [ ] Bug bounty active
-- [ ] Press coverage secured
+| Milestone | Date | Status |
+|---|---|---|
+| SCF #42 submission | Feb-early | Complete |
+| SCF #42 Build Award decision | Mar 11 | Not awarded |
+| Voter feedback analysis | Mar | Complete |
+| Resubmission scoping (decentralized salt MPC, named partners, revenue activation) | Mar-Apr | Complete |
 
 ---
 
-## Q2 2026: Growth & Integrations
+## Q2 2026: SCF #43 Submission and Developer Tooling
 
 ### April 2026
 
-**Focus**: Developer Ecosystem
+**Focus**: SCF #43 submission and partner LOI outreach.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Apple Sign-In Support | High | 📋 Planned |
-| Python SDK | Medium | 📋 Planned |
-| Go SDK | Medium | 📋 Planned |
-| Developer Documentation Portal | High | 📋 Planned |
+| Milestone | Target | Status |
+|---|---|---|
+| SCF #43 Build Interest Form | Apr 26 | Submitted |
+| SCF #43 Build Award full submission | Apr-end | In progress |
+| Partner LOI outreach (target 3 named integrations) | Apr-May | In progress |
+| Audit firm scoping (Veridise / Zellic / Macro) | Apr-May | In progress |
+| External operator outreach (4 candidates for salt cluster) | Apr-May | In progress |
 
-**KPIs**:
-- [ ] 500 unique wallets
-- [ ] 3 dApp integrations
-- [ ] SDK downloads: 500
+### May to June 2026
 
-### May 2026
+**Focus**: SCF #43 Tranche 1 deliverables (Developer Ecosystem Assets).
 
-**Focus**: Performance Optimization
+Tranche 1 fires after SCF approval. Estimated approval window late May 2026, deliverables completed by mid-July 2026.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| GPU-Accelerated Prover | High | 📋 Planned |
-| Proof Caching Layer | Medium | 📋 Planned |
-| Mobile SDK (React Native) | High | 📋 Planned |
-| Session Key UX Improvements | Medium | 📋 Planned |
+| Deliverable | Owner | Status |
+|---|---|---|
+| Documentation portal at docs.stellaray.fun | Niharika | Tranche 1 |
+| 5 ready-to-fork sample dApp templates | Adwait | Tranche 1 |
+| OpenAPI 3.1 spec, Postman collection, types package | Adwait | Tranche 1 |
+| Public performance benchmark suite + dashboard | Adwait | Tranche 1 |
+| Stellar zkLogin Cookbook (20 technical recipes) | Niharika | Tranche 1 |
+| Migration guide from Albedo / Freighter / raw Stellar SDK | Niharika | Tranche 1 |
+| Security remediation: 4 Critical findings closed + independent confirmation | Yatharth | Tranche 1 |
 
-**KPIs**:
-- [ ] Proof time <2 seconds (browser)
-- [ ] 1,000 unique wallets
-- [ ] 5 dApp integrations
-
-### June 2026
-
-**Focus**: Enterprise Features
-
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Multi-Tenant Salt Service | High | 📋 Planned |
-| SLA-Backed Prover Service | High | 📋 Planned |
-| Custom Domain Support | Medium | 📋 Planned |
-| Analytics Dashboard | Medium | 📋 Planned |
-
-**KPIs**:
-- [ ] 2,000 unique wallets
-- [ ] 1 enterprise customer
-- [ ] 99.9% uptime achieved
+**Q2 KPIs**:
+- SCF #43 submission accepted
+- 1+ named partner LOI signed
+- Audit firm engagement letter received
+- Tranche 1 deliverables shipped on schedule
 
 ---
 
-## Q3 2026: Scale & Decentralization
+## Q3 2026: Distributed Salt MPC and Mainnet Launch
 
 ### July 2026
 
-**Focus**: Decentralized Infrastructure
+**Focus**: SCF #43 Tranche 2 begins. Distributed Salt MPC implementation.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Decentralized Prover Network MVP | Critical | 📋 Planned |
-| IPFS Circuit Distribution | High | 📋 Planned |
-| Community Prover Incentives | Medium | 📋 Planned |
-
-**KPIs**:
-- [ ] 5 independent prover operators
-- [ ] 5,000 unique wallets
-- [ ] 10 dApp integrations
+| Deliverable | Owner | Status |
+|---|---|---|
+| FROST-based threshold protocol specification published | Yatharth | Tranche 2 |
+| Open-source operator software (Rust) released | Yatharth | Tranche 2 |
+| 3-of-5 testnet salt cluster live with 5 named operators | Atharv (ops) | Tranche 2 |
+| Public DKG ceremony executed on testnet, transcript published | Yatharth | Tranche 2 |
+| Operator health dashboard at stellaray.fun/operators | Adwait | Tranche 2 |
+| SDK v2.5 published using threshold salt service | Adwait | Tranche 2 |
 
 ### August 2026
 
-**Focus**: Advanced Cryptography
+**Focus**: External cryptography audit (SCF-funded).
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| PLONK Proof System Migration | High | 📋 Research |
-| Recursive Proof Aggregation | Medium | 📋 Research |
-| Hardware Wallet Integration | Medium | 📋 Planned |
-
-**KPIs**:
-- [ ] PLONK testnet deployment
-- [ ] 10,000 unique wallets
-- [ ] 50,000 monthly transactions
+| Deliverable | Status |
+|---|---|
+| Audit kickoff with selected firm | Tranche 3 (audit funded separately by SCF) |
+| Interim findings review | Tranche 3 |
+| Final audit report published | Tranche 3 |
+| All Critical and High findings remediated | Tranche 3 |
+| Trusted setup ceremony begins (Powers of Tau with 10+ participants) | Tranche 3 |
 
 ### September 2026
 
-**Focus**: Ecosystem Expansion
+**Focus**: SCF #43 Tranche 3. Mainnet launch.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Cross-Chain Bridge Preparation | Medium | 📋 Research |
-| OAuth Provider Expansion (GitHub, Microsoft) | High | 📋 Planned |
-| White-Label Solution | Medium | 📋 Planned |
+| Deliverable | Owner | Status |
+|---|---|---|
+| Phase-2 trusted setup ceremony (5+ participants) | Yatharth | Tranche 3 |
+| Production verification key derived; key hash committed on chain | Yatharth | Tranche 3 |
+| All 6 Soroban contracts deployed to Stellar mainnet | Yatharth | Tranche 3 |
+| 3-of-5 FROST salt cluster promoted to mainnet | Atharv (ops) | Tranche 3 |
+| Production prover infrastructure (3-region active) | Adwait | Tranche 3 |
+| SDK v3.0 (web + React Native) published on npm | Adwait | Tranche 3 |
+| 3 named partner integrations live on mainnet | Atharv | Tranche 3 |
+| Per-proof gateway fee activated on x402 facilitator | Adwait | Tranche 3 |
+| Public mainnet dashboard at stellaray.fun/mainnet | Adwait | Tranche 3 |
 
-**KPIs**:
-- [ ] 4 OAuth providers supported
-- [ ] 15,000 unique wallets
-- [ ] 20 dApp integrations
+**Q3 KPIs (90 days post-mainnet, set as floors not targets)**:
+- 500+ unique mainnet wallets (verifiable on stellar.expert)
+- 5,000+ cumulative ZK proofs verified on chain
+- 3 named partners live on mainnet
+- 60+ days continuous threshold-cluster uptime
+- First protocol revenue captured (target $100/month by day 90)
+- Audit report published with all Critical and High findings closed
 
 ---
 
-## Q4 2026: Maturity & Standards
+## Q4 2026: Post-Launch Stabilization and Apple Sign-In
 
 ### October 2026
 
-**Focus**: Standards & Compliance
+**Focus**: Post-launch operations and partner expansion.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| EIP/CAP Standard Proposal | High | 📋 Planned |
-| SOC 2 Type II Preparation | High | 📋 Planned |
-| GDPR Compliance Documentation | High | 📋 Planned |
-
-**KPIs**:
-- [ ] Standard proposal submitted
-- [ ] SOC 2 audit started
-- [ ] 25,000 unique wallets
+| Goal | Status |
+|---|---|
+| Mainnet incident-response runbooks published | Planned |
+| Operator quarterly resharing #1 (FROST cluster) | Planned |
+| Partner integration #4 onboarded | Planned |
+| Public 90-day mainnet report | Planned |
 
 ### November 2026
 
-**Focus**: Advanced Features
+**Focus**: Apple Sign-In integration.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Social Recovery | High | 📋 Planned |
-| Multi-Sig Sessions | Medium | 📋 Planned |
-| Batch Transactions | Medium | 📋 Planned |
-
-**KPIs**:
-- [ ] 40,000 unique wallets
-- [ ] 200,000 monthly transactions
-- [ ] 30 dApp integrations
+| Goal | Status |
+|---|---|
+| Apple OIDC integration (ES256-signed JWT support) | Planned |
+| Apple-specific Circom circuit variant compiled and tested | Planned |
+| JWK Registry update with Apple public keys | Planned |
+| SDK exposure as `connect('apple')` | Planned |
 
 ### December 2026
 
-**Focus**: Year-End Goals
+**Focus**: Stabilization and 2027 planning.
 
-| Feature | Priority | Status |
-|---------|----------|--------|
-| v3.0 Release | Critical | 📋 Planned |
-| Decentralized Governance Proposal | Medium | 📋 Research |
-| 2027 Roadmap Publication | High | 📋 Planned |
+| Goal | Status |
+|---|---|
+| Performance optimization pass on prover service | Planned |
+| Public bug bounty program (active throughout) | Planned |
+| Q1 2027 roadmap published | Planned |
 
-**KPIs**:
-- [ ] 50,000 unique wallets
-- [ ] 50 dApp integrations
-- [ ] 500,000 lifetime transactions
+**Q4 KPIs**:
+- 1,000+ unique mainnet wallets cumulative
+- 5+ partner integrations live
+- 99.5%+ salt-cluster uptime
+- Apple Sign-In live on mainnet by Dec 31
 
 ---
 
-## Key Performance Indicators
+## Q1 2027: Growth
+
+### January to March 2027
+
+**Focus**: Adoption, additional OAuth providers, and ecosystem outreach.
+
+| Goal | Status |
+|---|---|
+| Microsoft / GitHub OIDC support (community-prioritized) | Planned |
+| Mobile SDK production release (post-Tranche-3 polish) | Planned |
+| Additional partner integrations (target: 10 cumulative) | Planned |
+| Public technical blog series on FROST salt MPC | Planned |
+| Stellar Dev Digest contributions on Protocol 25 patterns | Planned |
+
+---
+
+## Key Performance Indicators (Defensible Floors)
+
+The targets below are deliberately conservative. We commit to floors we can defend on the day of the report. Stretch targets and aspirations are not promised.
 
 ### User Metrics
 
-| Metric | Q1 Target | Q2 Target | Q3 Target | Q4 Target |
-|--------|-----------|-----------|-----------|-----------|
-| Unique Wallets | 500 | 2,000 | 15,000 | 50,000 |
-| Monthly Active | 100 | 500 | 5,000 | 20,000 |
-| Daily Transactions | 50 | 500 | 5,000 | 20,000 |
-| Retention (30-day) | 30% | 40% | 50% | 60% |
+| Metric | 90 days post-mainnet | 6 months post-mainnet | 12 months post-mainnet |
+|---|---|---|---|
+| Unique mainnet wallets (cumulative) | 500 | 1,500 | 5,000 |
+| Cumulative ZK proofs verified | 5,000 | 25,000 | 100,000 |
+| 30-day retention | 25% | 30% | 35% |
 
 ### Developer Metrics
 
-| Metric | Q1 Target | Q2 Target | Q3 Target | Q4 Target |
-|--------|-----------|-----------|-----------|-----------|
-| SDK Downloads | 200 | 1,000 | 5,000 | 15,000 |
-| dApp Integrations | 3 | 10 | 25 | 50 |
-| GitHub Stars | 100 | 500 | 1,500 | 3,000 |
-| Discord Members | 100 | 500 | 2,000 | 5,000 |
+| Metric | Q3 2026 | Q4 2026 | Q1 2027 |
+|---|---|---|---|
+| SDK monthly downloads | 100 | 250 | 500 |
+| Named dApp integrations live on mainnet | 3 | 5 | 10 |
+| Documentation portal monthly uniques | 500 | 1,000 | 2,500 |
 
 ### Technical Metrics
 
-| Metric | Q1 Target | Q2 Target | Q3 Target | Q4 Target |
-|--------|-----------|-----------|-----------|-----------|
-| Uptime | 99.5% | 99.9% | 99.95% | 99.99% |
-| Proof Time (P95) | 5s | 3s | 2s | 1.5s |
-| Error Rate | <1% | <0.5% | <0.1% | <0.05% |
-| Test Coverage | 80% | 90% | 95% | 95% |
+| Metric | Target |
+|---|---|
+| Salt-cluster uptime (rolling 30-day) | 99.5% |
+| Prover p95 proof generation time | Under 5 seconds |
+| Prover p99 proof generation time | Under 10 seconds |
+| Mainnet transaction success rate | 99% |
 
-### Business Metrics
+### Business Metrics (Post-Mainnet)
 
-| Metric | Q1 Target | Q2 Target | Q3 Target | Q4 Target |
-|--------|-----------|-----------|-----------|-----------|
-| Enterprise Customers | 0 | 1 | 3 | 10 |
-| Monthly Revenue | $0 | $1K | $10K | $50K |
-| Grant Funding | $15K | $60K | $120K | $150K |
+| Stream | Mechanism | First-year target |
+|---|---|---|
+| Per-proof gateway fee | 0.005 XLM per verified eligibility proof, captured on-chain | $1.2K to $6K |
+| Managed prover-as-a-service | Free under 10K proofs/month/dApp; $0.0005 per proof above | $5K to $25K |
+| Enterprise self-hosted tier | $25K/year per company | 1 to 3 contracts |
+
+Conservative twelve-month projection (post-mainnet): roughly $25K ARR. Base case: roughly $100K ARR. Break-even on operating costs falls between these.
 
 ---
 
-## Risk Assessment
+## Risk Register
 
-### Technical Risks
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Protocol 25 delay | Low | High | Multiple testnet deployments |
-| Proof system vulnerability | Low | Critical | Security audit + bug bounty |
-| Scalability bottleneck | Medium | Medium | Early load testing |
-| Circuit optimization | Medium | Low | PLONK migration path |
-
-### Market Risks
+### Technical
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Low adoption | Medium | High | Developer outreach + partnerships |
-| Competitor enters | Medium | Medium | First-mover advantage + Protocol 25 |
-| Regulatory changes | Low | High | Compliance preparation |
+|---|---|---|---|
+| Audit findings require circuit redesign | Low | High | T3 deliverables gated on T2 close; mainnet does not deploy unaudited code |
+| FROST implementation correctness bug | Low | Critical | Use vetted libraries (zcash/frost or ZF FROST), audit covers protocol |
+| Operator coordination failure during DKG | Medium | Medium | Stipends fund 6 months testnet ops; rehearsal ceremonies before mainnet |
 
-### Operational Risks
+### Operational
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Team attrition | Low | High | Documentation + open source |
-| Infrastructure failure | Low | High | Multi-region + monitoring |
-| Grant funding gap | Medium | Medium | Multiple funding sources |
+|---|---|---|---|
+| LOI partner slips schedule | Medium | Medium | Floor of 3 partners drops to 2 with documented reason |
+| Operator drops permanently | Medium | Low | Cluster degrades to 3-of-4 (still threshold-secure); replacement onboarded |
+| Grant funding gap before revenue | Medium | High | Conservative ARR projection covers operating costs; per-proof fee active from day one |
+
+### Market
+
+| Risk | Probability | Impact | Mitigation |
+|---|---|---|---|
+| Passkey wallets capture consumer auth segment | Medium | Medium | Differentiation via eligibility-proof framework (no competitor on Stellar) |
+| Regulatory shift on identity proofs | Low | High | Compliance documentation in Q1 2027 |
 
 ---
 
 ## Dependencies
 
-### External Dependencies
+### External
 
 | Dependency | Owner | Risk Level |
-|------------|-------|------------|
-| Protocol 25 Mainnet | SDF | Low |
+|---|---|---|
+| Protocol 25 stability on mainnet | Stellar Development Foundation | Low (already shipped Jan 2026) |
 | Google OAuth API | Google | Very Low |
-| Apple Sign-In API | Apple | Very Low |
-| Stellar Testnet | SDF | Very Low |
+| SCF #43 award decision | Stellar Community Fund | High (gates entire timeline) |
+| Audit firm availability (Veridise / Zellic / Macro) | Audit firm | Medium |
 
-### Internal Dependencies
+### Internal
 
 | Dependency | Team | Risk Level |
-|------------|------|------------|
-| ZK Circuit Optimization | Core | Medium |
-| SDK Maintenance | Core | Low |
-| Infrastructure Scaling | DevOps | Medium |
-
----
-
-## Success Criteria
-
-### 6-Month Success (July 2026)
-
-- [ ] Mainnet deployment live and stable
-- [ ] 5,000+ unique wallets created
-- [ ] 10+ dApp integrations
-- [ ] Security audit passed
-- [ ] Enterprise pilot initiated
-
-### 12-Month Success (January 2027)
-
-- [ ] 50,000+ unique wallets
-- [ ] 50+ dApp integrations
-- [ ] Decentralized prover network operational
-- [ ] v3.0 with PLONK support
-- [ ] Recognized as Stellar authentication standard
+|---|---|---|
+| FROST salt MPC implementation correctness | Yatharth (cryptography lead) | Medium |
+| External operator onboarding | Atharv (operations) | Medium |
+| Documentation portal completion | Niharika (devrel) | Low |
 
 ---
 
@@ -356,32 +320,32 @@ Make blockchain as easy as "Sign in with Google" while preserving self-custody a
 
 ### Decision Making
 
-- **Product Decisions**: Core team consensus
-- **Technical Decisions**: Technical lead + peer review
-- **Financial Decisions**: Budget holder approval
-- **Partnership Decisions**: Unanimous core team
+- **Product decisions**: Core team consensus.
+- **Cryptography decisions**: Yatharth + audit firm + community review where applicable.
+- **Partner decisions**: Atharv + Adwait, with criteria-based vetting.
+- **Financial decisions**: Adwait, gated by tranche-disbursement schedule.
 
 ### Review Cadence
 
-| Review Type | Frequency | Participants |
-|-------------|-----------|--------------|
-| Sprint Review | Weekly | Core team |
-| Roadmap Review | Monthly | Core team + advisors |
-| KPI Review | Quarterly | Core team + community |
-| Strategy Review | Bi-annually | All stakeholders |
+| Review | Frequency | Participants |
+|---|---|---|
+| Sprint review | Weekly | Core team |
+| Tranche progress review | Biweekly during active tranches | Core team + advisors |
+| KPI review | Monthly post-mainnet | Core team + community |
 
 ---
 
 ## Changelog
 
 | Version | Date | Changes |
-|---------|------|---------|
-| 2.0 | Jan 2026 | Protocol 25 integration, Q1-Q4 2026 roadmap |
-| 1.5 | Dec 2025 | Added x402 integration |
-| 1.0 | Oct 2025 | Initial roadmap |
+|---|---|---|
+| 3.0 | April 2026 | Restructured for SCF #43 resubmission. Added Distributed Salt MPC as the headline Q3 deliverable. Replaced aspirational targets with defensible floors. Added Honest Open Risks section. Aligned tranche schedule with submission. |
+| 2.0 | January 2026 | Protocol 25 integration shipped, x402 added, testnet deployment complete. |
+| 1.5 | December 2025 | Initial x402 integration. |
+| 1.0 | October 2025 | Initial roadmap. |
 
 ---
 
-*This roadmap is subject to change based on community feedback, technical discoveries, and market conditions. Updates will be communicated through official channels.*
+*This roadmap reflects the state at the start of the SCF #43 round. It will be updated again at award notification, again at each tranche close, and again at mainnet launch.*
 
-**Questions?** Join our Discord or open a GitHub issue.
+*Questions: open a GitHub issue or contact adwaitkeshari288@gmail.com.*

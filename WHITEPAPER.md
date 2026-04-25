@@ -40,7 +40,7 @@ Stellar's Soroban runtime was not originally designed with zero-knowledge proof 
 
 Protocol 25 introduced four categories of cryptographic host functions to the Soroban runtime:
 
-**BN254 Elliptic Curve Operations.** Three host functions expose the arithmetic of the BN254 (alt_bn128) curve directly to smart contracts: `bls12_381_g1_add` for point addition on the G1 subgroup, `bls12_381_g1_mul` for scalar multiplication, and `bls12_381_multi_pairing_check` for the bilinear pairing verification that forms the core of Groth16 proof checking. These operations execute as native compiled code rather than interpreted WASM, reducing the gas cost of a complete pairing check from millions of gas units to approximately 260,000.
+**BN254 Elliptic Curve Operations.** Three host functions expose the arithmetic of the BN254 (alt_bn128) curve directly to smart contracts: `bn254_g1_add` for point addition on the G1 subgroup, `bn254_g1_mul` for scalar multiplication, and `bn254_multi_pairing_check` for the bilinear pairing verification that forms the core of Groth16 proof checking. These operations execute as native compiled code rather than interpreted WASM, reducing the gas cost of a complete pairing check from millions of gas units to approximately 260,000.
 
 **Poseidon Hash Permutations.** The `poseidon_permutation` and `poseidon2_permutation` host functions provide the algebraic hash function that underpins virtually all modern ZK proof systems. Poseidon's design is optimized for arithmetic circuits: it operates over prime fields (in our case, the BN254 scalar field Fr) using a combination of full and partial S-box rounds, achieving collision resistance with far fewer constraints than Keccak or SHA-256 would require within a circuit.
 

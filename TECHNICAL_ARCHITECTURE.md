@@ -1,5 +1,5 @@
 # StellaRay Technical Architecture
-## ZK Authentication and Privacy Layer for Stellar
+## ZK Authentication for Stellar with Distributed Salt MPC
 
 **Live demo:** https://stellaray.fun
 **SDK:** https://www.npmjs.com/package/@stellar-zklogin/sdk
@@ -7,126 +7,175 @@
 
 ---
 
-## 1. Overview
+## 1. What StellaRay Is
 
-StellaRay replaces seed phrases with Google Sign-In. A user clicks "Sign in with Google," their OAuth token is processed into a Groth16 zero-knowledge proof, and that proof is verified on-chain inside a Soroban smart contract. The result is a self-custodial Stellar wallet in under 10 seconds. No seed phrase. No browser extension. The Google identity never appears on-chain.
+StellaRay lets a user sign in with Google and walk away with a self-custodial Stellar wallet they actually control. The browser produces a zero-knowledge proof that the user holds a valid Google JWT. A Soroban smart contract verifies that proof on chain. A fresh ephemeral key is registered as the wallet's signer for the session. About ten seconds, end to end. No seed phrase, no browser extension, no Google identity ever lands on chain.
 
-The system has four layers that build on each other:
+The wallet address is a one-way hash of the user's Google identity plus a private salt. It cannot be reversed to an email or any recognizable handle. Same Google account today, same Stellar address tomorrow, same address a year from now.
 
-- **ZK Wallet**: Google OAuth to Stellar wallet using Protocol 25's native BN254 and Poseidon host functions
-- **Payments**: streaming payments, shareable payment links, and x402 micropayments settled on Stellar
-- **Near Intent**: ZK proof gates that let any Soroban contract verify private user state without seeing the underlying data
-- **Multi-Custody Recovery**: Shamir 2-of-3 social recovery so users never permanently lose wallet access
+This document covers what runs on Stellar testnet today and what gets built next. The biggest piece of "next" is replacing the single-operator salt service with a 3-of-5 threshold MPC cluster across independent operators. We disclose the current trust model honestly because the redesign is the whole point of the next development phase.
 
-Everything is live on Stellar testnet. Five Soroban contracts are deployed and verifiable on stellar.expert right now. The SDK is published on npm and any Stellar dApp can integrate ZK login today.
+What's live on Stellar testnet, verifiable on stellar.expert right now:
 
----
+* ZK Verifier contract: `CDAQXHNK2HZJJE6EDJAO3AWM6XQSM4C3IRB5R3AJSKFDRK4BZ77PACP6`
+* JWK Registry contract: `CAMO5LYOANZWUZGJYNEBOAQ6SAQKQO3WBLTDBJ6VAGYNMBOIUOVXGS2I`
+* Gateway Factory contract: `CAAOQR7L5UVV7CZVYDS5IU72JKAUIEUBLTVLYGTBGBENULLNM3ZJIF76`
+* x402 Facilitator contract: `CDJMT4P4DUZVRRLTF7Z3WCXK6YJ57PVB6K7FUCGW7ZOI5LDFAWBWTTZZ`
+* Smart Wallet WASM hash: `2a7e72543da92134de77821c920b82e6c5fb7cd02b5283cfeb87deb894e14d5d`
+* ZK Multi-Custody Recovery: deployed on testnet, full Shamir 2-of-3 flow live at stellaray.fun/zk-multi-custody
 
-## 2. Why Protocol 25 Changes Everything
-
-Protocol 25 (Stellar's X-Ray upgrade) added native BN254 elliptic curve operations and Poseidon hashing directly into the Soroban host. Before Protocol 25, verifying a Groth16 proof on Stellar required a WASM implementation that cost roughly 4.1 million instructions. With native host functions, the same verification costs around 260,000 instructions. That is a 94% reduction.
-
-This matters because ZK proofs were previously too expensive for practical use on Stellar. Protocol 25 makes them viable at scale.
-
-StellaRay uses three Protocol 25 host functions:
-
-- `bn254_g1_mul` for scalar multiplication during public input accumulation
-- `bn254_g1_add` for point addition in the multi-scalar multiplication step
-- `bn254_multi_pairing_check` for the final Groth16 pairing equation
-- `poseidon_permutation` for ZK-friendly address derivation and identity commitments
-
-We are the first project on Stellar to use these in deployed production contracts. Protocol 25 shipped to Stellar mainnet on January 22, 2026. StellaRay was ready.
+The TypeScript SDK is published on npm. Any Stellar dApp can integrate ZK login in three lines today.
 
 ---
 
-## 3. ZK Wallet Architecture
+## 2. Why Protocol 25 Made This Worth Building
 
-### How the Login Flow Works
+Before Protocol 25, verifying a Groth16 proof on Stellar meant running BN254 elliptic curve operations inside WASM. That cost roughly 4.1 million instructions per verification. Way too expensive to be the auth flow that runs every login.
 
-The core idea is that a Google JWT can be used as a private input to a ZK circuit. The circuit proves "this person has a valid Google account" without revealing which Google account. The on-chain wallet address is derived from a one-way hash of the user's identity and a private salt, so two dApps cannot link the same user across applications.
+Protocol 25 added native host functions for the operations that dominate Groth16:
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant B as Browser SDK
-    participant P as Prover Service
-    participant S as Salt Service
-    participant SC as Soroban Contracts
-    participant N as Stellar Network
+* `bn254_g1_add`: point addition on the BN254 G1 subgroup
+* `bn254_g1_mul`: scalar multiplication on G1
+* `bn254_multi_pairing_check`: the bilinear pairing check that closes Groth16 verification
+* `poseidon_permutation`: ZK-friendly hash, used for the address commitment and other identity bindings
 
-    U->>B: Click Sign in with Google
-    B->>B: Generate ephemeral keypair
-    B->>B: Compute nonce = Poseidon(eph_pk, max_epoch)
-    B->>U: Redirect to Google OAuth with nonce
+Same Groth16 verification, executed against native compiled host functions instead of interpreted WASM, drops to roughly 260,000 instructions. That's about a 94% reduction. A login pays a few cents in network fees instead of close to fifty.
 
-    U->>B: Return with id_token (JWT)
-    B->>S: Request salt for this user
-    S->>B: Return deterministic salt
-    B->>B: Derive address = Blake2b(issuer, Poseidon(sub, aud, salt))
-    B->>P: Send JWT + ephemeral public key
-    P->>B: Return Groth16 proof (pi_A, pi_B, pi_C)
-
-    B->>SC: Call ZKVerifier.verify_zklogin(proof, public_inputs)
-    SC->>SC: bn254_multi_pairing_check
-    SC->>N: Transaction confirmed
-    B->>U: Stellar wallet ready (8-10 seconds)
-```
-
-### What the ZK Circuit Proves
-
-The Groth16 circuit takes private inputs that never leave the user's browser and produces a proof that can be verified on-chain. The circuit proves four things simultaneously:
-
-1. The JWT was signed by Google (RSA verification inside the ZK circuit)
-2. The nonce in the JWT matches the ephemeral public key and session epoch
-3. The wallet address seed is correctly derived from the user's identity and salt
-4. The proof is bound to this specific ephemeral key and expires at max_epoch
-
-**Public inputs (what goes on-chain, 5 elements):**
-- `eph_pk_hash` - Poseidon hash of the ephemeral public key
-- `max_epoch` - the Stellar ledger number when this session expires
-- `address_seed` - Poseidon(sub, aud, Poseidon(salt)) — the wallet address commitment
-- `iss_hash` - hash of the OAuth issuer string
-- `jwk_modulus_hash` - Poseidon hash of Google's current signing key
-
-**Private inputs (stay in browser, never transmitted):**
-- Raw JWT payload
-- Google user ID (sub)
-- User salt
-- Ephemeral private key
-- RSA signature from Google
-
-### Address Derivation
-
-The wallet address is fully deterministic. The same Google account always produces the same Stellar address:
-
-```
-address_seed = Poseidon("sub", google_sub, google_aud, Poseidon(salt))
-stellar_address = Blake2b(concat(issuer, address_seed))
-```
-
-The salt is derived by the Salt Service as HMAC-SHA256(master_secret, sub + aud). It is the same every time the user logs in, which is why the wallet address is always recovered. The master secret never leaves the Salt Service.
-
-### Why This Is Self-Custodial
-
-The wallet is not custodial. The user signs transactions using their ephemeral private key, which is generated in the browser and never transmitted anywhere. The ZK proof is what proves the ephemeral key belongs to a valid Google user. The Soroban smart wallet contract verifies the proof before executing any operation, replacing the traditional "check the signature against a known public key" pattern with "verify this zero-knowledge proof."
+That gap is what made StellaRay possible at all. ZK auth on Stellar went from "interesting in theory" to "the cheapest auth flow on the network."
 
 ---
 
-## 4. Soroban Smart Contracts
+## 3. The Login Flow
 
-StellaRay uses five Soroban contracts, all deployed on Stellar testnet.
+```
+1.  Browser generates an ephemeral Ed25519 keypair.
+2.  Browser computes nonce = Poseidon(eph_pk_high, eph_pk_low, max_epoch).
+3.  User is redirected to Google OAuth carrying that nonce.
+4.  Google returns an ID token (JWT). The nonce, sub, and aud are inside.
+5.  Browser asks the salt cluster for the user's salt, authenticated with the JWT.
+6.  Browser computes address_seed = Poseidon(sub_F, aud_F, Poseidon(salt)).
+7.  Browser derives the Stellar address from address_seed via Blake2b + Ed25519.
+8.  Browser ships JWT + ephemeral_pk + max_epoch to the prover.
+9.  Prover returns a Groth16 proof: three BN254 points (A, B, C), 256 bytes total.
+10. Browser submits proof + public_inputs to the ZK Verifier contract.
+11. Verifier runs the multi-pairing check using Protocol 25 host functions.
+12. Gateway Factory registers the ephemeral key as a session signer for this address.
+13. Done. Ephemeral key signs Stellar transactions for the rest of the session.
+```
 
-| Contract | Address |
-|---|---|
-| ZK Verifier | CDAQXHNK2HZJJE6EDJAO3AWM6XQSM4C3IRB5R3AJSKFDRK4BZ77PACP6 |
-| JWK Registry | CAMO5LYOANZWUZGJYNEBOAQ6SAQKQO3WBLTDBJ6VAGYNMBOIUOVXGS2I |
-| Gateway Factory | CAAOQR7L5UVV7CZVYDS5IU72JKAUIEUBLTVLYGTBGBENULLNM3ZJIF76 |
-| x402 Facilitator | CDJMT4P4DUZVRRLTF7Z3WCXK6YJ57PVB6K7FUCGW7ZOI5LDFAWBWTTZZ |
-| Smart Wallet | WASM hash: 2a7e72543da92134de77821c920b82e6c5fb7cd02b5283cfeb87deb894e14d5d |
+End to end this is 8 to 10 seconds. The dominant costs are Stellar's ledger close time (3 to 5 seconds) and browser proof generation (2 to 4 seconds on a recent laptop). With a Rust proving service the proof step drops to 1 to 2 seconds.
 
-### ZK Verifier
+---
 
-This is the core contract. It implements Groth16 verification using Protocol 25 host functions. When called, it runs the pairing equation that checks whether the submitted proof is valid for the given public inputs.
+## 4. What the Circuit Proves
+
+The Circom circuit takes private inputs that never leave the browser and emits a 256-byte Groth16 proof. The public inputs that hit the chain (five field elements):
+
+```
+eph_pk_hash       Poseidon(ephemeral public key)
+max_epoch         Stellar ledger sequence at which the session expires
+address_seed      Poseidon(sub_F, aud_F, Poseidon(salt))
+iss_hash          Poseidon(issuer string)
+jwk_modulus_hash  Poseidon(Google signing key modulus chunks)
+```
+
+Private inputs (stay in the browser, never transmitted to anyone, never on chain):
+
+```
+JWT bytes (header + payload + signature)
+Google user ID (sub)
+User salt
+Ephemeral private key
+RSA signature from Google
+```
+
+The circuit jointly proves four things:
+
+1. The JWT was actually signed by a Google key whose modulus hashes to `jwk_modulus_hash`. The RSA-2048 signature is verified inside the circuit.
+2. The JWT's nonce field equals Poseidon(eph_pk, max_epoch). This is what binds the proof to this exact session and prevents replay across sessions.
+3. The `address_seed` is correctly derived from the JWT's sub, aud, and the user's salt. Whoever has the proof has access to a Google identity that derives to this exact wallet.
+4. The issuer matches `iss_hash`. Stops proofs minted from one OAuth provider being used to log into another.
+
+Total constraint count is around 1.1 million. SHA-256 dominates at about 66%, RSA-2048 at 14%, JWT parsing at 10%, Poseidon and the rest at the remaining 10%.
+
+---
+
+## 5. Address Derivation
+
+The wallet address is fully deterministic. This is what makes "sign in with Google a year from now" actually recover the same Stellar wallet.
+
+```
+address_seed     = Poseidon(sub_F, aud_F, Poseidon(salt))
+key_seed         = Blake2b256(issuer || address_seed)
+keypair          = Ed25519.fromSeed(key_seed)
+stellar_address  = keypair.public_key  (G-address)
+```
+
+The whole derivation runs in the browser. The salt cluster never sees the resulting Stellar address. The prover never sees the salt. The only place that holds the link from Google identity to Stellar address is the user's own browser, during a single session, in volatile memory.
+
+---
+
+## 6. Salt Service: Today and Target
+
+This is the part of the architecture that the SCF #42 reviewers correctly identified as the centralization risk in the system. It's also the centerpiece of the next development phase. Both states are described directly.
+
+### 6.1 Today (testnet)
+
+The salt service is a single Rust process running on a server we operate. It does:
+
+```
+salt = HMAC_SHA256(master_secret, sub || aud)
+```
+
+`master_secret` is a 256-bit key held in the service's environment. The service verifies the user's JWT against Google's published JWK set before issuing a salt, which prevents anonymous enumeration. So far, so good.
+
+The honest part: this is a single-party trust assumption. If `master_secret` leaks, anyone who also has a user's sub can compute that user's Stellar address. If we choose to log salts, we can deanonymize users. If we are compelled by legal process, we cannot refuse. The system is custody-equivalent in that one specific sense, even though we never hold a user's signing keys.
+
+We disclose this directly because (a) it's true, (b) hiding it would be worse than naming it, and (c) the next section is the plan to remove it.
+
+### 6.2 Target (after SCF #43 Tranche 2)
+
+The single-operator HMAC service gets replaced with a 3-of-5 threshold cluster using FROST (Flexible Round-Optimized Schnorr Threshold) on Ed25519. Five independent operators each hold one secret share of the underlying salt-derivation key. Any three operators can cooperate to produce a salt for a given (sub, aud); no two can produce anything on their own.
+
+Operator slate at launch (target, four external candidates being confirmed during the spec phase):
+
+1. StellaRay (1)
+2. A Stellar-ecosystem validator team
+3. A university cryptography research group
+4. An established Stellar tooling team
+5. A community node operator
+
+The protocol picks FROST specifically because we are signing in a Schnorr-style scheme over Ed25519. FROST is the right primitive there. GG20 and DKLs are ECDSA-shaped and don't apply. FROST has mature open-source implementations in Rust (zcash/frost, ZF's FROST library) we can build on directly. It supports periodic resharing to handle operator churn, and it has been formally analyzed in the academic literature.
+
+What changes for users when we cut over: nothing. Same Google account derives to the same Stellar address as before. The salt request just talks to multiple operator endpoints instead of one.
+
+What changes in the threat model:
+
+* One operator compromised: no impact. They have one share. One share reveals nothing about the key.
+* Two operators compromised: still no impact. Below threshold.
+* Three operators compromised: an attacker can derive salts for users who request salts during the compromise window. Quarterly resharing ensures historical salts cannot be retroactively reconstructed once shares rotate.
+* One operator compelled by legal process in one jurisdiction: produces nothing useful.
+* Three operators compelled: requires coordinated action across three independent legal jurisdictions.
+
+This is meaningful decentralization. It is not perfect. It is the trust model that current threshold cryptography actually delivers, with all the limitations stated up front.
+
+### 6.3 DKG ceremony and resharing
+
+At launch we run a distributed key generation ceremony where the five operators each contribute entropy and end up holding their shares. No party (including us) ever sees the full key. The ceremony transcript is public. The resulting key shares' commitments get hashed onto the Stellar chain so any community member can verify the key was produced from the published transcript.
+
+Resharing happens quarterly. Operators run a re-randomization protocol that produces new shares of the same key. Old shares are useless after resharing completes. This contains the impact of any operator compromise to one quarter's worth of salt requests.
+
+If an operator drops permanently, the cluster degrades to 3-of-4 (still threshold-secure) and the team onboards a replacement, after which the cluster reshares back to 3-of-5.
+
+---
+
+## 7. Soroban Smart Contracts
+
+Six contracts, all live on Stellar testnet today. Audited copies will be deployed to mainnet in SCF #43 Tranche 3.
+
+### 7.1 ZK Verifier
+
+Verifies Groth16 proofs against a circuit-specific verification key, using Protocol 25 host functions. Tracks nullifiers to prevent replay. This is the contract that every other piece of the system depends on.
 
 ```rust
 pub fn verify_zklogin(
@@ -135,26 +184,26 @@ pub fn verify_zklogin(
     public_inputs: Vec<U256>,
     max_epoch: u64,
 ) -> bool {
-    // Check session has not expired
-    assert!(env.ledger().sequence() <= max_epoch);
+    // session expiry
+    if env.ledger().sequence() > max_epoch { return false; }
 
-    // Check nullifier to prevent replay attacks
+    // replay protection
     let nullifier = env.crypto().poseidon_hash(&public_inputs[2..3]);
-    assert!(!is_nullifier_used(&env, &nullifier));
+    if is_nullifier_used(&env, &nullifier) { return false; }
 
-    // Accumulate public inputs using MSM
-    let mut vk_x = verification_key.ic[0].clone();
+    // accumulate public inputs into vk_x via MSM
+    let mut vk_x = vk.ic[0].clone();
     for (i, pub_input) in public_inputs.iter().enumerate() {
-        let term = env.crypto().bn254_g1_mul(&vk.ic[i+1], &pub_input);
+        let term = env.crypto().bn254_g1_mul(&vk.ic[i + 1], pub_input);
         vk_x = env.crypto().bn254_g1_add(&vk_x, &term);
     }
 
-    // Final pairing check: e(-A, B) * e(alpha, beta) * e(vk_x, gamma) * e(C, delta) == 1
+    // final pairing: e(-A, B) * e(alpha, beta) * e(vk_x, gamma) * e(C, delta) == 1
     let valid = env.crypto().bn254_multi_pairing_check(&[
         (-proof.a, proof.b),
-        (vk.alpha, vk.beta),
-        (vk_x, vk.gamma),
-        (proof.c, vk.delta),
+        (vk.alpha,  vk.beta),
+        (vk_x,      vk.gamma),
+        (proof.c,   vk.delta),
     ]);
 
     if valid { mark_nullifier_used(&env, &nullifier); }
@@ -162,13 +211,27 @@ pub fn verify_zklogin(
 }
 ```
 
-### JWK Registry
+The verification key currently in the deployed testnet contract comes from a development setup. Mainnet deployment uses a verification key produced by a multi-party Powers-of-Tau plus circuit-specific phase-2 ceremony. Section 13 covers that.
 
-Google rotates its JWT signing keys periodically. The JWK Registry stores the Poseidon hash of each authorized key modulus. When a user logs in, the circuit proves the JWT was signed by a key whose hash is in the registry. This means if Google rotates a key, we can update the registry without redeploying the verifier contract.
+### 7.2 JWK Registry
 
-### Smart Wallet
+Google rotates its JWT signing keys periodically. The JWK Registry stores the Poseidon hash of each authorized key modulus. The circuit proves the JWT was signed by a key whose modulus hash is currently in the registry. Rotating Google keys means updating the registry, not redeploying the verifier.
 
-The Smart Wallet contract is what users actually own. It executes Stellar operations when presented with a valid ZK proof, replacing the traditional keypair signature with a ZK proof verification. This means the user's Google account is the "key," but Google never has custody.
+```rust
+pub fn add_jwk(env: Env, modulus_hash: BytesN<32>);
+pub fn revoke_jwk(env: Env, modulus_hash: BytesN<32>);
+pub fn is_authorized(env: Env, modulus_hash: BytesN<32>) -> bool;
+```
+
+The registry is governance-controlled; updates are gated by an admin role held by the StellaRay team. This matches the trust model Sui's zkLogin uses for its corresponding registry.
+
+### 7.3 Gateway Factory
+
+Manages the mapping between wallet addresses and their currently-authorized ephemeral signers. When the verifier accepts a proof, the Gateway Factory registers the ephemeral key. When a Stellar transaction arrives, it checks the signer against the registry and the current ledger against `max_epoch`.
+
+### 7.4 Smart Wallet
+
+The Smart Wallet contract is what users actually own. It executes Stellar operations when presented with a valid ZK proof, using `verify_zklogin` from the ZK Verifier as the auth check.
 
 ```rust
 pub fn execute(
@@ -180,70 +243,117 @@ pub fn execute(
 ) -> Result<(), WalletError> {
     let valid = zk_verifier::verify_zklogin(&env, proof, public_inputs, max_epoch);
     require(valid, WalletError::InvalidProof);
-    for op in operations { env.invoke_contract(&stellar_asset_contract, &op); }
+
+    for op in operations {
+        env.invoke_contract(&stellar_asset_contract, &op);
+    }
     Ok(())
 }
 ```
 
----
+The user's Google account is effectively the "key" to this wallet, but Google never has custody. The proof is what authorizes any state transition.
 
-## 5. Payment Layer
+### 7.5 x402 Facilitator
 
-### Streaming Payments
+Implements HTTP 402 Payment Required micropayments natively on Stellar. Servers reply with a 402 response specifying amount, asset, and recipient. The client SDK parses, pays via the facilitator (which holds funds in escrow until the request completes), and retries with a payment receipt.
 
-Streaming payments allow funds to flow by the second. A sender locks XLM or any Stellar asset into a Soroban escrow contract. The contract calculates how much the recipient has earned at any moment based on the elapsed time and the selected payment curve. The recipient can withdraw whenever they want.
+The x402 contract has a per-proof gateway-fee mechanism baked in for the eligibility-proof framework. Currently dormant. SCF #43 Tranche 3 activates it as the protocol's first revenue mechanism.
 
-Supported curves are linear (salary, subscriptions), cliff (vesting), exponential (incentive programs), and step (milestone-based).
+### 7.6 ZK Multi-Custody Recovery
 
-Stellar integration: every withdrawal and cancellation is a real Stellar transaction using `Operation.payment` submitted through Horizon. Soroban contract storage tracks the stream state and enforces the rules.
+Splits the wallet's recovery secret using Shamir 2-of-3 over GF(2^8). Each share is encrypted to a guardian Stellar address and stored on chain. Recovery requires 2 of 3 guardians to decrypt and submit their shares within a recovery window.
 
-### Payment Links
-
-Shareable URLs that encode a Stellar address, amount, asset, and optional memo. The payer opens the link, optionally creates a ZK wallet in the same flow, and pays. No prior wallet installation required.
-
-Stellar integration: the underlying transaction uses `TransactionBuilder` with `Operation.payment` submitted to Horizon. Works with XLM and any Stellar asset.
-
-### x402 Micropayments
-
-An HTTP-native micropayment protocol for pay-per-request use cases. When a client requests a resource, the server responds with 402 Payment Required and the payment details. The client makes a Stellar payment and retries with the transaction hash. The x402 Facilitator contract handles atomic on-chain settlement.
-
-Stellar's sub-cent fees make this economically viable at 0.001 XLM per request.
+Guardian approvals are on-chain state transitions, so the recovery process is auditable and cannot be unilaterally faked.
 
 ---
 
-## 6. Near Intent (ZK Proof Gates)
+## 8. Eligibility Proof Framework
 
-Near Intent is a composable Soroban building block. Any contract can call `verify_eligibility_proof()` on the ZK Verifier to gate access based on private user state, without ever seeing the actual data.
+Authentication is the foundation. The eligibility-proof framework is what makes StellaRay genuinely different from passkey wallets and from generic wallet-as-a-service products.
 
-Four proof types are supported:
+Any Soroban contract can call `verify_eligibility_proof()` on the ZK Verifier and get a yes/no answer about a user's private state. Four proof types ship today, all sharing the same on-chain verifier and pairing check. They differ only in circuit and public inputs.
 
-**Solvency** — proves a wallet balance is above a threshold without revealing the actual balance. The on-chain public inputs are a Poseidon hash of the threshold and a commitment to the actual balance. The circuit proves `actual_balance >= threshold` in zero-knowledge.
+### 8.1 Proof of Solvency
 
-**Identity** — proves verified identity (KYC-lite, proof of humanity) without revealing email, phone, or any personal data. The public input is an `identityCommitment = Poseidon(email, sub, salt)`.
+Prove balance is above a threshold without revealing the actual balance.
 
-**Eligibility** — proves arbitrary criteria (age, country, membership status) without revealing the underlying attributes.
+```
+public:  threshold_hash, balance_commitment, address_hash
+private: actual_balance, salt, attestor_signature
+```
 
-**History** — proves transaction count or volume above a minimum threshold without revealing individual transactions.
+The circuit enforces `actual_balance >= threshold` plus that the commitment is correctly formed.
 
-All four proof types use the same ZK Verifier contract and Protocol 25 host functions. The circuit and public inputs differ per proof type, but the on-chain verification call is identical.
+Use cases: lending protocol eligibility, OTC counterparty checks, LP qualification.
+
+### 8.2 Proof of Identity
+
+Prove a verified identity exists without revealing the email, phone, or any other personal data.
+
+```
+public:  identity_commitment = Poseidon(email, sub, salt), provider_hash, address_hash
+private: actual email, sub, salt
+```
+
+Use case: KYC-lite verification where a protocol needs to know its users are real humans, but doesn't want the regulatory liability of holding their identity data.
+
+### 8.3 Proof of Eligibility
+
+Generic predicate proofs over private attributes: age, country of residence, accredited investor status, membership in a permissioned group.
+
+```
+public:  criteria_id, address_hash, attribute_commitment
+private: actual attribute values, salt
+```
+
+Each new criterion is a new circuit and a new verification key. The on-chain verification call is identical.
+
+### 8.4 Proof of History
+
+Prove transaction count or volume above a minimum without revealing individual transactions.
+
+Use cases: on-chain credit scoring, loyalty program tiers, social-trust signals.
 
 ---
 
-## 7. ZK Multi-Custody Recovery
+## 9. Multi-Custody Recovery
 
-If a user loses access to their Google account, they can recover their wallet through a Shamir 2-of-3 secret sharing scheme.
+Shamir 2-of-3 secret sharing over GF(2^8). At setup the wallet's recovery secret gets split into three shares. Each share is encrypted to one of three guardian Stellar addresses and stored in the multi-custody contract.
 
-During setup, the wallet's underlying secret is split into three shares. Each share is encrypted to one of three guardian Stellar addresses and stored in the multi-custody Soroban contract. If the user needs to recover, they contact two of their three guardians. Each guardian decrypts their share. The two shares are combined using Shamir's formula over GF(256) to reconstruct the original secret, and a new ZK wallet session is created.
+To recover: contact two guardians, each decrypts their share, the two shares are combined using Lagrange interpolation in GF(2^8) to reconstruct the secret. A new ZK login session is created using the reconstructed secret as the salt input.
 
-Guardian approvals are on-chain state transitions in the multi-custody contract, so the recovery process is auditable and cannot be faked by a single party.
+Guardian approvals are on-chain state transitions in the multi-custody contract. The recovery process is auditable, cannot be unilaterally faked, and includes a configurable recovery window during which the user can cancel a recovery in progress.
 
 ---
 
-## 8. Supporting Services
+## 10. Payment Infrastructure
 
-### Prover Service
+### 10.1 Streaming Payments
 
-A Rust service running at `prover.zklogin.stellaray.fun` that takes a JWT and ephemeral public key and returns a Groth16 proof. Proof generation takes 2 to 4 seconds. The prover never sees the user's salt or private key. It only sees the JWT and ephemeral public key, neither of which is a secret, so the ZK property is preserved even if the prover service is compromised.
+Funds flow by the second through Soroban escrow contracts. The sender locks XLM or any Stellar asset; the contract calculates how much the recipient has earned at any given moment based on elapsed time and the chosen vesting curve.
+
+Curves supported:
+
+* Linear: `amount(t) = total * (t / duration)`. Salaries, subscriptions.
+* Cliff: zero until `cliff_time`, then linear from there. Vesting schedules.
+* Exponential: `total * (1 - e^(-k * t / duration))`. Front-loaded incentives.
+* Stepped: discrete vesting at fixed intervals. Monthly payroll.
+
+Every withdrawal is a real Stellar transaction submitted through Horizon. Soroban contract storage tracks stream state and enforces the vesting math on each withdrawal call.
+
+### 10.2 Payment Links
+
+Shareable URLs encode a Stellar address, amount, asset, and an optional memo. The payer opens the link and either pays from an existing wallet or creates a fresh ZK wallet inline. The underlying transaction is a standard `Operation.payment` built with `TransactionBuilder` and submitted to Horizon.
+
+### 10.3 x402 Micropayments
+
+Already covered above as a Soroban contract. From the SDK side, the client wraps a fetch call: when the server returns 402, the SDK parses the payment requirements, pays via the x402 Facilitator, and retries with a payment receipt header. Sub-cent payments per request are economically viable thanks to Stellar's fee structure.
+
+---
+
+## 11. Prover Service
+
+A Rust service hosted at `prover.zklogin.stellaray.fun`. It accepts a JWT and an ephemeral public key and returns a Groth16 proof.
 
 ```
 POST /prove
@@ -256,126 +366,107 @@ POST /prove
 }
 ```
 
-### Salt Service
+Important security property: the prover sees the salt only long enough to compute witness values for the circuit; it never persists salts or wallet addresses. The prover sees the JWT and the ephemeral public key, neither of which is a long-term secret.
 
-A Rust service running at `salt.zklogin.stellaray.fun` that derives a deterministic per-user salt as `HMAC-SHA256(master_secret, sub + aud)`. The master secret never leaves the service. The salt is the same every time the same Google account logs in, which is what makes the wallet address deterministic and recoverable.
+A compromised prover can fail to produce proofs, refuse service, or DoS the user. It cannot link past wallet addresses to Google identities. It cannot move user funds.
 
-Before returning a salt, the service verifies the JWT signature against Google's public JWK keys, preventing salt enumeration attacks.
+Latency: 1 to 2 seconds per proof on a single CPU core. Easily horizontally scalable. Mainnet deployment runs three regions active-active.
 
 ---
 
-## 9. TypeScript SDK
+## 12. TypeScript SDK
 
-The `@stellar-zklogin/sdk` npm package wraps the full system. A Stellar dApp can add ZK Google login in three lines:
+`@stellar-zklogin/sdk` on npm. Three lines to integrate into any Stellar dApp:
 
 ```typescript
 import { StellarZkLogin } from '@stellar-zklogin/sdk';
 
-const zkLogin = new StellarZkLogin({ network: 'mainnet' });
+const zkLogin = new StellarZkLogin({ network: 'testnet' });
 const wallet = await zkLogin.login('google');
-// wallet.address → "GDKQ...XMVB"
-// wallet.signTransaction() → signs with ZK proof, no seed phrase
+
+// wallet.address  ->  "GDKQ...XMVB"
+// wallet.signTransaction(tx) signs with the ZK proof.
 ```
 
-The SDK also exports React hooks (`useZkLogin`, `useWallet`) and drop-in components (`LoginButton`, `WalletWidget`) for fast integration.
+React hooks (`useZkLogin`, `useWallet`) and drop-in components (`LoginButton`, `WalletWidget`) are exported for fast UI integration. Deployed contract addresses for both networks ship as `TESTNET_CONTRACTS` and `MAINNET_CONTRACTS` constants.
 
-Deployed contract addresses for both networks are exported as `TESTNET_CONTRACTS` and `MAINNET_CONTRACTS`.
-
----
-
-## 10. Security Properties
-
-**No identity on-chain.** The Google sub and email never appear in any transaction or contract storage. The wallet address is derived from a one-way Poseidon hash that cannot be reversed.
-
-**Replay protection.** Every ZK proof contains a unique nullifier derived from the ephemeral public key. The ZK Verifier contract tracks used nullifiers and rejects any proof submitted twice.
-
-**Session expiry.** Every proof is bound to a max_epoch (Stellar ledger number). Proofs expire automatically when the ledger advances past max_epoch.
-
-**Key rotation support.** Google rotates its JWK signing keys periodically. The JWK Registry contract handles this gracefully. Old keys can be revoked, new keys registered, without touching the verifier contract.
-
-**Prover cannot steal funds.** The prover only receives a JWT and ephemeral public key. It cannot derive the user's salt or wallet key. A compromised prover cannot move user funds.
+A React Native package (`@stellar-zklogin/sdk-react-native`) is on the SCF #43 Tranche 3 deliverable list. It will support iOS and Android with the same API surface as the web package.
 
 ---
 
-## 11. Performance
+## 13. Mainnet Deployment Plan
 
-| Step | Time |
-|---|---|
-| Ephemeral keypair generation | under 10ms |
-| Google OAuth redirect and authentication | roughly 3 seconds (user action) |
-| Salt derivation | roughly 200ms |
-| Groth16 proof generation | 2 to 4 seconds |
-| Soroban transaction build and submit | roughly 600ms |
-| Stellar ledger confirmation | roughly 5 seconds |
-| Total login to wallet ready | 8 to 10 seconds |
+Mainnet launch requires four pieces in sequence. The plan below maps directly to SCF #43 deliverables.
 
-| Metric | Value |
-|---|---|
-| On-chain verification cost (Protocol 25) | 260,000 instructions |
-| On-chain verification cost (WASM baseline) | 4,100,000 instructions |
-| Gas savings from Protocol 25 | 94% |
-| Cost per login (XLM fees) | approximately $0.03 |
+1. **Audited contracts.** External cryptography audit covering the Circom circuit, the FROST salt MPC protocol, and all six Soroban contracts. Audit credits provided by SCF as part of Tranche 3 closure. Findings remediated and re-verified before mainnet.
+
+2. **Trusted setup ceremony.** Powers-of-Tau ceremony with at least ten named participants, followed by circuit-specific phase-2 ceremony with at least five participants. Entropy contributions recorded with reproducible verification instructions. Production verification key derived from the ceremony; key hash committed on chain so anyone can verify the key was produced from the published transcript.
+
+3. **Distributed salt cluster live.** The 3-of-5 FROST cluster from section 6.2 promoted to mainnet with the same five operators that ran the testnet cluster from Tranche 2. DKG ceremony performed live; transcript published.
+
+4. **Mainnet contract deployment.** All six contracts deployed to Stellar mainnet using the audited verification key. Admin and governance procedures (key rotation runbooks, JWK update playbook, emergency response plan) published.
+
+5. **Three named partner integrations live.** SCF #43 application includes signed letters of intent from three Stellar dApps. Each integration uses SDK v3.0 and goes live within 30 days of mainnet contract deployment.
+
+6. **On-chain protocol revenue activated.** Per-proof gateway fee on the x402 facilitator contract gets switched on at 0.005 XLM per verified eligibility proof. The mechanism already exists in the deployed contract; activation is a single governance transaction.
 
 ---
 
-## 12. Mainnet Deployment Plan
+## 14. Security Properties
 
-Mainnet deployment requires a trusted setup ceremony for all ZK circuits (Powers of Tau + circuit-specific phase 2), followed by deploying all five contracts to `Networks.PUBLIC` with the production verification keys. The SDK `MAINNET_CONTRACTS` object will be updated with the deployed addresses on mainnet. A security audit of all contracts will be completed before public launch.
+What StellaRay guarantees, stated plainly:
 
-The deployment checklist:
+* **No identity on chain.** The Google sub and email never appear in any transaction or any contract storage. The wallet address is a one-way Poseidon hash that cannot be reversed.
+* **Replay protection.** Every proof produces a unique nullifier from its public inputs. The verifier tracks used nullifiers and rejects any proof submitted twice.
+* **Session expiry.** Every proof is bound to a `max_epoch` ledger sequence. After expiry, the proof and the registered ephemeral key are both invalid.
+* **Key rotation.** Google rotates its JWK signing keys; the JWK Registry handles this transparently, no verifier redeploy needed.
+* **Prover blindness.** The prover never persists the salt or the wallet address, and never sees anything that lets it deanonymize a user post-hoc.
 
-1. Complete trusted setup ceremony for all circuits
-2. Deploy ZK Verifier to mainnet with production verification key
-3. Deploy JWK Registry with current Google JWK modulus hashes
-4. Deploy Gateway Factory, Smart Wallet, x402 Facilitator, and ZK Multi-Custody
-5. Update SDK MAINNET_CONTRACTS with all deployed addresses
-6. Complete security audit (all contracts)
-7. Production prover service with p95 under 5 seconds
-8. Professional UX testing with real users
-9. Public launch targeting 100 unique mainnet wallets in the first 30 days
+What StellaRay does not guarantee:
+
+* **Privacy from the salt cluster (today).** The single-operator salt service can deanonymize users if compromised or compelled. After Tranche 2 of SCF #43, this becomes a 3-of-5 threshold; from then on, deanonymization requires three of five operators to collude.
+* **Privacy from Google.** Google still sees the user logging in. StellaRay's privacy is privacy from blockchain observers and from third-party dApps, not privacy from the OAuth provider.
+* **Quantum resistance.** BN254 is not post-quantum secure. A practical quantum attack against discrete log on BN254 would break the system; migration to a post-quantum proof system would be required at that point.
+* **Trusted setup integrity.** Groth16 requires a trusted setup. The multi-party ceremony keeps the system secure as long as at least one participant destroys their toxic waste, but that assumption cannot be reduced to zero.
 
 ---
 
-## 13. API Reference
+## 15. Performance
 
-**Authentication**
+| Step                                     | Time              |
+|------------------------------------------|-------------------|
+| Ephemeral keypair generation             | < 10 ms           |
+| Google OAuth redirect + auth (user)      | ~3 s              |
+| Salt request (single operator, today)    | ~200 ms           |
+| Salt request (3-of-5 cluster, target)    | ~400 ms           |
+| Groth16 proof generation (browser)       | 2 to 4 s          |
+| Groth16 proof generation (Rust prover)   | 1 to 2 s          |
+| Soroban transaction build + submit       | ~600 ms           |
+| Stellar ledger close                     | 3 to 5 s          |
+| **Login total**                          | **8 to 10 s**     |
 
-| Endpoint | Method | Description |
-|---|---|---|
-| /api/zk/salt | POST | Get deterministic salt for address derivation |
-| /api/zk/prove | POST | Generate Groth16 ZK proof |
-| /api/zk/verify | POST | Verify a ZK proof via Soroban |
-| /api/auth/[...nextauth] | GET/POST | Google OAuth callback |
+Cost per login: about $0.03 in network fees on mainnet at current XLM prices.
 
-**Payments**
+| Metric                                    | Value                  |
+|-------------------------------------------|------------------------|
+| On-chain verification (Protocol 25)       | 260,000 instructions   |
+| On-chain verification (WASM baseline)     | 4,100,000 instructions |
+| Reduction from native host functions      | 94%                    |
+| Proof size                                | 256 bytes              |
+| Public inputs                             | 5 field elements (160 B)|
+| Verification time on chain                | ~12 ms                 |
+| Default session validity                  | 24 hours, configurable |
 
-| Endpoint | Method | Description |
-|---|---|---|
-| /api/pay/create | POST | Create shareable payment link |
-| /api/pay/[id] | GET | Fetch payment link details |
-| /api/pay/history | GET | User payment history |
-| /api/streams/create | POST | Create streaming payment |
-| /api/streams/[id] | GET | Get stream state |
-| /api/streams/[id]/withdraw | POST | Withdraw earned amount |
-| /api/streams/[id]/cancel | POST | Cancel stream |
-| /api/streams/history | GET | User stream history |
+---
 
-**ZK Proof Gates**
+## 16. What This Document Does Not Cover
 
-| Endpoint | Method | Description |
-|---|---|---|
-| /api/zk-proofs/generate | POST | Generate eligibility or solvency proof |
-| /api/zk-proofs/verify | POST | Verify proof on-chain |
+For brevity and focus, a few things live in adjacent files in the GitHub repository:
 
-**Multi-Custody**
-
-| Endpoint | Method | Description |
-|---|---|---|
-| /api/multi-custody/create | POST | Create multi-custody wallet |
-| /api/multi-custody/initiate | POST | Initiate recovery request |
-| /api/multi-custody/approve | POST | Guardian approves recovery |
-| /api/multi-custody/execute | POST | Execute recovery after threshold met |
-| /api/multi-custody/pending | GET | List pending recovery requests |
+* The full Circom circuit source: `circuits/zklogin.circom`.
+* The Soroban contract source for all six contracts: `contracts/*`.
+* The complete SDK API reference: `docs.stellaray.fun` (live as part of SCF #43 Tranche 1).
+* The detailed FROST protocol specification for the salt MPC: drafted, will be published at the start of SCF #43 Tranche 2.
 
 ---
 
