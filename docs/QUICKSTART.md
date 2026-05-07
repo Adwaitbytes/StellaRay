@@ -1,109 +1,145 @@
-# 🚀 Quick Start - Deploy in 5 Minutes
+# StellaRay SDK Quickstart
 
-## Your Project is Ready! 🎉
-
-Everything is configured for Vercel deployment. Just follow these 3 steps:
+Three-line integration of ZK Google Sign-In into any Stellar dApp.
 
 ---
 
-## Step 1: Get Your Google Client Secret
-
-1. Go to: https://console.cloud.google.com/apis/credentials
-2. Find your OAuth 2.0 Client ID
-3. Copy the **Client Secret** (format: `GOCSPX-...`)
-4. Keep it handy for Step 2
-
----
-
-## Step 2: Deploy to Vercel (Click Button)
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Adwaitbytes/Stellar-new-project&project-name=stellar-gateway&repository-name=stellar-gateway&root-directory=demo)
-
-**During deployment, you'll be asked for environment variables:**
-
-| Variable | What to Enter |
-|----------|---------------|
-| `GOOGLE_CLIENT_ID` | Your Google OAuth Client ID from GCP Console |
-| `GOOGLE_CLIENT_SECRET` | Paste your secret from Step 1 |
-| `NEXTAUTH_SECRET` | Click "Generate" button in Vercel |
-| `NEXTAUTH_URL` | Leave blank (Vercel auto-fills) |
-| `NEXT_PUBLIC_APP_URL` | Leave blank (Vercel auto-fills) |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Same as `GOOGLE_CLIENT_ID` above |
-
----
-
-## Step 3: Update Google OAuth Redirect
-
-**After deployment completes:**
-
-1. Copy your Vercel URL (shown after deployment)
-2. Go back to: https://console.cloud.google.com/apis/credentials
-3. Click your OAuth Client ID
-4. Under "Authorized redirect URIs", click **"+ ADD URI"**
-5. Paste: `https://YOUR-VERCEL-URL.vercel.app/api/auth/callback/google`
-6. Click **Save**
-
----
-
-## ✅ Done! Test Your App
-
-1. Visit your Vercel URL
-2. Click "Continue with Google"
-3. Sign in
-4. Your wallet is created! 🎉
-
----
-
-## 🔧 Alternative: Deploy via CLI
+## 1. Install
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Navigate to demo folder
-cd demo
-
-# Login
-vercel login
-
-# Deploy
-vercel --prod
+npm install @stellar-zklogin/sdk
+# or
+pnpm add @stellar-zklogin/sdk
+# or
+yarn add @stellar-zklogin/sdk
 ```
 
-Then manually add environment variables in Vercel Dashboard.
+Requires Node.js 20+, a modern browser, and a Google OAuth client ID.
 
 ---
 
-## 🆘 Having Issues?
+## 2. Get a Google OAuth Client ID
 
-### "redirect_uri_mismatch" Error
-→ Did you add the redirect URI to Google Console? (Step 3)
-
-### Can't Sign In
-→ Check your `GOOGLE_CLIENT_SECRET` is correct in Vercel environment variables
-
-### Build Failed
-→ Check deployment logs in Vercel Dashboard
+1. Open https://console.cloud.google.com/apis/credentials
+2. Create credentials, OAuth client ID, Web application
+3. Add your dApp's origin to "Authorized JavaScript origins" (e.g. `http://localhost:3000`, `https://your-dapp.com`)
+4. Add your callback URL to "Authorized redirect URIs" (e.g. `http://localhost:3000/api/auth/callback/google`)
+5. Copy the Client ID
 
 ---
 
-## 📚 Full Documentation
+## 3. Three-line integration
 
-- **[VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** - Complete deployment checklist
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Detailed deployment guide
-- **[README.md](README.md)** - Project overview
+```typescript
+import { StellarZkLogin } from '@stellar-zklogin/sdk';
+
+const zkLogin = new StellarZkLogin({
+  network: 'testnet',
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+});
+
+const wallet = await zkLogin.login('google');
+console.log(wallet.address); // GDKQ...
+```
+
+The user signs in with Google, the SDK generates an ephemeral keypair, requests a salt from the salt service, generates a Groth16 proof in 1 to 2 seconds, submits the proof to the ZK Verifier contract, and registers the ephemeral key as the wallet's signer for the session.
 
 ---
 
-## 🎯 What You Get
+## 4. Sign a transaction
 
-✅ Live demo at your-app.vercel.app  
-✅ OAuth-based Stellar wallet  
-✅ Sign in with Google (no seed phrases!)  
-✅ Send/receive XLM on testnet  
-✅ Auto SSL certificate  
-✅ Global CDN deployment  
+```typescript
+import { Operation, TransactionBuilder } from '@stellar/stellar-sdk';
+
+const tx = new TransactionBuilder(account, { fee, networkPassphrase })
+  .addOperation(Operation.payment({
+    destination: 'GABCD...',
+    asset: Asset.native(),
+    amount: '10',
+  }))
+  .setTimeout(180)
+  .build();
+
+const signed = await wallet.signTransaction(tx);
+await server.submitTransaction(signed);
+```
+
+Same Stellar SDK transaction-building flow you already know. The signing happens through the smart wallet contract, gated by the ZK proof.
 
 ---
 
-**Ready? Click the Deploy button above! 🚀**
+## 5. React integration
+
+For React apps the SDK ships hooks and drop-in components:
+
+```tsx
+import { ZkLoginProvider, useZkLogin, LoginButton } from '@stellar-zklogin/sdk/react';
+
+function App() {
+  return (
+    <ZkLoginProvider config={{ network: 'testnet', googleClientId: '...' }}>
+      <LoginButton provider="google" />
+      <WalletInfo />
+    </ZkLoginProvider>
+  );
+}
+
+function WalletInfo() {
+  const { wallet, isConnected } = useZkLogin();
+  if (!isConnected) return null;
+  return <div>Address: {wallet.address}</div>;
+}
+```
+
+---
+
+## 6. Eligibility proofs
+
+Beyond authentication, the SDK exposes the eligibility-proof framework. Solvency, identity, age, transaction-history attestations, all without revealing the underlying values.
+
+```typescript
+const proof = await wallet.proveEligibility({
+  type: 'solvency',
+  threshold: '1000',
+  asset: 'native',
+});
+
+// Submit to a Soroban contract that requires solvency proof
+await contract.gatedFunction({ proof });
+```
+
+The contract calls `verify_eligibility_proof` on the ZK Verifier contract; if the proof checks out, the gated function runs.
+
+---
+
+## 7. Mainnet
+
+Switch the network parameter:
+
+```typescript
+const zkLogin = new StellarZkLogin({ network: 'mainnet', googleClientId: '...' });
+```
+
+Mainnet contract addresses are bundled with the SDK; no separate configuration needed.
+
+---
+
+## Troubleshooting
+
+**`redirect_uri_mismatch` from Google**
+Add your callback URL to "Authorized redirect URIs" in Google Cloud Console.
+
+**Proof generation hangs on first call**
+Browser proof generation takes 2 to 4 seconds the first time (WASM compilation). Subsequent proofs are faster. For lower latency, run a Rust prover service.
+
+**`InvalidProof` error from the contract**
+Check that the JWT issuer matches `iss_hash` in the verification key. Most often this is a Google client ID mismatch between the JWT and the salt request.
+
+---
+
+## Next Steps
+
+- Full SDK reference at [docs.stellaray.fun](https://docs.stellaray.fun)
+- Architecture details in [`TECHNICAL_ARCHITECTURE.md`](../TECHNICAL_ARCHITECTURE.md)
+- Migration guides for moving from Albedo, Freighter, or the raw Stellar SDK ship in the cookbook (Tranche 2 of SCF #43)
+- Self-hosted prover and salt service deployment in [`DEPLOYMENT.md`](DEPLOYMENT.md)

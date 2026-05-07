@@ -1,6 +1,6 @@
-# Contributing to Stellar zkLogin Gateway
+# Contributing to StellaRay
 
-Thank you for your interest in contributing to Stellar zkLogin Gateway! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to StellaRay! This document provides guidelines and information for contributors.
 
 ## Table of Contents
 
@@ -405,4 +405,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ---
 
-Thank you for contributing to Stellar zkLogin Gateway! 🌟
+Thank you for contributing to StellaRay! 🌟

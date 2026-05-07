@@ -1,8 +1,8 @@
 # Performance Benchmarks
 
-## Stellar zkLogin Gateway
+## StellaRay
 
-This document provides comprehensive performance benchmarks for the Stellar zkLogin Gateway, demonstrating the efficiency gains from Protocol 25 integration.
+This document provides comprehensive performance benchmarks for the StellaRay, demonstrating the efficiency gains from Protocol 25 integration.
 
 ---
 
@@ -341,7 +341,7 @@ Production metrics collected via:
 
 ## 10. Conclusion
 
-The Stellar zkLogin Gateway achieves industry-leading performance through Protocol 25's native cryptographic primitives:
+The StellaRay achieves industry-leading performance through Protocol 25's native cryptographic primitives:
 
 1. **94% gas reduction** compared to WASM implementations
 2. **2-4 second proof generation** in browser

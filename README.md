@@ -8,8 +8,8 @@
 <h1 align="center">StellaRay</h1>
 
 <p align="center">
-Zero-knowledge authentication for Stellar.<br>
-Sign in with Google. Get a self-custodial wallet. No seed phrases. No extensions.
+ZK authentication and privacy layer for Stellar.<br>
+Sign in with Google, get a self-custodial wallet, no seed phrase, no extension.
 </p>
 
 <p align="center">
@@ -20,15 +20,11 @@ Sign in with Google. Get a self-custodial wallet. No seed phrases. No extensions
 
 <br>
 
-## The Problem
+## What StellaRay Does
 
-Blockchain wallets are the biggest barrier to adoption. Users are expected to install browser extensions, write down 24-word seed phrases, and understand cryptographic concepts before they can do anything. The result: **95% of users drop off before completing onboarding.**
+StellaRay is a zkLogin layer for Stellar. A user signs in with Google and walks away with a self-custodial Stellar wallet in under ten seconds. Three-line SDK integration for any Stellar dApp.
 
-## The Solution
-
-StellaRay lets users sign in with Google and instantly get a fully functional Stellar wallet. Under the hood, we use zero-knowledge proofs to link the Google identity to a wallet address without ever exposing that link on-chain. The wallet is deterministic (same Google account = same address, every time) and fully self-custodial.
-
-No extensions. No seed phrases. No compromise on security.
+Beyond authentication, StellaRay ships an eligibility-proof framework that lets any Soroban contract verify private user state (solvency above a threshold, KYC-lite, age above N, transaction history above some volume) without seeing the underlying data. That is the part that no passkey wallet or wallet-as-a-service product delivers, and it has no direct competitor on Stellar today.
 
 <br>
 
@@ -39,18 +35,18 @@ npm install @stellar-zklogin/sdk
 ```
 
 ```typescript
-import { createWallet } from '@stellar-zklogin/sdk';
+import { StellarZkLogin } from '@stellar-zklogin/sdk';
 
-const wallet = createWallet({
-  appName: 'My dApp',
-  oauthClients: { google: 'YOUR_CLIENT_ID' },
-});
+const zkLogin = new StellarZkLogin({ network: 'testnet' });
+const wallet = await zkLogin.login('google');
 
-const account = await wallet.connect('google');
-console.log(account.address); // GABCD...
+console.log(wallet.address); // GDKQ...
+await wallet.signTransaction(tx);
 ```
 
-That's it. Three lines and your user has a wallet.
+Three lines. No seed phrase, no extension.
+
+For React apps, the SDK also ships hooks (`useZkLogin`, `useWallet`) and drop-in components (`<LoginButton>`, `<WalletWidget>`).
 
 <br>
 
@@ -67,99 +63,107 @@ That's it. Three lines and your user has a wallet.
          |
          v
   ZK proof: "I own a valid Google JWT with this nonce"
-  (email, name, user ID stay hidden)
+  (sub, email, name stay hidden)
          |
          v
-  Smart contract verifies the proof on-chain
+  Soroban contract verifies the proof on-chain
          |
          v
-  Ephemeral key authorized to sign transactions
+  Ephemeral key registered as wallet signer
 ```
 
-The wallet address is derived from `Poseidon(sub, aud, salt)`. Same inputs always produce the same address, but the mapping is impossible to reverse without the salt. Your Google identity never touches the blockchain.
+The wallet address is derived from `Poseidon(sub, aud, salt)`. Same Google account always produces the same Stellar address. The mapping is impossible to reverse without the salt. Google identity never touches the blockchain.
 
-**Privacy by default:**
-- OAuth identity never appears on-chain
+**Privacy properties:**
+
+- OAuth identity never appears on chain
 - Same user always gets the same wallet (deterministic)
-- Different users cannot be linked (salt isolation)
-- ZK proof reveals zero information about you
+- Different dApps cannot link a user across applications (salt isolation)
+- ZK proof reveals nothing about the user beyond "valid Google JWT exists"
 
 <br>
 
 ## Built on Protocol 25
 
-Stellar's Protocol 25 introduced native cryptographic primitives that make ZK proofs practical on-chain. StellaRay is the first project to use them in production.
+Stellar's Protocol 25 added native cryptographic primitives that make ZK proofs practical on chain. StellaRay is the first project to use them in production smart contracts. Live before Protocol 25 mainnet activation on January 22, 2026.
 
-| | Before Protocol 25 | With Protocol 25 |
+| | Pre-Protocol 25 (WASM) | Protocol 25 (native) |
 |---|---|---|
-| Groth16 verification | 4,100,000 gas | 260,000 gas |
-| Poseidon hash | 500,000 gas | 50,000 gas |
-| Full login cost | ~$0.50 | **$0.03** |
+| Groth16 verification | 4,100,000 instructions | 260,000 instructions |
+| Login cost on mainnet | ~$0.50 | **$0.03** |
 
-We use `bn254_g1_add`, `bn254_g1_mul`, `bn254_multi_pairing_check` for elliptic curve operations and `poseidon_permutation` for ZK-friendly hashing. All running natively on Soroban.
+We use `bn254_g1_add`, `bn254_g1_mul`, `bn254_multi_pairing_check` for elliptic curve operations and `poseidon_permutation` for ZK-friendly hashing. All native Soroban host functions, all running at compiled-code speed.
 
 <br>
 
 ## Architecture
 
 ```
-+--------------------------------------------------+
++---------------------------------------------------+
 |                  User's Browser                   |
 |     OAuth JWT  >  ZK Proof  >  Ephemeral Keys     |
-+-------------------------+------------------------+
-                          |
-           +--------------+--------------+
-           v              v              v
-     +----------+   +----------+   +----------+
-     |  Prover  |   |   Salt   |   |  Stellar |
-     | Service  |   | Service  |   | Network  |
-     +----------+   +----------+   +----------+
-                          |
-                          v
-+--------------------------------------------------+
++--------------------------+------------------------+
+                           |
+            +--------------+--------------+
+            v              v              v
+      +-----------+   +----------+   +----------+
+      |  Prover   |   |   Salt   |   |  Stellar |
+      |  Service  |   |  Cluster |   |  Network |
+      +-----------+   +----------+   +----------+
+                           |
+                           v
++---------------------------------------------------+
 |            Soroban Smart Contracts                |
-|   ZK Verifier . JWK Registry . Gateway Factory    |
-|   Smart Wallet . x402 Facilitator                 |
-+--------------------------------------------------+
+|  ZK Verifier . JWK Registry . Gateway Factory     |
+|  Smart Wallet . x402 Facilitator . Multi-Custody  |
++---------------------------------------------------+
 ```
+
+Six Soroban contracts, all live on Stellar testnet today. The Salt Cluster moves from a single-process service to a 3-of-5 FROST threshold MPC across five cloud providers and five jurisdictions in the next development phase. See `TECHNICAL_ARCHITECTURE.md` for the full design.
 
 <br>
 
 ## What You Can Build
 
 **ZK Login**
-Sign in with Google, get a Stellar wallet. Full self-custody through zero-knowledge cryptography. Apple Sign-In coming soon.
+Google sign-in to a self-custodial Stellar wallet through zero-knowledge cryptography. Apple Sign-In via passkey-backed smart wallet ships next.
 
 **Streaming Payments**
-Set up real-time payment streams between wallets. Pay by the second. Cancel anytime. Built on Stellar's fast finality.
+Real-time payment streams between wallets. Pay by the second, cancel anytime. Linear, cliff, exponential, stepped vesting curves. Backed by Soroban escrow contracts.
 
 **Payment Links**
-Generate shareable payment URLs with embedded QR codes. Accept payments without requiring the sender to install anything.
+Shareable payment URLs with embedded QR codes. The recipient does not need a wallet beforehand.
 
-**ZK Proofs**
-Prove things about your wallet without revealing the details:
-- Proof of solvency (you have enough funds, without showing your balance)
-- Identity verification (you are who you say, without exposing personal data)
-- Eligibility proofs (you qualify, without showing why)
-- Transaction history proofs (you've transacted, without revealing with whom)
+**Eligibility Proofs**
+Prove things about a user without revealing the underlying data:
+
+- Solvency: balance is above a threshold, without revealing the actual balance
+- Identity: a verified KYC identity exists, without exposing email or phone
+- Eligibility: age above N, country in a permitted list, accredited-investor status, without revealing the values
+- History: transaction count or volume above a minimum, without revealing individual transactions
+
+**x402 Micropayments**
+HTTP 402 Payment Required, natively on Stellar. Sub-cent payments per request.
 
 **Multi-Custody Recovery**
-Split wallet access across multiple parties using Shamir secret sharing. Recover your wallet even if you lose access to one device.
+Shamir 2-of-3 social recovery. Split wallet access across three guardians; recover with any two.
 
-**React Components**
-Pre-built `<LoginButton>`, `<WalletWidget>`, hooks like `useZkLogin()` and `useWallet()`. Drop them into any React app.
+**React Integration**
+Pre-built `<LoginButton>`, `<WalletWidget>`, hooks `useZkLogin()` and `useWallet()`. Drop into any React app.
 
 <br>
 
 ## Performance
 
 | Metric | Value |
-|--------|-------|
-| Proof generation (browser) | 2-4s |
-| Transaction confirmation | ~5s |
-| First login (full flow) | 8-10s |
-| Return login | 3-5s |
-| On-chain verification | $0.03 |
+|---|---|
+| Browser proof generation | 2 to 4 s |
+| Rust proof generation | 1 to 2 s |
+| Stellar ledger close | 3 to 5 s |
+| First login (full flow) | 8 to 10 s |
+| Return login | 3 to 5 s |
+| On-chain verification | ~12 ms, ~$0.03 |
+| Proof size | 256 bytes |
 
 <br>
 
@@ -172,14 +176,15 @@ StellaRay/
 │       ├── core/         Stellar and Soroban primitives
 │       ├── oauth/        Google and Apple OAuth providers
 │       ├── react/        React hooks and components
-│       ├── x402/         HTTP payment protocol
-│       └── xray/         Protocol 25 integration
+│       ├── x402/         HTTP 402 payment client
+│       └── xray/         Protocol 25 instrumentation
 ├── contracts/            Soroban smart contracts (Rust)
 │   ├── zk-verifier/      Groth16 proof verification
-│   ├── smart-wallet/     Session-based wallet management
-│   ├── gateway-factory/  Deterministic wallet deployment
 │   ├── jwk-registry/     OAuth provider key storage
-│   └── zk-multi-custody/ Multi-party wallet recovery
+│   ├── gateway-factory/  Ephemeral signer registration
+│   ├── smart-wallet/     Session-based wallet contract
+│   ├── x402-facilitator/ HTTP 402 micropayments
+│   └── zk-multi-custody/ Shamir 2-of-3 recovery
 ├── demo/                 Next.js application (stellaray.fun)
 ├── circuits/             Circom ZK circuits
 ├── prover/               Proof generation service (Rust)
@@ -190,18 +195,20 @@ StellaRay/
 
 ## Deployed Contracts (Testnet)
 
-| Contract | Explorer |
-|----------|----------|
+| Contract | Address |
+|---|---|
 | ZK Verifier | [CDAQXH...CP6](https://stellar.expert/explorer/testnet/contract/CDAQXHNK2HZJJE6EDJAO3AWM6XQSM4C3IRB5R3AJSKFDRK4BZ77PACP6) |
 | JWK Registry | [CAMO5L...S2I](https://stellar.expert/explorer/testnet/contract/CAMO5LYOANZWUZGJYNEBOAQ6SAQKQO3WBLTDBJ6VAGYNMBOIUOVXGS2I) |
 | Gateway Factory | [CAAOQR...F76](https://stellar.expert/explorer/testnet/contract/CAAOQR7L5UVV7CZVYDS5IU72JKAUIEUBLTVLYGTBGBENULLNM3ZJIF76) |
 | x402 Facilitator | [CDJMT4...TZZ](https://stellar.expert/explorer/testnet/contract/CDJMT4P4DUZVRRLTF7Z3WCXK6YJ57PVB6K7FUCGW7ZOI5LDFAWBWTTZZ) |
+| Smart Wallet (WASM hash) | `2a7e72543da92134de77821c920b82e6c5fb7cd02b5283cfeb87deb894e14d5d` |
+| ZK Multi-Custody | live on testnet, full Shamir 2-of-3 flow at [stellaray.fun/zk-multi-custody](https://stellaray.fun/zk-multi-custody) |
 
 <br>
 
 ## Run Locally
 
-**Prerequisites:** Node.js 18+, Rust 1.75+, pnpm
+**Prerequisites:** Node.js 20+, Rust 1.75+, pnpm
 
 ```bash
 git clone https://github.com/Adwaitbytes/StellaRay.git
@@ -231,23 +238,39 @@ cd sdk && pnpm test
 
 ## Roadmap
 
-**Q1 2026** Security audit, mainnet launch, SDK v2.1
+The current roadmap aligns with the SCF #43 grant. See `docs/ROADMAP.md` for the full schedule.
 
-**Q2 2026** Apple Sign-In, mobile SDK, ecosystem integrations
+**Tranche 1 (July 2026):** Distributed salt MPC. 3-of-5 FROST threshold cluster operated by StellaRay across AWS, GCP, Azure, DigitalOcean, Hetzner in five jurisdictions. SDK v2.5 drops in transparently.
 
-**Q3 2026** Decentralized prover network
+**Tranche 2 (August 2026):** Developer ecosystem builds. Production xray Protocol 25 observability dashboard, SEP-7 transaction signing, on-chain quest framework, public Stellar contract explorer, Apple Sign-In via passkey, full documentation portal with sample dApps and migration guides.
+
+**Tranche 3 (September 2026):** Audited mainnet launch. All six contracts on Stellar mainnet, salt cluster promoted to mainnet, SDK v3.0, on-chain protocol revenue activated, 90-day stability report.
+
+<br>
+
+## Documentation
+
+- [`TECHNICAL_ARCHITECTURE.md`](TECHNICAL_ARCHITECTURE.md): full system design, salt MPC plan, security properties
+- [`WHITEPAPER.md`](WHITEPAPER.md): cryptographic construction and ZK protocol details
+- [`docs/PROTOCOL_25_INTEGRATION.md`](docs/PROTOCOL_25_INTEGRATION.md): Protocol 25 host function usage
+- [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md): performance numbers across the stack
+- [`docs/ROADMAP.md`](docs/ROADMAP.md): quarter-by-quarter schedule
+- [`docs/QUICKSTART.md`](docs/QUICKSTART.md): SDK integration walkthrough
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): deploy your own instance
+- [`docs/TECH_STACK.md`](docs/TECH_STACK.md): every library and protocol used
+- [`CONTRIBUTING.md`](CONTRIBUTING.md): how to contribute
 
 <br>
 
 ## Contributing
 
-Pull requests are welcome. Fork the repo, create a branch, and open a PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Pull requests welcome. Fork the repo, create a branch, open a PR. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for details.
 
 <br>
 
 ## Links
 
-[stellaray.fun](https://stellaray.fun) · [@stellar-zklogin/sdk](https://www.npmjs.com/package/@stellar-zklogin/sdk) · [Twitter](https://x.com/stellaraydotfun) · [GitHub](https://github.com/Adwaitbytes/StellaRay)
+[stellaray.fun](https://stellaray.fun) · [@stellar-zklogin/sdk on npm](https://www.npmjs.com/package/@stellar-zklogin/sdk) · [Twitter / X](https://x.com/stellaraydotfun) · [GitHub](https://github.com/Adwaitbytes/StellaRay)
 
 <br>
 

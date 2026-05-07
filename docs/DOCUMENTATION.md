@@ -1,4 +1,4 @@
-# Stellar zkLogin Gateway
+# StellaRay
 
 ## Complete Technical Documentation
 
@@ -21,7 +21,7 @@
 
 ## Overview
 
-**Stellar zkLogin Gateway** is a revolutionary OAuth-based wallet creation system for the Stellar blockchain using zero-knowledge proofs. It enables users to create and manage **self-custodial wallets** by simply signing in with Google or Apple—no seed phrases, no browser extensions, no complexity.
+**StellaRay** is a revolutionary OAuth-based wallet creation system for the Stellar blockchain using zero-knowledge proofs. It enables users to create and manage **self-custodial wallets** by simply signing in with Google or Apple,no seed phrases, no browser extensions, no complexity.
 
 ### Key Features
 
@@ -29,7 +29,7 @@
 |---------|-------------|
 | **2-Second Setup** | Sign in with Google, get a blockchain wallet instantly |
 | **Zero-Knowledge Privacy** | Your identity stays private through cryptographic proofs |
-| **Self-Custodial** | You control your keys—we never have access to your funds |
+| **Self-Custodial** | You control your keys,we never have access to your funds |
 | **x402 Micropayments** | HTTP 402 Payment Required protocol for web monetization |
 | **Testnet Ready** | Fully deployed on Stellar Testnet with 10,000 free XLM |
 
@@ -473,7 +473,7 @@ interface X402PaymentRequest {
 
 **Location**: `demo/`
 
-A full-featured Next.js 15 reference implementation showcasing the zkLogin Gateway.
+A full-featured Next.js 15 reference implementation showcasing the StellaRay.
 
 ### Pages
 

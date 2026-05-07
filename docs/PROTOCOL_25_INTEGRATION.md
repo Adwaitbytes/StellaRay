@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the integration of Stellar's Protocol 25 (X-Ray) into the zkLogin Gateway project. Protocol 25 introduces native cryptographic primitives for zero-knowledge proofs, enabling efficient on-chain verification of zkLogin proofs.
+This document describes the integration of Stellar's Protocol 25 (X-Ray) into the StellaRay. Protocol 25 introduces native cryptographic primitives for zero-knowledge proofs, enabling efficient on-chain verification of zkLogin proofs.
 
 ## What's New in Protocol 25
 
